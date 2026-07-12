@@ -1,0 +1,103 @@
+---
+import Icon from "@/components/Icon.astro";
+
+interface SideEvent {
+  title: string;
+  meta: string;
+  variant: "primary" | "container";
+  icon: "users" | "dumbbell";
+}
+
+interface Props {
+  featured?: {
+    date: string;
+    title: string;
+    description: string;
+    imageSrc: string;
+    imageAlt: string;
+    ctaLabel: string;
+    ctaHref: string;
+  };
+  sideEvents?: SideEvent[];
+}
+
+const {
+  featured = {
+    date: "OCT 24",
+    title: "PRO-AM INVITATIONAL",
+    description:
+      "Elite level competition meets luxury hospitality. Watch the best in the state compete for the Bold Cup.",
+    imageSrc: "/photos/facility-collage.jpg",
+    imageAlt: "BOLD championship court and facility overview",
+    ctaLabel: "SIGN UP",
+    ctaHref: "#",
+  },
+  sideEvents = [
+    { title: "SOCIAL MIXER", meta: "FRIDAYS @ 7PM", variant: "primary", icon: "users" },
+    { title: "ELITE CLINIC", meta: "WEDNESDAYS @ 10AM", variant: "container", icon: "dumbbell" },
+  ],
+} = Astro.props;
+---
+
+<section id="events" class="px-margin-mobile py-stack-lg md:px-margin-desktop">
+  <div class="mx-auto max-w-container-max">
+    <div class="mb-stack-md flex items-end justify-between">
+      <h2 class="font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">
+        Featured Events
+      </h2>
+      <a
+        href="#"
+        class="font-sans text-label-sm font-semibold uppercase text-primary-container underline underline-offset-4"
+      >
+        View All
+      </a>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+      <article class="flex flex-col overflow-hidden border border-[#E5E7EB] bg-surface-container-low">
+        <div class="relative h-64 overflow-hidden">
+          <img
+            src={featured.imageSrc}
+            alt={featured.imageAlt}
+            class="h-full w-full object-cover object-[50%_15%] grayscale transition-all duration-700 hover:grayscale-0"
+            width="1200"
+            height="800"
+            loading="lazy"
+          />
+          <span class="absolute top-4 left-4 bg-primary px-3 py-1 font-sans text-label-sm font-semibold uppercase text-on-primary">
+            {featured.date}
+          </span>
+        </div>
+        <div class="p-6 md:p-10">
+          <h3 class="mb-2 font-display text-headline-sm uppercase text-primary">{featured.title}</h3>
+          <p class="mb-4 font-sans text-body-md font-light text-on-surface-variant">{featured.description}</p>
+          <a
+            href={featured.ctaHref}
+            class="inline-flex border border-primary px-6 py-2 font-sans text-label-md font-medium uppercase tracking-wider text-primary transition-all hover:bg-primary hover:text-on-primary"
+          >
+            {featured.ctaLabel}
+          </a>
+        </div>
+      </article>
+
+      <div class="grid grid-cols-1 content-start gap-6">
+        {sideEvents.map(({ title, meta, variant, icon }) => (
+          <article class="flex items-center gap-4 border border-[#E5E7EB] bg-surface-container-lowest p-6">
+            <div
+              class:list={[
+                "flex size-20 shrink-0 items-center justify-center",
+                variant === "primary" ? "bg-primary" : "bg-primary-container",
+              ]}
+            >
+              <Icon name={icon} class="size-10 text-on-primary" />
+            </div>
+            <div>
+              <h3 class="font-display text-headline-sm uppercase text-primary">{title}</h3>
+              <p class="font-sans text-label-sm font-semibold uppercase text-on-surface-variant">{meta}</p>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,54 @@
+---
+interface Props {
+  brandLabel?: string;
+  headline?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+}
+
+const {
+  brandLabel = "BOLD PICKLEBALL",
+  headline = "PLAY HARD.\nSTAY HUMBLE.",
+  ctaLabel = "BOOK A COURT",
+  ctaHref = "/booking",
+  imageSrc = "/photos/facility-interior.jpg",
+  imageAlt = "BOLD Pickleball luxury indoor facility with lounge, courts, and pro shop",
+} = Astro.props;
+
+const headlineLines = headline.split("\n");
+---
+
+<section class="relative h-[90vh] w-full overflow-hidden bg-primary" aria-label="Hero">
+  <img
+    src={imageSrc}
+    alt={imageAlt}
+    class="absolute inset-0 h-full w-full object-cover opacity-60"
+    width="2000"
+    height="1333"
+    fetchpriority="high"
+  />
+  <div
+    class="absolute inset-0 flex flex-col items-center justify-end px-margin-mobile pb-stack-lg text-center"
+    style="background: linear-gradient(0deg, rgba(0,21,13,0.8) 0%, rgba(0,21,13,0) 50%)"
+  >
+    <p class="mb-2 font-display text-headline-lg-mobile tracking-[0.2em] text-on-primary md:text-headline-lg">
+      {brandLabel}
+    </p>
+    <h1 class="mb-stack-md font-display text-display-md uppercase leading-tight text-on-primary md:text-display-lg">
+      {headlineLines.map((line, i) => (
+        <>
+          {i > 0 && <br />}
+          {line}
+        </>
+      ))}
+    </h1>
+    <a
+      href={ctaHref}
+      class="w-full max-w-md bg-primary-container px-margin-mobile py-6 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-all active:scale-95 hover:opacity-90"
+    >
+      {ctaLabel}
+    </a>
+  </div>
+</section>

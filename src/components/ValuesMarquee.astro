@@ -1,0 +1,26 @@
+---
+import Icon from "@/components/Icon.astro";
+
+const items = [
+  { label: "PLAY", icon: "activity" as const },
+  { label: "TRAIN", icon: "dumbbell" as const },
+  { label: "RECOVER", icon: "heart" as const },
+  { label: "CONNECT", icon: "users" as const },
+  { label: "BELONG", icon: "award" as const },
+];
+---
+
+<section class="overflow-hidden whitespace-nowrap border-y border-on-primary-fixed-variant/10 bg-primary py-6" aria-label="Brand values">
+  <div class="flex w-max animate-bold-scroll">
+    {[0, 1].map((copy) => (
+      <div class="flex items-center gap-stack-lg px-margin-desktop" aria-hidden={copy === 1 ? "true" : undefined}>
+        {items.map(({ label, icon }) => (
+          <>
+            <span class="font-display text-display-md text-on-primary opacity-20">{label}</span>
+            <Icon name={icon} class="size-8 text-on-primary-container" />
+          </>
+        ))}
+      </div>
+    ))}
+  </div>
+</section>

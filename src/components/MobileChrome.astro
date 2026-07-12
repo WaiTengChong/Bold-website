@@ -1,0 +1,39 @@
+---
+import Icon from "@/components/Icon.astro";
+
+const tabs = [
+  { href: "/", label: "HOME", icon: "home" as const, active: true },
+  { href: "#", label: "COURTS", icon: "activity" as const, active: false },
+  { href: "#events", label: "EVENTS", icon: "calendar" as const, active: false },
+  { href: "#membership", label: "CLUB", icon: "user" as const, active: false },
+];
+---
+
+<nav
+  class="fixed right-0 bottom-0 left-0 z-[60] flex justify-around border-t border-outline-variant/30 bg-surface px-2 py-3 md:hidden"
+  aria-label="Mobile primary"
+>
+  {tabs.map(({ href, label, icon, active }) => (
+    <a
+      href={href}
+      class:list={[
+        "flex flex-col items-center gap-1 transition-colors",
+        active ? "text-primary" : "text-on-surface-variant hover:text-primary",
+      ]}
+      aria-current={active ? "page" : undefined}
+    >
+      <Icon name={icon} class="size-6" />
+      <span class:list={["text-[10px] uppercase tracking-tighter", active ? "font-bold" : "font-medium"]}>
+        {label}
+      </span>
+    </a>
+  ))}
+</nav>
+
+<a
+  href="/booking"
+  class="fixed right-6 bottom-24 z-50 flex size-16 items-center justify-center rounded-full bg-primary-container text-on-primary shadow-2xl transition-all active:scale-95 md:hidden"
+  aria-label="Quick book a court"
+>
+  <Icon name="plus" class="size-8" />
+</a>

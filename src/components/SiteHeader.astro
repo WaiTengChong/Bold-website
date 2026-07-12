@@ -1,0 +1,68 @@
+---
+import MobileMenu from "@/components/react-islands/MobileMenu";
+import { desktopNavLinks, isNavActive } from "@/lib/nav";
+
+const pathname = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 w-full border-b border-outline-variant/30 bg-surface/90 backdrop-blur-xl">
+  <div
+    class="mx-auto flex w-full max-w-container-max items-center justify-between px-6 py-4 md:grid md:grid-cols-3 md:px-margin-desktop"
+  >
+    <div class="flex items-center gap-4">
+      <div class="relative z-50 md:hidden">
+        <MobileMenu client:load />
+      </div>
+      <a
+        href="/"
+        class="relative z-50 font-display text-headline-lg-mobile uppercase tracking-wider text-primary md:text-headline-lg"
+        aria-label="BOLD Pickleball home"
+      >
+        BOLD
+      </a>
+    </div>
+
+    <nav class="hidden items-center justify-center gap-8 md:flex" aria-label="Site">
+      {
+        desktopNavLinks.map((link) => {
+          const active = isNavActive(pathname, link.href);
+          return (
+            <a
+              href={link.href}
+              class:list={[
+                "py-1 font-sans text-label-md uppercase tracking-widest transition-colors",
+                active
+                  ? "border-b-2 border-primary font-semibold text-primary"
+                  : "text-on-surface-variant hover:text-primary",
+              ]}
+              aria-current={active ? "page" : undefined}
+            >
+              {link.label}
+            </a>
+          );
+        })
+      }
+    </nav>
+
+    <div class="relative z-50 flex items-center justify-end gap-6">
+      <a
+        href="/booking"
+        class="bg-primary-container px-4 py-2 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary-container transition-all active:scale-95 md:hidden"
+      >
+        Quick Book
+      </a>
+      <a
+        href="#"
+        class="hidden font-sans text-label-md font-medium uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary md:inline"
+      >
+        Login
+      </a>
+      <a
+        href="/membership"
+        class="hidden bg-primary px-6 py-2 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary transition-all hover:opacity-90 active:scale-95 md:inline"
+      >
+        Join Now
+      </a>
+    </div>
+  </div>
+</header>

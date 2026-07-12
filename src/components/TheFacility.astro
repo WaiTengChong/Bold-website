@@ -1,0 +1,218 @@
+---
+/**
+ * The Facility page — venue showcase.
+ * Source: UI/The Facility/DESIGN.md + code.html
+ */
+import { PHOTOS } from "@/lib/photos";
+import SiteHeader from "@/components/SiteHeader.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import MobileChrome from "@/components/MobileChrome.astro";
+---
+
+<>
+  <SiteHeader />
+  <main>
+    <!-- Hero -->
+    <section class="relative flex h-[90vh] items-end overflow-hidden" aria-label="The Facility">
+      <img
+        src={PHOTOS.facilityInterior}
+        alt="BOLD Pickleball luxury indoor facility with lounge, courts, and pro shop"
+        class="absolute inset-0 h-full w-full scale-105 object-cover"
+        width="2000"
+        height="1333"
+        fetchpriority="high"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
+      <div class="relative z-10 mx-auto w-full max-w-container-max px-margin-mobile pb-stack-xl md:px-margin-desktop">
+        <div class="max-w-4xl">
+          <span class="mb-6 inline-block bg-primary-container px-4 py-1 font-sans text-label-sm font-semibold uppercase tracking-[0.2em] text-on-primary-container">
+            The Premier Destination
+          </span>
+          <h1 class="mb-8 font-display text-display-md leading-none text-on-primary md:text-display-lg">
+            ENGINEERED FOR <br /><span class="text-primary-fixed">PERFECTION</span>
+          </h1>
+          <p class="max-w-2xl font-sans text-body-lg font-light text-on-primary/80">
+            A high-performance sanctuary bridging elite athletic competition and luxury lifestyle.
+            Experience 18,000 square feet of meticulously designed space crafted for the discerning athlete.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Blueprint bento grid -->
+    <section class="mx-auto max-w-container-max px-margin-mobile py-stack-xl md:px-margin-desktop">
+      <div class="mb-stack-lg border-l-4 border-primary pl-8">
+        <h2 class="font-display text-display-md uppercase text-primary">THE BLUEPRINT</h2>
+        <p class="max-w-xl text-on-surface-variant">
+          Every square inch of BOLD is designed with professional-grade specifications to ensure optimal play and recovery.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 gap-gutter md:grid-cols-12">
+        <article class="group relative overflow-hidden border border-outline-variant bg-white p-10 md:col-span-8">
+          <div class="relative z-10 flex h-full flex-col justify-between">
+            <div>
+              <span class="mb-4 block text-xs font-bold uppercase tracking-[0.2em] text-primary">Championship Arena</span>
+              <h3 class="mb-6 font-display text-headline-lg uppercase text-primary">Courts 1–8: Pro-Spec</h3>
+              <dl class="mb-10 grid grid-cols-2 gap-8">
+                <div>
+                  <dt class="mb-2 text-xs font-bold uppercase text-on-surface-variant">Surface Type</dt>
+                  <dd class="font-sans text-body-lg font-light">Cushioned Acrylic Multi-Layer</dd>
+                </div>
+                <div>
+                  <dt class="mb-2 text-xs font-bold uppercase text-on-surface-variant">Lighting</dt>
+                  <dd class="font-sans text-body-lg font-light">750 Lux Glare-Reduction LED</dd>
+                </div>
+                <div>
+                  <dt class="mb-2 text-xs font-bold uppercase text-on-surface-variant">Spacing</dt>
+                  <dd class="font-sans text-body-lg font-light">Professional 10ft Sideline Buffer</dd>
+                </div>
+                <div>
+                  <dt class="mb-2 text-xs font-bold uppercase text-on-surface-variant">Capacity</dt>
+                  <dd class="font-sans text-body-lg font-light">Up to 32 Active Players</dd>
+                </div>
+              </dl>
+            </div>
+            <a href="#" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary transition-all group-hover:gap-4">
+              View Court Schematics →
+            </a>
+          </div>
+        </article>
+
+        <article class="flex flex-col justify-between bg-primary p-10 text-on-primary md:col-span-4">
+          <div>
+            <span class="mb-4 block text-xs font-bold uppercase tracking-[0.2em] text-primary-fixed">Social Axis</span>
+            <h3 class="mb-6 font-display text-headline-lg uppercase">The Lounge</h3>
+            <p class="mb-8 text-on-primary/70">
+              A curated space for connection. Featuring bespoke seating, a full-service juice bar, and high-speed enterprise Wi-Fi.
+            </p>
+            <ul class="space-y-4 text-sm font-medium uppercase tracking-wider">
+              <li class="flex items-center gap-3"><span class="size-1 bg-primary-fixed"></span> Recovery Fuel Station</li>
+              <li class="flex items-center gap-3"><span class="size-1 bg-primary-fixed"></span> Multi-Screen Sports View</li>
+              <li class="flex items-center gap-3"><span class="size-1 bg-primary-fixed"></span> Temperature Controlled</li>
+            </ul>
+          </div>
+          <div class="mt-10">
+            <img
+              src={PHOTOS.facilityCollage}
+              alt="BOLD reception lounge with branded seating"
+              class="aspect-square w-full object-cover brightness-75 grayscale transition-all duration-500 hover:grayscale-0"
+              style="object-position: 0% 0%"
+              width="600"
+              height="600"
+              loading="lazy"
+            />
+          </div>
+        </article>
+
+        <article class="border border-outline-variant bg-surface-container-low p-10 md:col-span-4">
+          <h3 class="mb-4 font-display text-headline-sm uppercase text-primary">Locker Rooms</h3>
+          <p class="mb-8 text-sm text-on-surface-variant">
+            Premium amenities including eucalyptus-infused towels, rainfall showers, and secure digital lockers.
+          </p>
+          <img
+            src={PHOTOS.facilityCollage}
+            alt="BOLD premium locker room with wood bench"
+            class="mb-8 aspect-[4/3] w-full object-cover"
+            style="object-position: 100% 35%"
+            width="600"
+            height="450"
+            loading="lazy"
+          />
+          <dl class="space-y-2">
+            <div class="flex justify-between border-b border-outline-variant/30 py-2">
+              <dt class="text-xs font-bold uppercase">Showers</dt>
+              <dd class="text-xs">Private Cubicles</dd>
+            </div>
+            <div class="flex justify-between border-b border-outline-variant/30 py-2">
+              <dt class="text-xs font-bold uppercase">Security</dt>
+              <dd class="text-xs">RFID Access</dd>
+            </div>
+            <div class="flex justify-between border-b border-outline-variant/30 py-2">
+              <dt class="text-xs font-bold uppercase">Grooming</dt>
+              <dd class="text-xs">Oribe Signature Products</dd>
+            </div>
+          </dl>
+        </article>
+
+        <article class="group relative overflow-hidden md:col-span-8">
+          <img
+            src={PHOTOS.facilityInterior}
+            alt="BOLD facility interior with courts, lounge, and industrial-chic architecture"
+            class="h-full min-h-[320px] w-full object-cover transition-transform duration-700 group-hover:scale-110"
+            width="1200"
+            height="800"
+            loading="lazy"
+          />
+          <div class="absolute inset-0 flex items-center justify-center bg-primary/20 opacity-0 transition-opacity group-hover:opacity-100">
+            <span class="bg-white px-8 py-3 text-sm font-bold uppercase tracking-widest text-primary">Expand Gallery</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Location -->
+    <section class="bg-primary py-stack-xl">
+      <div class="mx-auto grid max-w-container-max grid-cols-1 items-center gap-gutter px-margin-mobile md:grid-cols-12 md:px-margin-desktop">
+        <div class="text-on-primary md:col-span-5">
+          <span class="mb-4 block text-xs font-bold uppercase tracking-[0.2em] text-primary-fixed">Central Hub</span>
+          <h2 class="mb-8 font-display text-display-md uppercase">
+            Locate the <br />Inner Circle
+          </h2>
+          <div class="space-y-8">
+            <div>
+              <h3 class="mb-2 text-sm font-bold uppercase text-primary-fixed">Address</h3>
+              <p class="font-sans text-body-lg font-light">
+                888 Athletic Way, Design District<br />Austin, TX 78701
+              </p>
+            </div>
+            <div>
+              <h3 class="mb-2 text-sm font-bold uppercase text-primary-fixed">Access</h3>
+              <p class="font-sans text-body-lg font-light">
+                Member Key-Card Required 24/7<br />Visitor Hours: 8AM – 8PM Daily
+              </p>
+            </div>
+            <a
+              href="#"
+              class="inline-flex border border-primary-fixed px-10 py-4 text-sm font-bold uppercase tracking-widest text-primary-fixed transition-all hover:bg-primary-fixed hover:text-primary"
+            >
+              Get Directions
+            </a>
+          </div>
+        </div>
+        <div class="relative h-[500px] border border-on-primary/10 bg-tertiary md:col-span-7">
+          <img
+            src={PHOTOS.facilityCollage}
+            alt="BOLD facility location and campus overview"
+            class="h-full w-full object-cover opacity-60 grayscale contrast-150 brightness-50"
+            style="object-position: 50% 100%"
+            width="1200"
+            height="800"
+            loading="lazy"
+          />
+          <div class="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div class="size-12 animate-ping rounded-full bg-primary-fixed opacity-40"></div>
+            <div class="absolute size-4 rounded-full bg-primary-fixed shadow-[0_0_20px_rgba(173,206,189,0.8)]"></div>
+          </div>
+          <div class="absolute right-6 bottom-6 border border-on-primary/20 bg-primary/90 p-4 backdrop-blur-md">
+            <p class="mb-1 text-[10px] uppercase tracking-[0.3em] text-primary-fixed">Live Coordinates</p>
+            <p class="font-mono text-xs text-on-primary">30.2672° N, 97.7431° W</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="relative overflow-hidden py-stack-xl">
+      <div class="relative z-10 mx-auto max-w-2xl px-margin-mobile text-center">
+        <h2 class="mb-8 font-display text-display-md uppercase text-primary">The Court Is Calling</h2>
+        <div class="flex flex-col justify-center gap-4 md:flex-row">
+          <a href="#" class="bg-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-on-primary hover:opacity-90">Reserve a Court</a>
+          <a href="#" class="border border-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary">Request Tour</a>
+        </div>
+      </div>
+    </section>
+  </main>
+  <SiteFooter />
+  <MobileChrome />
+</>

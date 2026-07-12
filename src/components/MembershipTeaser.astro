@@ -1,0 +1,51 @@
+---
+interface Props {
+  eyebrow?: string;
+  title?: string;
+  perks?: string[];
+  ctaLabel?: string;
+  ctaHref?: string;
+}
+
+const {
+  eyebrow = "EXCLUSIVITY REIMAGINED",
+  title = "THE BOLD\nMEMBERSHIP",
+  perks = [
+    "UNLIMITED COURT ACCESS",
+    "24/7 ADVANCED RECOVERY SUITE",
+    "CONCIERGE EQUIPMENT SERVICE",
+    "PRIVATE COACHING PREFERENCE",
+  ],
+  ctaLabel = "INQUIRE NOW",
+  ctaHref = "#",
+} = Astro.props;
+
+const titleLines = title.split("\n");
+---
+
+<section id="membership" class="relative overflow-hidden bg-primary-container py-stack-xl">
+  <div class="relative z-10 px-margin-mobile text-center md:px-margin-desktop">
+    <span class="mb-4 block font-sans text-label-sm font-semibold uppercase tracking-[0.4em] text-on-primary-container">
+      {eyebrow}
+    </span>
+    <h2 class="mb-stack-md font-display text-display-md uppercase text-on-primary md:text-display-lg">
+      {titleLines.map((line, i) => (
+        <>
+          {i > 0 && <br />}
+          {line}
+        </>
+      ))}
+    </h2>
+    <ul class="mb-stack-lg space-y-4 font-sans text-body-lg font-light text-on-primary/80">
+      {perks.map((perk) => (
+        <li>{perk}</li>
+      ))}
+    </ul>
+    <a
+      href={ctaHref}
+      class="inline-flex bg-on-primary px-12 py-5 font-display text-headline-sm uppercase tracking-widest text-primary transition-all hover:opacity-90 active:scale-95"
+    >
+      {ctaLabel}
+    </a>
+  </div>
+</section>

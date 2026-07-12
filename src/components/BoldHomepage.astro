@@ -1,0 +1,38 @@
+---
+import { PHOTOS, HOMEPAGE_GALLERY } from "@/lib/photos";
+import SiteHeader from "@/components/SiteHeader.astro";
+import Hero from "@/components/Hero.astro";
+import ValuesMarquee from "@/components/ValuesMarquee.astro";
+import FeaturedEvents from "@/components/FeaturedEvents.astro";
+import MembershipTeaser from "@/components/MembershipTeaser.astro";
+import BoldLife from "@/components/BoldLife.astro";
+import SiteFooter from "@/components/SiteFooter.astro";
+import MobileChrome from "@/components/MobileChrome.astro";
+---
+
+<>
+  <SiteHeader />
+  <main>
+    <Hero
+      imageSrc={PHOTOS.facilityInterior}
+      imageAlt="BOLD Pickleball luxury indoor facility with lounge, courts, and pro shop"
+    />
+    <ValuesMarquee />
+    <FeaturedEvents
+      featured={{
+        date: "OCT 24",
+        title: "PRO-AM INVITATIONAL",
+        description:
+          "Elite level competition meets luxury hospitality. Watch the best in the state compete for the Bold Cup.",
+        imageSrc: PHOTOS.facilityCollage,
+        imageAlt: "BOLD championship court and facility overview",
+        ctaLabel: "SIGN UP",
+        ctaHref: "#",
+      }}
+    />
+    <MembershipTeaser />
+    <BoldLife images={HOMEPAGE_GALLERY} />
+  </main>
+  <SiteFooter />
+  <MobileChrome />
+</>
