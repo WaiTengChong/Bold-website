@@ -1,27 +1,11 @@
 ---
-import "../styles/global.css";
+import BaseLayout from "@/layouts/BaseLayout.astro";
 import BoldHomepage from "@/components/BoldHomepage.astro";
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="BOLD Pickleball — Play Hard. Stay Humble. Premier luxury pickleball club."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>BOLD PICKLEBALL | Play Hard. Stay Humble.</title>
-  </head>
-  <body class="overflow-x-hidden bg-surface text-on-surface pb-20 md:pb-0">
-    <BoldHomepage />
-  </body>
-</html>
+<BaseLayout
+  title="BOLD PICKLEBALL | Play Hard. Stay Humble."
+  description="BOLD Pickleball — Play Hard. Stay Humble. Premier luxury pickleball club."
+>
+  <BoldHomepage />
+</BaseLayout>

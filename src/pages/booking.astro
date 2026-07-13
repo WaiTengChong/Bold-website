@@ -1,56 +1,10 @@
 ---
-import "../styles/global.css";
-import SiteHeader from "@/components/SiteHeader.astro";
-import SiteFooter from "@/components/SiteFooter.astro";
-import MobileChrome from "@/components/MobileChrome.astro";
+import ComingSoonLayout from "@/layouts/ComingSoonLayout.astro";
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="BOLD Pickleball — Reserve a court. Court booking portal coming soon."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <title>BOLD PICKLEBALL | Court Booking</title>
-  </head>
-  <body class="overflow-x-hidden bg-surface text-on-surface pb-20 md:pb-0">
-    <SiteHeader />
-    <main class="mx-auto flex min-h-[70vh] max-w-container-max flex-col items-center justify-center px-margin-mobile py-stack-xl text-center md:px-margin-desktop">
-      <span class="mb-4 font-sans text-label-sm font-semibold uppercase tracking-[0.4em] text-on-surface-variant">
-        Coming Soon
-      </span>
-      <h1 class="mb-stack-md font-display text-display-md uppercase text-primary md:text-display-lg">
-        Court Booking
-      </h1>
-      <p class="mb-stack-lg max-w-xl font-sans text-body-lg font-light text-on-surface-variant">
-        The BOLD court reservation portal is under construction. Check back soon to book premier court times.
-      </p>
-      <div class="flex flex-col gap-4 sm:flex-row">
-        <a
-          href="/"
-          class="bg-primary px-10 py-4 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary transition-all hover:opacity-90"
-        >
-          Back to Home
-        </a>
-        <a
-          href="/facility"
-          class="border border-primary px-10 py-4 font-sans text-label-md font-medium uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary"
-        >
-          View The Facility
-        </a>
-      </div>
-    </main>
-    <SiteFooter />
-    <MobileChrome />
-  </body>
-</html>
+<ComingSoonLayout
+  title="BOLD PICKLEBALL | Court Booking"
+  description="BOLD Pickleball — Reserve a court. Court booking portal coming soon."
+  heading="Court Booking"
+  message="The BOLD court reservation portal is under construction. Check back soon to book premier court times."
+/>
