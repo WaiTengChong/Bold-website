@@ -6,6 +6,8 @@ import { fileURLToPath } from 'node:url';
 
 // https://astro.build/config
 export default defineConfig({
+  site: 'https://waitengchong.github.io',
+  base: '/Bold-website',
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],
