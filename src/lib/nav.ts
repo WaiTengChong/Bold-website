@@ -1,10 +1,12 @@
+import { withBase } from "@/lib/utils";
+
 export const desktopNavLinks = [
-  { href: "/booking", label: "Booking" },
-  { href: "/mission", label: "Mission" },
-  { href: "/staff", label: "Staff" },
-  { href: "/membership", label: "Membership" },
+  { href: withBase("/booking"), label: "Booking" },
+  { href: withBase("/mission"), label: "Mission" },
+  { href: withBase("/staff"), label: "Staff" },
+  { href: withBase("/membership"), label: "Membership" },
 ] as const;
 
 export function isNavActive(pathname: string, href: string): boolean {
-  return pathname === href || pathname.replace(/\/$/, "") === href;
+  return pathname === href || pathname.replace(/\/$/, "") === href.replace(/\/$/, "");
 }

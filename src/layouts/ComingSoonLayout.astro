@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import { withBase } from "@/lib/utils";
 
 interface Props {
   title: string;
@@ -26,13 +27,13 @@ const { title, description, heading, message } = Astro.props;
     </p>
     <div class="flex flex-col gap-4 sm:flex-row">
       <a
-        href="/"
+        href={withBase("/")}
         class="bg-primary px-10 py-4 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary transition-all hover:opacity-90"
       >
         Back to Home
       </a>
       <a
-        href="/facility"
+        href={withBase("/facility")}
         class="border border-primary px-10 py-4 font-sans text-label-md font-medium uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary"
       >
         View The Facility

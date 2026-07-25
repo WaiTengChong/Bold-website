@@ -1,13 +1,14 @@
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
+import { withBase } from "@/lib/utils";
 
 const links = [
-  { href: "/", label: "The Club" },
-  { href: "/facility", label: "The Facility" },
-  { href: "/#events", label: "Events" },
-  { href: "/#membership", label: "Membership" },
-  { href: "/#life", label: "Bold Life" },
+  { href: withBase("/"), label: "The Club" },
+  { href: withBase("/facility"), label: "The Facility" },
+  { href: withBase("/#events"), label: "Events" },
+  { href: withBase("/#membership"), label: "Membership" },
+  { href: withBase("/#life"), label: "Bold Life" },
   { href: "#", label: "Shop" },
 ];
 

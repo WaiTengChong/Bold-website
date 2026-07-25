@@ -1,4 +1,6 @@
 ---
+import { withBase } from "@/lib/utils";
+
 interface Props {
   brandLabel?: string;
   headline?: string;
@@ -12,8 +14,8 @@ const {
   brandLabel = "BOLD PICKLEBALL",
   headline = "PLAY HARD.\nSTAY HUMBLE.",
   ctaLabel = "BOOK A COURT",
-  ctaHref = "/booking",
-  imageSrc = "/photos/facility-interior.jpg",
+  ctaHref = withBase("/booking"),
+  imageSrc = withBase("/photos/facility-interior.jpg"),
   imageAlt = "BOLD Pickleball luxury indoor facility with lounge, courts, and pro shop",
 } = Astro.props;
 
