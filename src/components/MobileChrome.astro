@@ -1,8 +1,9 @@
 ---
 import Icon from "@/components/Icon.astro";
+import { withBase } from "@/lib/utils";
 
 const tabs = [
-  { href: "/", label: "HOME", icon: "home" as const, active: true },
+  { href: withBase("/"), label: "HOME", icon: "home" as const, active: true },
   { href: "#", label: "COURTS", icon: "activity" as const, active: false },
   { href: "#events", label: "EVENTS", icon: "calendar" as const, active: false },
   { href: "#membership", label: "CLUB", icon: "user" as const, active: false },
@@ -31,7 +32,7 @@ const tabs = [
 </nav>
 
 <a
-  href="/booking"
+  href={withBase("/booking")}
   class="fixed right-6 bottom-24 z-50 flex size-16 items-center justify-center rounded-full bg-primary-container text-on-primary shadow-2xl transition-all active:scale-95 md:hidden"
   aria-label="Quick book a court"
 >

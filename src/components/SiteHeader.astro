@@ -1,6 +1,7 @@
 ---
 import MobileMenu from "@/components/react-islands/MobileMenu";
 import { desktopNavLinks, isNavActive } from "@/lib/nav";
+import { withBase } from "@/lib/utils";
 
 const pathname = Astro.url.pathname;
 ---
@@ -14,7 +15,7 @@ const pathname = Astro.url.pathname;
         <MobileMenu client:load />
       </div>
       <a
-        href="/"
+        href={withBase("/")}
         class="relative z-50 font-display text-headline-lg-mobile uppercase tracking-wider text-primary md:text-headline-lg"
         aria-label="BOLD Pickleball home"
       >
@@ -46,7 +47,7 @@ const pathname = Astro.url.pathname;
 
     <div class="relative z-50 flex items-center justify-end gap-6">
       <a
-        href="/booking"
+        href={withBase("/booking")}
         class="bg-primary-container px-4 py-2 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary-container transition-all active:scale-95 md:hidden"
       >
         Quick Book
@@ -58,7 +59,7 @@ const pathname = Astro.url.pathname;
         Login
       </a>
       <a
-        href="/membership"
+        href={withBase("/membership")}
         class="hidden bg-primary px-6 py-2 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary transition-all hover:opacity-90 active:scale-95 md:inline"
       >
         Join Now
