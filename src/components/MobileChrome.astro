@@ -2,38 +2,52 @@
 import Icon from "@/components/Icon.astro";
 import { withBase } from "@/lib/utils";
 
-const tabs = [
-  { href: withBase("/"), label: "HOME", icon: "home" as const, active: true },
-  { href: "#", label: "COURTS", icon: "activity" as const, active: false },
-  { href: "#events", label: "EVENTS", icon: "calendar" as const, active: false },
-  { href: "#membership", label: "CLUB", icon: "user" as const, active: false },
-];
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const tabDefs = [
+  { id: "home", href: withBase("/"), label: "HOME", icon: "home" as const },
+  { id: "courts", href: withBase("/facility"), label: "COURTS", icon: "activity" as const },
+  { id: "events", href: withBase("/#events"), label: "EVENTS", icon: "calendar" as const },
+  { id: "club", href: withBase("/#membership"), label: "CLUB", icon: "user" as const },
+] as const;
+
+function isTabActive(id: (typeof tabDefs)[number]["id"]): boolean {
+  const homePath = withBase("/").replace(/\/$/, "") || "/";
+  const facilityPath = withBase("/facility").replace(/\/$/, "");
+
+  if (id === "home") return pathname === homePath;
+  if (id === "courts") return pathname === facilityPath;
+  return false;
+}
 ---
 
 <nav
-  class="fixed right-0 bottom-0 left-0 z-[60] flex max-w-full justify-around border-t border-outline-variant/30 bg-surface px-1 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:hidden"
+  class="pointer-events-auto fixed right-0 bottom-0 left-0 z-[100] flex max-w-full justify-around border-t border-outline-variant/30 bg-surface px-1 pt-2 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:hidden"
   aria-label="Mobile primary"
 >
-  {tabs.map(({ href, label, icon, active }) => (
-    <a
-      href={href}
-      class:list={[
-        "flex min-w-0 flex-1 flex-col items-center gap-0.5 px-0.5 transition-colors",
-        active ? "text-primary" : "text-on-surface-variant hover:text-primary",
-      ]}
-      aria-current={active ? "page" : undefined}
-    >
-      <Icon name={icon} class="size-6" />
-      <span class:list={["text-[10px] uppercase tracking-tighter", active ? "font-bold" : "font-medium"]}>
-        {label}
-      </span>
-    </a>
-  ))}
+  {tabDefs.map(({ id, href, label, icon }) => {
+    const active = isTabActive(id);
+    return (
+      <a
+        href={href}
+        class:list={[
+          "flex min-h-11 min-w-0 flex-1 touch-manipulation flex-col items-center justify-center gap-0.5 px-0.5 transition-colors",
+          active ? "text-primary" : "text-on-surface-variant hover:text-primary",
+        ]}
+        aria-current={active ? "page" : undefined}
+      >
+        <Icon name={icon} class="size-6 shrink-0" />
+        <span class:list={["text-[10px] uppercase tracking-tighter", active ? "font-bold" : "font-medium"]}>
+          {label}
+        </span>
+      </a>
+    );
+  })}
 </nav>
 
 <a
   href={withBase("/booking")}
-  class="fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] z-50 flex size-14 items-center justify-center rounded-full bg-primary-container text-on-primary shadow-2xl transition-all active:scale-95 sm:right-6 sm:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] sm:size-16 md:hidden"
+  class="pointer-events-auto fixed right-3 bottom-[calc(6.75rem+env(safe-area-inset-bottom,0px))] z-[90] flex size-14 touch-manipulation items-center justify-center rounded-full bg-primary-container text-on-primary shadow-2xl transition-all active:scale-95 sm:right-5 sm:bottom-[calc(7rem+env(safe-area-inset-bottom,0px))] md:hidden"
   aria-label="Quick book a court"
 >
   <Icon name="plus" class="size-8" />

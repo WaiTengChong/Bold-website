@@ -19,6 +19,9 @@ export default function MobileMenu() {
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
 
   useEffect(() => {
@@ -27,12 +30,10 @@ export default function MobileMenu() {
       if (e.key === "Escape") setOpen(false);
     };
     document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
+    return () => document.removeEventListener("keydown", onKey);
   }, [open]);
+
+  const close = () => setOpen(false);
 
   return (
     <>
@@ -55,15 +56,18 @@ export default function MobileMenu() {
             role="dialog"
             aria-modal="true"
             aria-label="Site navigation"
-            className="fixed inset-0 z-40 bg-surface/95 backdrop-blur-xl md:hidden"
+            className="fixed inset-x-0 top-0 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-40 bg-surface/95 backdrop-blur-xl md:hidden"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) close();
+            }}
           >
-            <nav className="flex h-full flex-col justify-center gap-8 px-margin-mobile pt-20 pb-32">
+            <nav className="flex h-full flex-col justify-center gap-8 px-margin-mobile pt-20 pb-8">
               {links.map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   className="font-display text-display-md uppercase text-primary transition-opacity hover:opacity-70"
-                  onClick={() => setOpen(false)}
+                  onClick={close}
                 >
                   {link.label}
                 </a>
