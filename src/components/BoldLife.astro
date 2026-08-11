@@ -16,11 +16,11 @@ const {
 ---
 
 <section id="life" class="py-stack-lg">
-  <div class="mb-stack-md flex items-center justify-between px-margin-mobile md:px-margin-desktop">
+  <div class="mb-stack-md flex flex-col gap-2 px-margin-mobile sm:flex-row sm:items-center sm:justify-between md:px-margin-desktop">
     <h2 class="font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">{title}</h2>
-    <span class="font-sans text-label-sm font-semibold uppercase text-on-surface-variant">{handle}</span>
+    <span class="truncate font-sans text-[10px] font-semibold uppercase text-on-surface-variant sm:text-label-sm">{handle}</span>
   </div>
-  <div class="grid grid-cols-3 gap-1 px-1">
+  <div class="grid grid-cols-3 gap-0.5 px-0.5 sm:gap-1 sm:px-1">
     {images.map((image) => (
       <div class="aspect-square overflow-hidden bg-surface-container-high">
         <img

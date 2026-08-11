@@ -16,7 +16,7 @@ const items = [
       <div class="flex items-center gap-stack-lg px-margin-desktop" aria-hidden={copy === 1 ? "true" : undefined}>
         {items.map(({ label, icon }) => (
           <>
-            <span class="font-display text-display-md text-on-primary opacity-20">{label}</span>
+            <span class="font-display text-headline-lg-mobile text-on-primary opacity-20 md:text-display-md">{label}</span>
             <Icon name={icon} class="size-8 text-on-primary-container" />
           </>
         ))}
