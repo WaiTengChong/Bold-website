@@ -11,14 +11,14 @@ const tabs = [
 ---
 
 <nav
-  class="fixed right-0 bottom-0 left-0 z-[60] flex justify-around border-t border-outline-variant/30 bg-surface px-2 py-3 md:hidden"
+  class="fixed right-0 bottom-0 left-0 z-[60] flex max-w-full justify-around border-t border-outline-variant/30 bg-surface px-1 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:hidden"
   aria-label="Mobile primary"
 >
   {tabs.map(({ href, label, icon, active }) => (
     <a
       href={href}
       class:list={[
-        "flex flex-col items-center gap-1 transition-colors",
+        "flex min-w-0 flex-1 flex-col items-center gap-0.5 px-0.5 transition-colors",
         active ? "text-primary" : "text-on-surface-variant hover:text-primary",
       ]}
       aria-current={active ? "page" : undefined}
@@ -33,7 +33,7 @@ const tabs = [
 
 <a
   href={withBase("/booking")}
-  class="fixed right-6 bottom-24 z-50 flex size-16 items-center justify-center rounded-full bg-primary-container text-on-primary shadow-2xl transition-all active:scale-95 md:hidden"
+  class="fixed right-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom,0px))] z-50 flex size-14 items-center justify-center rounded-full bg-primary-container text-on-primary shadow-2xl transition-all active:scale-95 sm:right-6 sm:bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] sm:size-16 md:hidden"
   aria-label="Quick book a court"
 >
   <Icon name="plus" class="size-8" />

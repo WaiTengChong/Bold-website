@@ -8,9 +8,9 @@ const pathname = Astro.url.pathname;
 
 <header class="sticky top-0 z-50 w-full border-b border-outline-variant/30 bg-surface/90 backdrop-blur-xl">
   <div
-    class="mx-auto flex w-full max-w-container-max items-center justify-between px-6 py-4 md:grid md:grid-cols-3 md:px-margin-desktop"
+    class="mx-auto flex w-full max-w-container-max min-w-0 items-center justify-between gap-2 px-4 py-3 md:grid md:grid-cols-3 md:gap-0 md:px-margin-desktop md:py-4"
   >
-    <div class="flex items-center gap-4">
+    <div class="flex min-w-0 items-center gap-2 md:gap-4">
       <div class="relative z-50 md:hidden">
         <MobileMenu client:load />
       </div>
@@ -45,12 +45,12 @@ const pathname = Astro.url.pathname;
       }
     </nav>
 
-    <div class="relative z-50 flex items-center justify-end gap-6">
+    <div class="relative z-50 flex shrink-0 items-center justify-end gap-2 md:gap-6">
       <a
         href={withBase("/booking")}
-        class="bg-primary-container px-4 py-2 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary-container transition-all active:scale-95 md:hidden"
+        class="shrink-0 bg-primary-container px-2.5 py-1.5 font-sans text-[11px] font-medium uppercase tracking-wide text-on-primary-container transition-all active:scale-95 sm:px-4 sm:py-2 sm:text-label-md sm:tracking-widest md:hidden"
       >
-        Quick Book
+        Book
       </a>
       <a
         href="#"

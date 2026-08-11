@@ -22,7 +22,7 @@ const {
 const headlineLines = headline.split("\n");
 ---
 
-<section class="relative h-[90vh] w-full overflow-hidden bg-primary" aria-label="Hero">
+<section class="relative min-h-[90dvh] w-full max-w-full overflow-hidden bg-primary" aria-label="Hero">
   <img
     src={imageSrc}
     alt={imageAlt}
@@ -35,10 +35,10 @@ const headlineLines = headline.split("\n");
     class="absolute inset-0 flex flex-col items-center justify-end px-margin-mobile pb-stack-lg text-center"
     style="background: linear-gradient(0deg, rgba(0,21,13,0.8) 0%, rgba(0,21,13,0) 50%)"
   >
-    <p class="mb-2 font-display text-headline-lg-mobile tracking-[0.2em] text-on-primary md:text-headline-lg">
+    <p class="mb-2 max-w-full font-display text-headline-lg-mobile tracking-[0.12em] text-on-primary sm:tracking-[0.2em] md:text-headline-lg">
       {brandLabel}
     </p>
-    <h1 class="mb-stack-md font-display text-display-md uppercase leading-tight text-on-primary md:text-display-lg">
+    <h1 class="mb-stack-md max-w-full px-1 font-display text-[clamp(2.25rem,11vw,3rem)] uppercase leading-tight text-on-primary md:text-display-lg">
       {headlineLines.map((line, i) => (
         <>
           {i > 0 && <br />}

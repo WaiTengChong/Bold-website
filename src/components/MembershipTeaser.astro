@@ -23,12 +23,12 @@ const {
 const titleLines = title.split("\n");
 ---
 
-<section id="membership" class="relative overflow-hidden bg-primary-container py-stack-xl">
+<section id="membership" class="relative overflow-hidden bg-primary-container py-stack-lg md:py-stack-xl">
   <div class="relative z-10 px-margin-mobile text-center md:px-margin-desktop">
-    <span class="mb-4 block font-sans text-label-sm font-semibold uppercase tracking-[0.4em] text-on-primary-container">
+    <span class="mb-4 block font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-on-primary-container sm:text-label-sm sm:tracking-[0.4em]">
       {eyebrow}
     </span>
-    <h2 class="mb-stack-md font-display text-display-md uppercase text-on-primary md:text-display-lg">
+    <h2 class="mb-stack-md font-display text-[clamp(2.25rem,10vw,3rem)] uppercase text-on-primary md:text-display-lg">
       {titleLines.map((line, i) => (
         <>
           {i > 0 && <br />}
@@ -36,14 +36,14 @@ const titleLines = title.split("\n");
         </>
       ))}
     </h2>
-    <ul class="mb-stack-lg space-y-4 font-sans text-body-lg font-light text-on-primary/80">
+    <ul class="mb-stack-lg space-y-3 font-sans text-body-md font-light text-on-primary/80 sm:space-y-4 sm:text-body-lg">
       {perks.map((perk) => (
         <li>{perk}</li>
       ))}
     </ul>
     <a
       href={ctaHref}
-      class="inline-flex bg-on-primary px-12 py-5 font-display text-headline-sm uppercase tracking-widest text-primary transition-all hover:opacity-90 active:scale-95"
+      class="inline-flex max-w-full bg-on-primary px-8 py-4 font-display text-headline-sm uppercase tracking-widest text-primary transition-all hover:opacity-90 active:scale-95 sm:px-12 sm:py-5"
     >
       {ctaLabel}
     </a>

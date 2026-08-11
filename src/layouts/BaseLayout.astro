@@ -18,7 +18,7 @@ const { title, description } = Astro.props;
   <head>
     <meta charset="utf-8" />
     <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -28,7 +28,7 @@ const { title, description } = Astro.props;
     />
     <title>{title}</title>
   </head>
-  <body class="overflow-x-hidden bg-surface text-on-surface pb-20 md:pb-0">
+  <body class="overflow-x-hidden bg-surface text-on-surface pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
     <SiteHeader />
     <slot />
     <SiteFooter />

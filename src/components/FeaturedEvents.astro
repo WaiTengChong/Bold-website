@@ -83,18 +83,18 @@ const {
 
       <div class="grid grid-cols-1 content-start gap-6">
         {sideEvents.map(({ title, meta, variant, icon }) => (
-          <article class="flex items-center gap-4 border border-[#E5E7EB] bg-surface-container-lowest p-6">
+          <article class="flex min-w-0 items-center gap-4 border border-[#E5E7EB] bg-surface-container-lowest p-4 sm:p-6">
             <div
               class:list={[
-                "flex size-20 shrink-0 items-center justify-center",
+                "flex size-16 shrink-0 items-center justify-center sm:size-20",
                 variant === "primary" ? "bg-primary" : "bg-primary-container",
               ]}
             >
-              <Icon name={icon} class="size-10 text-on-primary" />
+              <Icon name={icon} class="size-8 text-on-primary sm:size-10" />
             </div>
-            <div>
-              <h3 class="font-display text-headline-sm uppercase text-primary">{title}</h3>
-              <p class="font-sans text-label-sm font-semibold uppercase text-on-surface-variant">{meta}</p>
+            <div class="min-w-0">
+              <h3 class="truncate font-display text-headline-sm uppercase text-primary">{title}</h3>
+              <p class="truncate font-sans text-label-sm font-semibold uppercase text-on-surface-variant">{meta}</p>
             </div>
           </article>
         ))}
