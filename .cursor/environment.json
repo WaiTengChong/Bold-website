@@ -1,0 +1,17 @@
+{
+  "name": "Bold Website",
+  "install": "npm ci",
+  "terminals": [
+    {
+      "name": "dev",
+      "command": "npm run dev:bg",
+      "description": "Astro dev server in background mode"
+    }
+  ],
+  "ports": [
+    {
+      "name": "Astro dev server",
+      "port": 4321
+    }
+  ]
+}
