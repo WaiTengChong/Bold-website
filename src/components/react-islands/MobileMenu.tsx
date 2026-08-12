@@ -10,6 +10,8 @@ const links = [
   { href: withBase("/#membership"), label: "Membership" },
   { href: withBase("/#life"), label: "Bold Life" },
   { href: "#", label: "Shop" },
+  { href: withBase("/login"), label: "Login" },
+  { href: withBase("/signup"), label: "Sign Up" },
 ];
 
 export default function MobileMenu() {
