@@ -1,4 +1,6 @@
 ---
+import { withBase } from "@/lib/utils";
+
 interface Props {
   eyebrow?: string;
   title?: string;
@@ -17,7 +19,7 @@ const {
     "PRIVATE COACHING PREFERENCE",
   ],
   ctaLabel = "INQUIRE NOW",
-  ctaHref = "#",
+  ctaHref = withBase("/membership"),
 } = Astro.props;
 
 const titleLines = title.split("\n");

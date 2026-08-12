@@ -1,5 +1,6 @@
 ---
 import { PHOTOS, HOMEPAGE_GALLERY } from "@/lib/photos";
+import { withBase } from "@/lib/utils";
 import Hero from "@/components/Hero.astro";
 import ValuesMarquee from "@/components/ValuesMarquee.astro";
 import FeaturedEvents from "@/components/FeaturedEvents.astro";
@@ -22,7 +23,7 @@ import BoldLife from "@/components/BoldLife.astro";
       imageSrc: PHOTOS.facilityCollage,
       imageAlt: "BOLD championship court and facility overview",
       ctaLabel: "SIGN UP",
-      ctaHref: "#",
+      ctaHref: withBase("/booking"),
     }}
   />
   <MembershipTeaser />

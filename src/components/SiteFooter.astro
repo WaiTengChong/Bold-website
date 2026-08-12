@@ -1,5 +1,6 @@
 ---
 import Icon from "@/components/Icon.astro";
+import { withBase } from "@/lib/utils";
 ---
 
 <footer class="w-full border-t border-on-primary-fixed-variant/20 bg-primary">
@@ -10,35 +11,27 @@ import Icon from "@/components/Icon.astro";
         The premier destination for elite athletes and discerning enthusiasts. Redefining the standard of pickleball
         hospitality.
       </p>
-      <div class="flex gap-4">
-        <a href="#" class="text-on-primary transition-opacity hover:opacity-70" aria-label="Website">
-          <Icon name="globe" class="size-6" />
-        </a>
-        <a href="#" class="text-on-primary transition-opacity hover:opacity-70" aria-label="Instagram">
-          <Icon name="at" class="size-6" />
-        </a>
+      <div class="flex gap-4 text-on-primary/50" aria-hidden="true">
+        <Icon name="globe" class="size-6" />
+        <Icon name="at" class="size-6" />
       </div>
     </div>
     <div>
       <h3 class="mb-6 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary">Explore</h3>
       <nav class="flex flex-col gap-3" aria-label="Explore">
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href="#">The Club</a>
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href="#membership">Membership</a>
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href="#events">Programs</a>
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href="#">Shop</a>
+        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/")}>The Club</a>
+        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/membership")}>Membership</a>
+        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/#events")}>Programs</a>
       </nav>
     </div>
     <div>
       <h3 class="mb-6 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary">Legal</h3>
-      <nav class="flex flex-col gap-3" aria-label="Legal">
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href="#">Legal</a>
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href="#">Privacy Policy</a>
-      </nav>
+      <p class="font-sans text-body-md font-light text-on-primary/50">Legal and privacy pages coming soon.</p>
     </div>
   </div>
   <div class="border-t border-on-primary-fixed-variant/10 px-margin-mobile py-8 text-center md:px-margin-desktop">
     <p class="font-sans text-label-sm font-semibold uppercase tracking-widest text-on-primary/40">
-      © 2024 BOLD PICKLEBALL. ALL RIGHTS RESERVED.
+      © 2026 BOLD PICKLEBALL. ALL RIGHTS RESERVED.
     </p>
   </div>
 </footer>
