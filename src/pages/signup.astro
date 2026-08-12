@@ -1,0 +1,18 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import AuthPanel from "@/components/AuthPanel.astro";
+---
+
+<BaseLayout
+  title="BOLD PICKLEBALL | Create Account"
+  description="Create your BOLD Pickleball account to book courts and join the club."
+>
+  <main>
+    <AuthPanel
+      mode="signup"
+      eyebrow="Join BOLD"
+      title="Create Account"
+      subtitle="Sign up with your phone number to start booking courts."
+    />
+  </main>
+</BaseLayout>
