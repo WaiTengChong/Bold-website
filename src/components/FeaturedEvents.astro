@@ -31,7 +31,7 @@ const {
     imageSrc: withBase("/photos/facility-collage.jpg"),
     imageAlt: "BOLD championship court and facility overview",
     ctaLabel: "SIGN UP",
-    ctaHref: "#",
+    ctaHref: withBase("/booking"),
   },
   sideEvents = [
     { title: "SOCIAL MIXER", meta: "FRIDAYS @ 7PM", variant: "primary", icon: "users" },
@@ -47,7 +47,7 @@ const {
         Featured Events
       </h2>
       <a
-        href="#"
+        href={withBase("/#events")}
         class="font-sans text-label-sm font-semibold uppercase text-primary-container underline underline-offset-4"
       >
         View All

@@ -4,6 +4,10 @@
  * Source: UI/The Facility/DESIGN.md + code.html
  */
 import { PHOTOS } from "@/lib/photos";
+import { withBase } from "@/lib/utils";
+
+const mapsUrl =
+  "https://www.google.com/maps/search/?api=1&query=888+Athletic+Way,+Austin,+TX+78701";
 ---
 
 <main>
@@ -35,7 +39,7 @@ import { PHOTOS } from "@/lib/photos";
     </section>
 
     <!-- Blueprint bento grid -->
-    <section class="mx-auto max-w-container-max px-margin-mobile py-stack-xl md:px-margin-desktop">
+    <section id="blueprint" class="mx-auto max-w-container-max px-margin-mobile py-stack-xl md:px-margin-desktop">
       <div class="mb-stack-lg border-l-4 border-primary pl-8">
         <h2 class="font-display text-display-md uppercase text-primary">THE BLUEPRINT</h2>
         <p class="max-w-xl text-on-surface-variant">
@@ -68,7 +72,7 @@ import { PHOTOS } from "@/lib/photos";
                 </div>
               </dl>
             </div>
-            <a href="#" class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary transition-all group-hover:gap-4">
+            <a href={withBase("/facility/#blueprint")} class="inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary transition-all group-hover:gap-4">
               View Court Schematics →
             </a>
           </div>
@@ -139,9 +143,7 @@ import { PHOTOS } from "@/lib/photos";
             height="800"
             loading="lazy"
           />
-          <div class="absolute inset-0 flex items-center justify-center bg-primary/20 opacity-0 transition-opacity group-hover:opacity-100">
-            <span class="bg-white px-8 py-3 text-sm font-bold uppercase tracking-widest text-primary">Expand Gallery</span>
-          </div>
+          <div class="pointer-events-none absolute inset-0 bg-primary/10 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true"></div>
         </article>
       </div>
     </section>
@@ -168,7 +170,9 @@ import { PHOTOS } from "@/lib/photos";
               </p>
             </div>
             <a
-              href="#"
+              href={mapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               class="inline-flex border border-primary-fixed px-10 py-4 text-sm font-bold uppercase tracking-widest text-primary-fixed transition-all hover:bg-primary-fixed hover:text-primary"
             >
               Get Directions
@@ -202,8 +206,8 @@ import { PHOTOS } from "@/lib/photos";
       <div class="relative z-10 mx-auto max-w-2xl px-margin-mobile text-center">
         <h2 class="mb-8 font-display text-display-md uppercase text-primary">The Court Is Calling</h2>
         <div class="flex flex-col justify-center gap-4 md:flex-row">
-          <a href="#" class="bg-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-on-primary hover:opacity-90">Reserve a Court</a>
-          <a href="#" class="border border-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary">Request Tour</a>
+          <a href={withBase("/booking")} class="bg-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-on-primary hover:opacity-90">Reserve a Court</a>
+          <a href={withBase("/booking")} class="border border-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary">Request Tour</a>
         </div>
       </div>
     </section>
