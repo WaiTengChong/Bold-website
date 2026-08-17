@@ -354,4 +354,8 @@
   .admin-console .material-symbols-outlined {
     font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
   }
+
+  .admin-console .admin-table-scroll {
+    -webkit-overflow-scrolling: touch;
+  }
 }
