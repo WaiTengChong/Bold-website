@@ -51,6 +51,7 @@ export default function AdminDashboard() {
   const [courts, setCourts] = useState(INITIAL_COURTS);
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [query, setQuery] = useState("");
+  const [navOpen, setNavOpen] = useState(false);
 
   useEffect(() => {
     ensureAdminSeed();
@@ -73,6 +74,15 @@ export default function AdminDashboard() {
     }, 30000);
     return () => window.clearInterval(tick);
   }, [allowed]);
+
+  useEffect(() => {
+    if (!navOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setNavOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [navOpen]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -114,13 +124,35 @@ export default function AdminDashboard() {
   const session = getSession();
 
   return (
-    <div className="admin-console light flex h-screen overflow-hidden bg-surface text-on-surface">
-      <aside className="fixed top-0 left-0 z-[60] flex h-full w-80 flex-col border-r border-outline-variant bg-primary p-stack-md shadow-xl dark:bg-primary">
-        <div className="mb-stack-lg">
-          <span className="font-headline-lg text-headline-lg block uppercase tracking-widest text-primary dark:text-on-primary">
-            BOLD
-          </span>
-          <span className="font-label-sm text-label-sm tracking-[0.2em] text-on-primary/60">ADMIN CONSOLE</span>
+    <div className="admin-console light flex h-dvh max-w-full overflow-hidden bg-surface text-on-surface">
+      {navOpen && (
+        <button
+          type="button"
+          className="fixed inset-0 z-[55] bg-primary/40 md:hidden"
+          aria-label="Close menu"
+          onClick={() => setNavOpen(false)}
+        />
+      )}
+      <aside
+        className={`fixed top-0 left-0 z-[60] flex h-full w-[min(20rem,88vw)] flex-col border-r border-outline-variant bg-primary p-stack-md pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-xl transition-transform duration-200 dark:bg-primary md:w-80 md:translate-x-0 ${
+          navOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
+      >
+        <div className="mb-stack-lg flex items-start justify-between gap-3">
+          <div>
+            <span className="font-headline-lg text-headline-lg block uppercase tracking-widest text-primary dark:text-on-primary">
+              BOLD
+            </span>
+            <span className="font-label-sm text-label-sm tracking-[0.2em] text-on-primary/60">ADMIN CONSOLE</span>
+          </div>
+          <button
+            type="button"
+            className="text-on-primary md:hidden"
+            aria-label="Close menu"
+            onClick={() => setNavOpen(false)}
+          >
+            <span className="material-symbols-outlined">close</span>
+          </button>
         </div>
         <nav className="flex-1 space-y-2">
           <a
@@ -170,13 +202,23 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      <main className="custom-scrollbar ml-80 flex-1 overflow-y-auto">
-        <header className="docked full-width sticky top-0 z-50 flex w-full items-center justify-between border-b border-outline-variant/30 bg-surface/90 px-margin-desktop py-4 backdrop-blur-xl dark:bg-primary/90">
-          <div className="flex items-center gap-4">
-            <span className="material-symbols-outlined text-primary">menu</span>
-            <h1 className="font-headline-lg text-headline-lg text-primary uppercase">DASHBOARD OVERVIEW</h1>
+      <main className="custom-scrollbar min-w-0 flex-1 overflow-x-hidden overflow-y-auto md:ml-80">
+        <header className="docked full-width sticky top-0 z-50 flex w-full items-center justify-between gap-2 border-b border-outline-variant/30 bg-surface/90 px-margin-mobile py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl md:px-margin-desktop md:py-4 dark:bg-primary/90">
+          <div className="flex min-w-0 items-center gap-2 md:gap-4">
+            <button
+              type="button"
+              className="shrink-0 text-primary md:pointer-events-none"
+              aria-expanded={navOpen}
+              aria-label="Open menu"
+              onClick={() => setNavOpen(true)}
+            >
+              <span className="material-symbols-outlined">menu</span>
+            </button>
+            <h1 className="font-headline-lg-mobile text-headline-lg-mobile truncate text-primary uppercase md:font-headline-lg md:text-headline-lg">
+              DASHBOARD
+            </h1>
           </div>
-          <div className="flex items-center gap-gutter">
+          <div className="flex shrink-0 items-center gap-2 md:gap-gutter">
             <div className="hidden items-center gap-6 md:flex">
               <span className="material-symbols-outlined cursor-pointer text-on-surface-variant transition-colors hover:text-primary">
                 notifications
@@ -187,22 +229,24 @@ export default function AdminDashboard() {
             </div>
             <a
               href={withBase("/booking")}
-              className="bg-primary px-6 py-2 font-bold tracking-wider text-on-primary uppercase text-label-md transition-all active:scale-95 active:opacity-80"
+              className="bg-primary px-3 py-2 font-bold tracking-wider text-on-primary uppercase text-[11px] transition-all active:scale-95 active:opacity-80 sm:px-6 sm:text-label-md"
             >
               QUICK BOOK
             </a>
           </div>
         </header>
 
-        <div className="mx-auto max-w-container-max space-y-stack-md px-margin-desktop py-stack-md">
+        <div className="mx-auto max-w-container-max space-y-stack-md px-margin-mobile py-stack-md md:px-margin-desktop">
           <section className="space-y-stack-sm">
-            <div className="flex items-end justify-between">
-              <h2 className="font-headline-lg text-headline-lg text-primary uppercase">COURT OCCUPANCY</h2>
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+              <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+                COURT OCCUPANCY
+              </h2>
               <span className="font-label-sm text-label-sm text-outline uppercase">
                 Live Status: {activeCount}/8 Courts Active
               </span>
             </div>
-            <div className="grid grid-cols-2 gap-gutter lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-stack-sm min-[400px]:grid-cols-2 min-[400px]:gap-gutter lg:grid-cols-4">
               {courts.map((court) => (
                 <div
                   key={court.id}
@@ -261,11 +305,13 @@ export default function AdminDashboard() {
 
           <section className="space-y-stack-sm">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-              <h2 className="font-headline-lg text-headline-lg text-primary uppercase">MEMBER MANAGEMENT</h2>
-              <div className="flex gap-4">
-                <div className="relative">
+              <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+                MEMBER MANAGEMENT
+              </h2>
+              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
+                <div className="relative min-w-0 flex-1 sm:flex-none">
                   <input
-                    className="w-64 border-b border-primary bg-transparent py-2 pr-4 pl-8 font-label-md text-label-md uppercase outline-none focus:border-primary-container focus:ring-0"
+                    className="w-full border-b border-primary bg-transparent py-2 pr-4 pl-8 font-label-md text-label-md uppercase outline-none focus:border-primary-container focus:ring-0 sm:w-64"
                     placeholder="SEARCH MEMBERS..."
                     type="text"
                     value={query}
@@ -282,8 +328,8 @@ export default function AdminDashboard() {
               </div>
             </div>
             <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
-              <div className="overflow-x-auto">
-                <table className="w-full text-left">
+              <div className="admin-table-scroll overflow-x-auto">
+                <table className="w-full min-w-[40rem] text-left">
                   <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
                     <tr>
                       <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">ID</th>
@@ -337,7 +383,7 @@ export default function AdminDashboard() {
           <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
             <div className="space-y-4 border border-outline-variant p-stack-md">
               <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">TOTAL DAILY REVENUE</p>
-              <p className="font-display-md text-display-md text-primary">$12,492.00</p>
+              <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">$12,492.00</p>
               <div className="flex items-center gap-2 text-on-primary-container">
                 <span className="material-symbols-outlined text-sm">trending_up</span>
                 <span className="text-xs font-bold tracking-tighter uppercase">+18.5% VS YESTERDAY</span>
@@ -345,7 +391,7 @@ export default function AdminDashboard() {
             </div>
             <div className="space-y-4 border border-outline-variant p-stack-md">
               <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">MEMBERS ON-SITE</p>
-              <p className="font-display-md text-display-md text-primary">42</p>
+              <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">42</p>
               <div className="flex items-center gap-2 text-primary">
                 <span className="material-symbols-outlined text-sm">people</span>
                 <span className="text-xs font-bold tracking-tighter uppercase">85% CAPACITY</span>
@@ -353,7 +399,7 @@ export default function AdminDashboard() {
             </div>
             <div className="space-y-4 border border-outline-variant bg-primary p-stack-md text-on-primary">
               <p className="font-label-sm text-label-sm tracking-widest text-on-primary/60 uppercase">MEMBERSHIP GROWTH</p>
-              <p className="font-display-md text-display-md">+12</p>
+              <p className="font-display-md text-[clamp(2rem,8vw,3rem)] md:text-display-md">+12</p>
               <div className="flex items-center gap-2 text-on-primary/60">
                 <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
                   loyalty
@@ -365,9 +411,11 @@ export default function AdminDashboard() {
         </div>
 
         <footer className="full-width bottom-0 mt-stack-xl border-t border-on-primary-fixed-variant/20 bg-primary">
-          <div className="mx-auto grid w-full max-w-container-max grid-cols-1 gap-gutter px-margin-desktop py-stack-lg md:grid-cols-4">
+          <div className="mx-auto grid w-full max-w-container-max grid-cols-1 gap-gutter px-margin-mobile py-stack-lg md:grid-cols-4 md:px-margin-desktop">
             <div className="space-y-4 md:col-span-2">
-              <span className="font-display-md text-display-md block text-on-primary uppercase">BOLD PICKLEBALL</span>
+              <span className="font-display-md text-headline-lg-mobile block text-on-primary uppercase md:text-display-md">
+                BOLD PICKLEBALL
+              </span>
               <p className="font-body-md text-body-md max-w-md text-on-primary/70">
                 The elite standard in athletic competition and social membership. Access your dashboard for facility
                 management, member insights, and operational excellence.
@@ -399,7 +447,7 @@ export default function AdminDashboard() {
               </nav>
             </div>
           </div>
-          <div className="border-t border-on-primary/10 px-margin-desktop py-8">
+          <div className="border-t border-on-primary/10 px-margin-mobile py-8 pb-[max(2rem,env(safe-area-inset-bottom))] md:px-margin-desktop">
             <p className="font-label-sm text-label-sm text-center tracking-[0.3em] text-on-primary/50 uppercase">
               © 2024 BOLD PICKLEBALL. ALL RIGHTS RESERVED.
             </p>
