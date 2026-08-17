@@ -1,9 +1,10 @@
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
+import { ensureAdminSeed, isAdmin } from "@/lib/auth-client";
 import { withBase } from "@/lib/utils";
 
-const links = [
+const baseLinks = [
   { href: withBase("/"), label: "The Club" },
   { href: withBase("/facility"), label: "The Facility" },
   { href: withBase("/#events"), label: "Events" },
@@ -17,14 +18,21 @@ const links = [
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [admin, setAdmin] = useState(false);
   const menuId = useId();
 
   useEffect(() => {
     setMounted(true);
+    ensureAdminSeed();
+    setAdmin(isAdmin());
     return () => {
       document.body.style.overflow = "";
     };
   }, []);
+
+  const links = admin
+    ? [...baseLinks, { href: withBase("/admin"), label: "Admin" }]
+    : baseLinks;
 
   useEffect(() => {
     if (!open) return;

@@ -1,5 +1,6 @@
 ---
 import MobileMenu from "@/components/react-islands/MobileMenu";
+import AdminNavLink from "@/components/react-islands/AdminNavLink";
 import { desktopNavLinks, isNavActive } from "@/lib/nav";
 import { withBase } from "@/lib/utils";
 
@@ -52,6 +53,10 @@ const pathname = Astro.url.pathname;
       >
         Book
       </a>
+      <AdminNavLink
+        client:load
+        className="hidden font-sans text-label-md uppercase tracking-widest text-primary transition-colors hover:opacity-80 md:inline"
+      />
       <a
         href={withBase("/login")}
         class="hidden font-sans text-label-md uppercase tracking-widest text-on-surface-variant transition-colors hover:text-primary md:inline"
