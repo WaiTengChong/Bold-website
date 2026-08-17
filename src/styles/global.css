@@ -53,6 +53,15 @@
   /* Typography */
   --font-display: "Bebas Neue", sans-serif;
   --font-sans: "Inter", sans-serif;
+  --font-headline-lg: "Bebas Neue", sans-serif;
+  --font-headline-sm: "Bebas Neue", sans-serif;
+  --font-headline-lg-mobile: "Bebas Neue", sans-serif;
+  --font-display-md: "Bebas Neue", sans-serif;
+  --font-display-lg: "Bebas Neue", sans-serif;
+  --font-body-md: "Inter", sans-serif;
+  --font-body-lg: "Inter", sans-serif;
+  --font-label-md: "Inter", sans-serif;
+  --font-label-sm: "Inter", sans-serif;
 
   --text-display-lg: 80px;
   --text-display-lg--line-height: 1;
@@ -318,5 +327,31 @@
 
   .auth-crosslink__link:hover {
     opacity: 0.8;
+  }
+
+  .admin-console {
+    --radius-full: 9999px;
+  }
+
+  .admin-console .glass-panel {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(32px);
+  }
+
+  .admin-console .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .admin-console .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .admin-console .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #c1c8c3;
+    border-radius: 2px;
+  }
+
+  .admin-console .material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
   }
 }

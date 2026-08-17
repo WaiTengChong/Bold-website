@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { login, signup } from "@/lib/auth-client";
+import { useEffect, useMemo, useState } from "react";
+import { ensureAdminSeed, login, signup } from "@/lib/auth-client";
 import { DEFAULT_DIAL_CODE, PHONE_DIAL_CODES } from "@/lib/phone-codes";
 import { withBase } from "@/lib/utils";
 
@@ -35,6 +35,10 @@ export default function AuthForm({ mode }: Props) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    ensureAdminSeed();
+  }, []);
 
   const phoneError = useMemo(() => validatePhone(phone), [phone]);
   const passwordError = useMemo(() => validatePassword(password), [password]);
@@ -73,7 +77,11 @@ export default function AuthForm({ mode }: Props) {
       return;
     }
 
-    window.location.href = withBase("/booking");
+    const dest =
+      mode === "login" && "role" in result && result.role === "admin"
+        ? "/admin"
+        : "/booking";
+    window.location.href = withBase(dest);
   };
 
   return (
