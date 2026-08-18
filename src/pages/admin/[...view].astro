@@ -2,6 +2,29 @@
 import "@/styles/global.css";
 import AdminDashboard from "@/components/react-islands/AdminDashboard";
 import { withBase } from "@/lib/utils";
+
+const VIEWS = ["dashboard", "schedule", "members", "inventory", "settings"] as const;
+type ViewId = (typeof VIEWS)[number];
+
+export function getStaticPaths() {
+  return [
+    { params: { view: undefined } },
+    { params: { view: "schedule" } },
+    { params: { view: "members" } },
+    { params: { view: "inventory" } },
+    { params: { view: "settings" } },
+  ];
+}
+
+const raw = Astro.params.view;
+const view: ViewId = !raw || raw === "dashboard" ? "dashboard" : (raw as ViewId);
+const titles: Record<ViewId, string> = {
+  dashboard: "Dashboard",
+  schedule: "Schedule",
+  members: "Members",
+  inventory: "Inventory",
+  settings: "Settings",
+};
 ---
 
 <!doctype html>
@@ -22,9 +45,9 @@ import { withBase } from "@/lib/utils";
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
       rel="stylesheet"
     />
-    <title>BOLD PICKLEBALL | Admin Console</title>
+    <title>BOLD PICKLEBALL | {titles[view]}</title>
   </head>
   <body class="h-dvh max-w-full overflow-hidden bg-surface text-on-surface">
-    <AdminDashboard client:load />
+    <AdminDashboard client:load view={view} />
   </body>
 </html>

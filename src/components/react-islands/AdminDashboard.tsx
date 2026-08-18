@@ -46,7 +46,11 @@ const NAV_ITEMS = [
   { id: "settings", label: "SETTINGS", icon: "settings" },
 ] as const;
 
-type ViewId = (typeof NAV_ITEMS)[number]["id"];
+export type ViewId = (typeof NAV_ITEMS)[number]["id"];
+
+function navHref(id: ViewId) {
+  return withBase(id === "dashboard" ? "/admin" : `/admin/${id}`);
+}
 
 const INVENTORY = [
   { sku: "PD-PRO-01", name: "Pro Carbon Paddle", stock: 24, status: "In stock" },
@@ -62,14 +66,13 @@ function initials(name: string) {
     .join("");
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ view = "dashboard" }: { view?: ViewId }) {
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
   const [courts, setCourts] = useState(INITIAL_COURTS);
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [query, setQuery] = useState("");
   const [navOpen, setNavOpen] = useState(false);
-  const [view, setView] = useState<ViewId>("dashboard");
 
   useEffect(() => {
     ensureAdminSeed();
@@ -131,14 +134,6 @@ export default function AdminDashboard() {
     window.location.href = withBase("/login");
   };
 
-  const goTo = (id: ViewId) => {
-    setView(id);
-    setNavOpen(false);
-    requestAnimationFrame(() => {
-      document.getElementById("admin-main")?.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  };
-
   const titles: Record<ViewId, string> = {
     dashboard: "DASHBOARD",
     schedule: "SCHEDULE",
@@ -192,15 +187,14 @@ export default function AdminDashboard() {
           {NAV_ITEMS.map((item) => {
             const active = view === item.id;
             return (
-              <button
+              <a
                 key={item.id}
-                type="button"
+                href={navHref(item.id)}
                 className={
                   active
                     ? "flex w-full translate-x-1 items-center gap-4 rounded-none bg-primary-container px-4 py-3 text-left font-bold text-on-primary-container transition-all"
                     : "flex w-full items-center gap-4 px-4 py-3 text-left text-on-primary/70 transition-all hover:bg-surface-container-low/10 hover:text-on-primary"
                 }
-                onClick={() => goTo(item.id)}
               >
                 <span
                   className="material-symbols-outlined"
@@ -209,7 +203,7 @@ export default function AdminDashboard() {
                   {item.icon}
                 </span>
                 <span className="font-headline-sm text-headline-sm uppercase">{item.label}</span>
-              </button>
+              </a>
             );
           })}
         </nav>
