@@ -38,14 +38,35 @@ const INITIAL_MEMBERS: Member[] = [
   { id: "BP-5532", name: "Robert Vance", tier: "Founding Member", balance: "$45.00", last: "Just now", color: "text-on-primary-container" },
 ];
 
-function initials(name: string): string {
+const NAV_ITEMS = [
+  { id: "dashboard", label: "DASHBOARD", icon: "dashboard" },
+  { id: "schedule", label: "SCHEDULE", icon: "calendar_today" },
+  { id: "members", label: "MEMBERS", icon: "groups" },
+  { id: "inventory", label: "INVENTORY", icon: "storefront" },
+  { id: "settings", label: "SETTINGS", icon: "settings" },
+] as const;
+
+export type ViewId = (typeof NAV_ITEMS)[number]["id"];
+
+function navHref(id: ViewId) {
+  return withBase(id === "dashboard" ? "/admin" : `/admin/${id}`);
+}
+
+const INVENTORY = [
+  { sku: "PD-PRO-01", name: "Pro Carbon Paddle", stock: 24, status: "In stock" },
+  { sku: "BL-OUT-40", name: "Outdoor Balls (40pk)", stock: 8, status: "Low" },
+  { sku: "TW-CLB-12", name: "Club Towels", stock: 56, status: "In stock" },
+  { sku: "NT-CT-08", name: "Court Nets", stock: 2, status: "Reorder" },
+];
+
+function initials(name: string) {
   return name
     .split(" ")
     .map((n) => n[0])
     .join("");
 }
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ view = "dashboard" }: { view?: ViewId }) {
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
   const [courts, setCourts] = useState(INITIAL_COURTS);
@@ -113,6 +134,14 @@ export default function AdminDashboard() {
     window.location.href = withBase("/login");
   };
 
+  const titles: Record<ViewId, string> = {
+    dashboard: "DASHBOARD",
+    schedule: "SCHEDULE",
+    members: "MEMBERS",
+    inventory: "INVENTORY",
+    settings: "SETTINGS",
+  };
+
   if (!ready || !allowed) {
     return (
       <div className="flex h-screen items-center justify-center bg-surface text-on-surface-variant">
@@ -128,13 +157,13 @@ export default function AdminDashboard() {
       {navOpen && (
         <button
           type="button"
-          className="fixed inset-0 z-[55] bg-primary/40 md:hidden"
+          className="fixed inset-0 left-[min(20rem,88vw)] z-[55] bg-primary/40 md:hidden"
           aria-label="Close menu"
           onClick={() => setNavOpen(false)}
         />
       )}
       <aside
-        className={`fixed top-0 left-0 z-[60] flex h-full w-[min(20rem,88vw)] flex-col border-r border-outline-variant bg-primary p-stack-md pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-xl transition-transform duration-200 dark:bg-primary md:w-80 md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-[70] flex h-full w-[min(20rem,88vw)] flex-col border-r border-outline-variant bg-primary p-stack-md pt-[max(1.5rem,env(safe-area-inset-top))] pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-xl transition-transform duration-200 pointer-events-auto dark:bg-primary md:w-80 md:translate-x-0 ${
           navOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
         }`}
       >
@@ -155,31 +184,28 @@ export default function AdminDashboard() {
           </button>
         </div>
         <nav className="flex-1 space-y-2">
-          <a
-            className="flex translate-x-1 items-center gap-4 rounded-none bg-primary-container px-4 py-3 font-bold text-on-primary-container transition-all"
-            href={withBase("/admin")}
-          >
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: "'FILL' 1" }}>
-              dashboard
-            </span>
-            <span className="font-headline-sm text-headline-sm uppercase">DASHBOARD</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 text-on-primary/70 transition-all hover:bg-surface-container-low/10 hover:text-on-primary" href="#">
-            <span className="material-symbols-outlined">calendar_today</span>
-            <span className="font-headline-sm text-headline-sm uppercase">SCHEDULE</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 text-on-primary/70 transition-all hover:bg-surface-container-low/10 hover:text-on-primary" href="#">
-            <span className="material-symbols-outlined">groups</span>
-            <span className="font-headline-sm text-headline-sm uppercase">MEMBERS</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 text-on-primary/70 transition-all hover:bg-surface-container-low/10 hover:text-on-primary" href="#">
-            <span className="material-symbols-outlined">storefront</span>
-            <span className="font-headline-sm text-headline-sm uppercase">INVENTORY</span>
-          </a>
-          <a className="flex items-center gap-4 px-4 py-3 text-on-primary/70 transition-all hover:bg-surface-container-low/10 hover:text-on-primary" href="#">
-            <span className="material-symbols-outlined">settings</span>
-            <span className="font-headline-sm text-headline-sm uppercase">SETTINGS</span>
-          </a>
+          {NAV_ITEMS.map((item) => {
+            const active = view === item.id;
+            return (
+              <a
+                key={item.id}
+                href={navHref(item.id)}
+                className={
+                  active
+                    ? "flex w-full translate-x-1 items-center gap-4 rounded-none bg-primary-container px-4 py-3 text-left font-bold text-on-primary-container transition-all"
+                    : "flex w-full items-center gap-4 px-4 py-3 text-left text-on-primary/70 transition-all hover:bg-surface-container-low/10 hover:text-on-primary"
+                }
+              >
+                <span
+                  className="material-symbols-outlined"
+                  style={active ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                >
+                  {item.icon}
+                </span>
+                <span className="font-headline-sm text-headline-sm uppercase">{item.label}</span>
+              </a>
+            );
+          })}
         </nav>
         <div className="mt-auto border-t border-on-primary/10 pt-6">
           <div className="flex items-center gap-3">
@@ -202,7 +228,7 @@ export default function AdminDashboard() {
         </div>
       </aside>
 
-      <main className="custom-scrollbar min-w-0 flex-1 overflow-x-hidden overflow-y-auto md:ml-80">
+      <main id="admin-main" className="custom-scrollbar min-w-0 flex-1 overflow-x-hidden overflow-y-auto md:ml-80">
         <header className="docked full-width sticky top-0 z-50 flex w-full items-center justify-between gap-2 border-b border-outline-variant/30 bg-surface/90 px-margin-mobile py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl md:px-margin-desktop md:py-4 dark:bg-primary/90">
           <div className="flex min-w-0 items-center gap-2 md:gap-4">
             <button
@@ -215,7 +241,7 @@ export default function AdminDashboard() {
               <span className="material-symbols-outlined">menu</span>
             </button>
             <h1 className="font-headline-lg-mobile text-headline-lg-mobile truncate text-primary uppercase md:font-headline-lg md:text-headline-lg">
-              DASHBOARD
+              {titles[view]}
             </h1>
           </div>
           <div className="flex shrink-0 items-center gap-2 md:gap-gutter">
@@ -237,10 +263,11 @@ export default function AdminDashboard() {
         </header>
 
         <div className="mx-auto max-w-container-max space-y-stack-md px-margin-mobile py-stack-md md:px-margin-desktop">
+          {(view === "dashboard" || view === "schedule") && (
           <section className="space-y-stack-sm">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-                COURT OCCUPANCY
+                {view === "schedule" ? "TODAY'S COURT SCHEDULE" : "COURT OCCUPANCY"}
               </h2>
               <span className="font-label-sm text-label-sm text-outline uppercase">
                 Live Status: {activeCount}/8 Courts Active
@@ -302,7 +329,9 @@ export default function AdminDashboard() {
               ))}
             </div>
           </section>
+          )}
 
+          {(view === "dashboard" || view === "members") && (
           <section className="space-y-stack-sm">
             <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
               <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
@@ -379,7 +408,9 @@ export default function AdminDashboard() {
               </div>
             </div>
           </section>
+          )}
 
+          {view === "dashboard" && (
           <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
             <div className="space-y-4 border border-outline-variant p-stack-md">
               <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">TOTAL DAILY REVENUE</p>
@@ -408,6 +439,78 @@ export default function AdminDashboard() {
               </div>
             </div>
           </section>
+          )}
+
+          {view === "inventory" && (
+            <section className="space-y-stack-sm">
+              <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+                PRO SHOP INVENTORY
+              </h2>
+              <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
+                <div className="admin-table-scroll overflow-x-auto">
+                  <table className="w-full min-w-[28rem] text-left">
+                    <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
+                      <tr>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">SKU</th>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">ITEM</th>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">STOCK</th>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">STATUS</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-outline-variant/30 font-body-md text-body-md">
+                      {INVENTORY.map((row) => (
+                        <tr key={row.sku} className="hover:bg-surface-container-low">
+                          <td className="px-6 py-5 font-mono text-sm">{row.sku}</td>
+                          <td className="px-6 py-5 font-semibold text-primary">{row.name}</td>
+                          <td className="px-6 py-5 font-mono">{row.stock}</td>
+                          <td className="px-6 py-5">
+                            <span
+                              className={`text-[10px] font-bold tracking-wider uppercase ${
+                                row.status === "In stock" ? "text-on-primary-container" : "text-error"
+                              }`}
+                            >
+                              {row.status}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {view === "settings" && (
+            <section className="space-y-stack-sm">
+              <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+                FACILITY SETTINGS
+              </h2>
+              <div className="space-y-4 border border-outline-variant bg-surface-container-lowest p-stack-md">
+                <div className="flex items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
+                  <div>
+                    <p className="font-label-md text-label-md text-primary uppercase">Guest booking</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">Allow non-members to reserve courts</p>
+                  </div>
+                  <span className="font-label-sm text-label-sm text-outline uppercase">Off</span>
+                </div>
+                <div className="flex items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
+                  <div>
+                    <p className="font-label-md text-label-md text-primary uppercase">SMS reminders</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">Send booking reminders 2 hours before play</p>
+                  </div>
+                  <span className="font-label-sm text-label-sm text-on-primary-container uppercase">On</span>
+                </div>
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <p className="font-label-md text-label-md text-primary uppercase">Opening hours</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">06:00 – 23:00 daily</p>
+                  </div>
+                  <span className="font-label-sm text-label-sm text-outline uppercase">Edit</span>
+                </div>
+              </div>
+            </section>
+          )}
         </div>
 
         <footer className="full-width bottom-0 mt-stack-xl border-t border-on-primary-fixed-variant/20 bg-primary">
