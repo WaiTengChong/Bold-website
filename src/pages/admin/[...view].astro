@@ -1,30 +1,18 @@
 ---
 import "@/styles/global.css";
 import AdminDashboard from "@/components/react-islands/AdminDashboard";
+import { ADMIN_NAV_ITEMS, type ViewId } from "@/lib/admin-nav";
 import { withBase } from "@/lib/utils";
 
-const VIEWS = ["dashboard", "schedule", "members", "inventory", "settings"] as const;
-type ViewId = (typeof VIEWS)[number];
-
 export function getStaticPaths() {
-  return [
-    { params: { view: undefined } },
-    { params: { view: "schedule" } },
-    { params: { view: "members" } },
-    { params: { view: "inventory" } },
-    { params: { view: "settings" } },
-  ];
+  return ADMIN_NAV_ITEMS.map((item) => ({
+    params: { view: item.id === "dashboard" ? undefined : item.id },
+  }));
 }
 
 const raw = Astro.params.view;
 const view: ViewId = !raw || raw === "dashboard" ? "dashboard" : (raw as ViewId);
-const titles: Record<ViewId, string> = {
-  dashboard: "Dashboard",
-  schedule: "Schedule",
-  members: "Members",
-  inventory: "Inventory",
-  settings: "Settings",
-};
+const title = view[0].toUpperCase() + view.slice(1);
 ---
 
 <!doctype html>
@@ -45,7 +33,7 @@ const titles: Record<ViewId, string> = {
       href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
       rel="stylesheet"
     />
-    <title>BOLD PICKLEBALL | {titles[view]}</title>
+    <title>BOLD PICKLEBALL | {title}</title>
   </head>
   <body class="h-dvh max-w-full overflow-hidden bg-surface text-on-surface">
     <AdminDashboard client:load view={view} />
