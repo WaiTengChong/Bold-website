@@ -1,31 +1,17 @@
 ---
-import { PHOTOS, HOMEPAGE_GALLERY } from "@/lib/photos";
-import { withBase } from "@/lib/utils";
-import Hero from "@/components/Hero.astro";
 import ValuesMarquee from "@/components/ValuesMarquee.astro";
-import FeaturedEvents from "@/components/FeaturedEvents.astro";
 import MembershipTeaser from "@/components/MembershipTeaser.astro";
-import BoldLife from "@/components/BoldLife.astro";
+import SiteHero from "@/components/react-islands/SiteHero";
+import FeaturedEvents from "@/components/react-islands/FeaturedEvents";
+import SiteNews from "@/components/react-islands/SiteNews";
+import BoldLife from "@/components/react-islands/BoldLife";
 ---
 
 <main>
-  <Hero
-    imageSrc={PHOTOS.facilityInterior}
-    imageAlt="BOLD Pickleball luxury indoor facility with lounge, courts, and pro shop"
-  />
+  <SiteHero client:load />
   <ValuesMarquee />
-  <FeaturedEvents
-    featured={{
-      date: "OCT 24",
-      title: "PRO-AM INVITATIONAL",
-      description:
-        "Elite level competition meets luxury hospitality. Watch the best in the state compete for the Bold Cup.",
-      imageSrc: PHOTOS.facilityCollage,
-      imageAlt: "BOLD championship court and facility overview",
-      ctaLabel: "SIGN UP",
-      ctaHref: withBase("/booking"),
-    }}
-  />
+  <FeaturedEvents client:load />
+  <SiteNews client:load />
   <MembershipTeaser />
-  <BoldLife images={HOMEPAGE_GALLERY} />
+  <BoldLife client:load />
 </main>

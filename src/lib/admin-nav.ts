@@ -4,6 +4,7 @@ export const ADMIN_NAV_ITEMS = [
   { id: "dashboard", label: "DASHBOARD", icon: "dashboard" },
   { id: "schedule", label: "SCHEDULE", icon: "calendar_today" },
   { id: "members", label: "MEMBERS", icon: "groups" },
+  { id: "content", label: "CONTENT", icon: "photo_library" },
   { id: "inventory", label: "INVENTORY", icon: "storefront" },
   { id: "settings", label: "SETTINGS", icon: "settings" },
 ] as const;
@@ -14,6 +15,7 @@ export const ADMIN_TITLES: Record<ViewId, string> = {
   dashboard: "DASHBOARD",
   schedule: "SCHEDULE",
   members: "MEMBERS",
+  content: "CONTENT",
   inventory: "INVENTORY",
   settings: "SETTINGS",
 };

@@ -3,6 +3,7 @@ import { ensureAdminSeed, getSession, isAdmin, logout } from "@/lib/auth-client"
 import { ADMIN_TITLES, adminHref, samePath, viewFromPath, type ViewId } from "@/lib/admin-nav";
 import { withBase } from "@/lib/utils";
 import AdminSidebar from "./AdminSidebar";
+import AdminCms from "./AdminCms";
 
 type Court = {
   id: number;
@@ -244,8 +245,8 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                 {[
                   { id: "book", label: "Quick Book", hint: "Reserve a court", icon: "event_available", href: withBase("/booking") },
                   { id: "schedule", label: "Schedule", hint: "Today's courts", icon: "calendar_today" },
+                  { id: "content", label: "Site content", hint: "Photos, events, news", icon: "photo_library" },
                   { id: "members", label: "Members", hint: "Manage roster", icon: "groups" },
-                  { id: "inventory", label: "Inventory", hint: "Pro shop stock", icon: "storefront" },
                 ].map((action) =>
                   action.href ? (
                     <a
@@ -338,6 +339,8 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
               )}
             </section>
           )}
+
+          {view === "content" && <AdminCms />}
 
           {view === "inventory" && (
             <section className="space-y-stack-sm">
