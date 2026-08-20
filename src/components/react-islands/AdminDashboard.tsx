@@ -54,6 +54,12 @@ function initials(name: string) {
     .join("");
 }
 
+function greetingDate() {
+  return new Date()
+    .toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "short" })
+    .toUpperCase();
+}
+
 export default function AdminDashboard({ view: initialView = "dashboard" }: { view?: ViewId }) {
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
@@ -109,6 +115,8 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
   }, [members, query]);
 
   const activeCount = courts.filter((c) => c.status === "Active").length;
+  const maintCourts = courts.filter((c) => c.maint);
+  const recentMembers = members.slice(0, 3);
 
   const toggleMaint = (id: number) => {
     setCourts((prev) =>
@@ -144,8 +152,17 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
 
   if (!ready || !allowed) {
     return (
-      <div className="flex h-screen items-center justify-center bg-surface text-on-surface-variant">
-        <p className="font-label-md text-label-md uppercase tracking-widest">Checking access…</p>
+      <div className="admin-console light flex h-dvh bg-surface">
+        <div className="hidden w-80 shrink-0 bg-primary md:block" />
+        <div className="min-w-0 flex-1 space-y-6 px-margin-mobile py-stack-md md:px-margin-desktop">
+          <div className="h-8 w-40 animate-pulse bg-surface-container-high" />
+          <div className="grid grid-cols-1 gap-gutter md:grid-cols-3">
+            <div className="h-32 animate-pulse bg-surface-container-high" />
+            <div className="h-32 animate-pulse bg-surface-container-high" />
+            <div className="h-32 animate-pulse bg-surface-container-high" />
+          </div>
+          <div className="h-24 animate-pulse bg-surface-container-high" />
+        </div>
       </div>
     );
   }
@@ -163,7 +180,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
         onLogout={handleLogout}
       />
 
-      <main id="admin-main" className="custom-scrollbar min-w-0 flex-1 overflow-x-hidden overflow-y-auto md:ml-80">
+      <main id="admin-main" className="custom-scrollbar min-w-0 flex-1 overflow-x-hidden overflow-y-auto pb-[max(2rem,env(safe-area-inset-bottom))] md:ml-80">
         <header className="docked full-width sticky top-0 z-50 flex w-full items-center justify-between gap-2 border-b border-outline-variant/30 bg-surface/90 px-margin-mobile py-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-xl md:px-margin-desktop md:py-4 dark:bg-primary/90">
           <div className="flex min-w-0 items-center gap-2 md:gap-4">
             <button
@@ -198,182 +215,128 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
         </header>
 
         <div className="mx-auto max-w-container-max space-y-stack-md px-margin-mobile py-stack-md md:px-margin-desktop">
-          {(view === "dashboard" || view === "schedule") && (
-          <section className="space-y-stack-sm">
-            <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-              <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-                {view === "schedule" ? "TODAY'S COURT SCHEDULE" : "COURT OCCUPANCY"}
-              </h2>
-              <span className="font-label-sm text-label-sm text-outline uppercase">
-                Live Status: {activeCount}/8 Courts Active
-              </span>
-            </div>
-            <div className="grid grid-cols-1 gap-stack-sm min-[400px]:grid-cols-2 min-[400px]:gap-gutter lg:grid-cols-4">
-              {courts.map((court) => (
-                <div
-                  key={court.id}
-                  className={`space-y-4 border border-outline-variant p-stack-sm ${
-                    court.maint ? "bg-surface-container-high opacity-70" : "bg-surface-container-lowest"
-                  }`}
-                >
-                  <div className="flex items-start justify-between">
-                    <span className="font-headline-sm text-headline-sm text-primary">COURT {court.id}</span>
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`text-[10px] font-bold tracking-tighter uppercase ${
-                          court.status === "Active"
-                            ? "text-on-primary-container"
-                            : court.status === "Maintenance"
-                              ? "text-error"
-                              : "text-outline"
-                        }`}
-                      >
-                        {court.status}
-                      </span>
-                      <div
-                        className={`h-2 w-2 rounded-full ${
-                          court.status === "Active"
-                            ? "bg-on-primary-container"
-                            : court.status === "Maintenance"
-                              ? "bg-error"
-                              : "bg-outline"
-                        }`}
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-label-sm text-label-sm text-outline uppercase">Reserved by</p>
-                    <p className="font-body-md text-body-md font-medium text-primary">{court.player}</p>
-                  </div>
-                  <div className="flex items-center justify-between border-t border-outline-variant/30 pt-2">
-                    <div className="flex items-center gap-1 text-outline">
-                      <span className="material-symbols-outlined text-sm">schedule</span>
-                      <span className="font-mono text-[12px]">{court.time}</span>
-                    </div>
-                    <label className="relative inline-flex cursor-pointer items-center">
-                      <input
-                        type="checkbox"
-                        checked={court.maint}
-                        onChange={() => toggleMaint(court.id)}
-                        className="peer sr-only"
-                      />
-                      <div className="peer h-4 w-8 rounded-full bg-outline-variant after:absolute after:top-[2px] after:left-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none" />
-                    </label>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-          )}
+          {view === "dashboard" && (
+            <>
+              <div>
+                <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">{greetingDate()}</p>
+                <p className="font-body-md text-body-md text-on-surface-variant">
+                  Welcome, Facility Manager
+                  {session?.phone ? ` · +${session.dialCode} ${session.phone}` : ""}
+                </p>
+              </div>
 
-          {(view === "dashboard" || view === "members") && (
-          <section className="space-y-stack-sm">
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-              <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-                MEMBER MANAGEMENT
-              </h2>
-              <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
-                <div className="relative min-w-0 flex-1 sm:flex-none">
-                  <input
-                    className="w-full border-b border-primary bg-transparent py-2 pr-4 pl-8 font-label-md text-label-md uppercase outline-none focus:border-primary-container focus:ring-0 sm:w-64"
-                    placeholder="SEARCH MEMBERS..."
-                    type="text"
-                    value={query}
-                    onChange={(e) => setQuery(e.target.value)}
-                  />
-                  <span className="material-symbols-outlined absolute top-2 left-0 text-primary">search</span>
-                </div>
+              {maintCourts.length > 0 && (
                 <button
                   type="button"
-                  className="border border-primary px-6 py-2 font-bold tracking-wider text-primary uppercase text-label-md transition-all hover:bg-primary hover:text-on-primary"
+                  className="flex w-full items-center justify-between gap-3 border border-error/40 bg-error-container px-4 py-3 text-left"
+                  onClick={() => goTo("schedule")}
                 >
-                  EXPORT LIST
+                  <span className="font-label-md text-label-md text-on-error-container uppercase">
+                    {maintCourts.length} court{maintCourts.length === 1 ? "" : "s"} in maintenance
+                  </span>
+                  <span className="font-label-sm text-label-sm tracking-widest text-error uppercase">View schedule</span>
                 </button>
-              </div>
-            </div>
-            <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
-              <div className="admin-table-scroll overflow-x-auto">
-                <table className="w-full min-w-[40rem] text-left">
-                  <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
-                    <tr>
-                      <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">ID</th>
-                      <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">NAME</th>
-                      <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">VIP TIER</th>
-                      <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">BALANCE</th>
-                      <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">LAST ACTIVE</th>
-                      <th className="px-6 py-4 text-right font-headline-sm text-[14px] tracking-widest">ACTIONS</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-outline-variant/30 font-body-md text-body-md">
-                    {filtered.map((member) => (
-                      <tr key={member.id} className="group transition-colors hover:bg-surface-container-low">
-                        <td className="px-6 py-5 font-mono text-sm">{member.id}</td>
-                        <td className="px-6 py-5">
-                          <div className="flex items-center gap-3">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-xs font-bold">
-                              {initials(member.name)}
-                            </div>
-                            <span className="font-semibold text-primary">{member.name}</span>
-                          </div>
-                        </td>
-                        <td className="px-6 py-5">
-                          <span
-                            className={`inline-block bg-surface-container-high px-3 py-1 text-[10px] font-bold tracking-wider uppercase ${member.color}`}
-                          >
-                            {member.tier}
-                          </span>
-                        </td>
-                        <td className="px-6 py-5 font-mono font-semibold text-primary">{member.balance}</td>
-                        <td className="px-6 py-5 text-sm text-on-surface-variant italic">{member.last}</td>
-                        <td className="space-x-2 px-6 py-5 text-right">
-                          <button type="button" className="text-[10px] font-bold tracking-widest text-primary uppercase hover:underline">
-                            TOP UP
-                          </button>
-                          <button type="button" className="text-[10px] font-bold tracking-widest text-outline uppercase transition-colors hover:text-primary">
-                            EDIT
-                          </button>
-                          <button type="button" className="text-[10px] font-bold tracking-widest text-error uppercase opacity-30 transition-opacity hover:opacity-100">
-                            SUSPEND
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </section>
+              )}
+
+              <KpiRow />
+
+              <section className="grid grid-cols-2 gap-stack-sm md:grid-cols-4">
+                {[
+                  { id: "book", label: "Quick Book", hint: "Reserve a court", icon: "event_available", href: withBase("/booking") },
+                  { id: "schedule", label: "Schedule", hint: "Today's courts", icon: "calendar_today" },
+                  { id: "members", label: "Members", hint: "Manage roster", icon: "groups" },
+                  { id: "inventory", label: "Inventory", hint: "Pro shop stock", icon: "storefront" },
+                ].map((action) =>
+                  action.href ? (
+                    <a
+                      key={action.id}
+                      href={action.href}
+                      className="flex items-center gap-3 border border-outline-variant bg-surface-container-lowest p-4 text-left transition-colors hover:border-primary hover:bg-surface-container-low"
+                    >
+                      <span className="material-symbols-outlined text-primary">{action.icon}</span>
+                      <span>
+                        <span className="font-label-md text-label-md block text-primary uppercase">{action.label}</span>
+                        <span className="font-body-md text-[11px] text-on-surface-variant">{action.hint}</span>
+                      </span>
+                    </a>
+                  ) : (
+                    <button
+                      key={action.id}
+                      type="button"
+                      className="flex items-center gap-3 border border-outline-variant bg-surface-container-lowest p-4 text-left transition-colors hover:border-primary hover:bg-surface-container-low"
+                      onClick={() => goTo(action.id as ViewId)}
+                    >
+                      <span className="material-symbols-outlined text-primary">{action.icon}</span>
+                      <span>
+                        <span className="font-label-md text-label-md block text-primary uppercase">{action.label}</span>
+                        <span className="font-body-md text-[11px] text-on-surface-variant">{action.hint}</span>
+                      </span>
+                    </button>
+                  ),
+                )}
+              </section>
+
+              <CourtsBlock title="COURT OCCUPANCY" courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+
+              <section className="space-y-stack-sm">
+                <div className="flex items-end justify-between gap-4">
+                  <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+                    RECENT MEMBERS
+                  </h2>
+                  <button
+                    type="button"
+                    className="font-label-sm text-label-sm tracking-widest text-primary uppercase hover:underline"
+                    onClick={() => goTo("members")}
+                  >
+                    View all
+                  </button>
+                </div>
+                <MemberTable members={recentMembers} compact />
+              </section>
+            </>
           )}
 
-          {view === "dashboard" && (
-          <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
-            <div className="space-y-4 border border-outline-variant p-stack-md">
-              <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">TOTAL DAILY REVENUE</p>
-              <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">$12,492.00</p>
-              <div className="flex items-center gap-2 text-on-primary-container">
-                <span className="material-symbols-outlined text-sm">trending_up</span>
-                <span className="text-xs font-bold tracking-tighter uppercase">+18.5% VS YESTERDAY</span>
+          {view === "schedule" && (
+            <CourtsBlock title="TODAY'S COURT SCHEDULE" courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+          )}
+
+          {view === "members" && (
+            <section className="space-y-stack-sm">
+              <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+                  MEMBER MANAGEMENT
+                </h2>
+                <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
+                  <div className="relative min-w-0 flex-1 sm:flex-none">
+                    <input
+                      className="w-full border-b border-primary bg-transparent py-2 pr-4 pl-8 font-label-md text-label-md uppercase outline-none focus:border-primary-container focus:ring-0 sm:w-64"
+                      placeholder="SEARCH MEMBERS..."
+                      type="text"
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                    />
+                    <span className="material-symbols-outlined absolute top-2 left-0 text-primary">search</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="border border-primary px-6 py-2 font-bold tracking-wider text-primary uppercase text-label-md transition-all hover:bg-primary hover:text-on-primary"
+                  >
+                    EXPORT LIST
+                  </button>
+                </div>
               </div>
-            </div>
-            <div className="space-y-4 border border-outline-variant p-stack-md">
-              <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">MEMBERS ON-SITE</p>
-              <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">42</p>
-              <div className="flex items-center gap-2 text-primary">
-                <span className="material-symbols-outlined text-sm">people</span>
-                <span className="text-xs font-bold tracking-tighter uppercase">85% CAPACITY</span>
-              </div>
-            </div>
-            <div className="space-y-4 border border-outline-variant bg-primary p-stack-md text-on-primary">
-              <p className="font-label-sm text-label-sm tracking-widest text-on-primary/60 uppercase">MEMBERSHIP GROWTH</p>
-              <p className="font-display-md text-[clamp(2rem,8vw,3rem)] md:text-display-md">+12</p>
-              <div className="flex items-center gap-2 text-on-primary/60">
-                <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
-                  loyalty
-                </span>
-                <span className="text-xs font-bold tracking-tighter uppercase">NEW MEMBERS THIS WEEK</span>
-              </div>
-            </div>
-          </section>
+              {filtered.length === 0 ? (
+                <div className="flex flex-col items-center border border-dashed border-outline-variant px-4 py-12 text-center">
+                  <span className="material-symbols-outlined mb-3 text-outline">group_off</span>
+                  <p className="font-headline-sm text-headline-sm text-primary uppercase">No members match</p>
+                  <p className="font-body-md text-body-md mt-2 max-w-sm text-on-surface-variant">
+                    Try another name, ID, or tier — or clear the search to see the full roster.
+                  </p>
+                </div>
+              ) : (
+                <MemberTable members={filtered} />
+              )}
+            </section>
           )}
 
           {view === "inventory" && (
@@ -447,51 +410,180 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
             </section>
           )}
         </div>
-
-        <footer className="full-width bottom-0 mt-stack-xl border-t border-on-primary-fixed-variant/20 bg-primary">
-          <div className="mx-auto grid w-full max-w-container-max grid-cols-1 gap-gutter px-margin-mobile py-stack-lg md:grid-cols-4 md:px-margin-desktop">
-            <div className="space-y-4 md:col-span-2">
-              <span className="font-display-md text-headline-lg-mobile block text-on-primary uppercase md:text-display-md">
-                BOLD PICKLEBALL
-              </span>
-              <p className="font-body-md text-body-md max-w-md text-on-primary/70">
-                The elite standard in athletic competition and social membership. Access your dashboard for facility
-                management, member insights, and operational excellence.
-              </p>
-            </div>
-            <div className="space-y-4">
-              <h4 className="font-headline-sm text-headline-sm text-on-primary uppercase">ADMIN LINKS</h4>
-              <nav className="flex flex-col gap-2">
-                <a className="font-body-md text-body-md text-on-primary/70 underline transition-all hover:text-on-primary" href="#">
-                  Facility Settings
-                </a>
-                <a className="font-body-md text-body-md text-on-primary/70 underline transition-all hover:text-on-primary" href="#">
-                  Support Portal
-                </a>
-                <a className="font-body-md text-body-md text-on-primary/70 underline transition-all hover:text-on-primary" href="#">
-                  Staff Management
-                </a>
-              </nav>
-            </div>
-            <div className="space-y-4">
-              <h4 className="font-headline-sm text-headline-sm text-on-primary uppercase">LEGAL</h4>
-              <nav className="flex flex-col gap-2">
-                <a className="font-body-md text-body-md text-on-primary/70 underline transition-all hover:text-on-primary" href="#">
-                  Privacy Policy
-                </a>
-                <a className="font-body-md text-body-md text-on-primary/70 underline transition-all hover:text-on-primary" href="#">
-                  Terms of Service
-                </a>
-              </nav>
-            </div>
-          </div>
-          <div className="border-t border-on-primary/10 px-margin-mobile py-8 pb-[max(2rem,env(safe-area-inset-bottom))] md:px-margin-desktop">
-            <p className="font-label-sm text-label-sm text-center tracking-[0.3em] text-on-primary/50 uppercase">
-              © 2024 BOLD PICKLEBALL. ALL RIGHTS RESERVED.
-            </p>
-          </div>
-        </footer>
       </main>
+    </div>
+  );
+}
+
+function KpiRow() {
+  return (
+    <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
+      <div className="space-y-4 border border-outline-variant p-stack-md">
+        <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">TOTAL DAILY REVENUE</p>
+        <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">$12,492.00</p>
+        <div className="flex items-center gap-2 text-on-primary-container">
+          <span className="material-symbols-outlined text-sm">trending_up</span>
+          <span className="text-xs font-bold tracking-tighter uppercase">+18.5% VS YESTERDAY</span>
+        </div>
+      </div>
+      <div className="space-y-4 border border-outline-variant p-stack-md">
+        <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">MEMBERS ON-SITE</p>
+        <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">42</p>
+        <div className="flex items-center gap-2 text-primary">
+          <span className="material-symbols-outlined text-sm">people</span>
+          <span className="text-xs font-bold tracking-tighter uppercase">85% CAPACITY</span>
+        </div>
+      </div>
+      <div className="space-y-4 border border-outline-variant bg-primary p-stack-md text-on-primary">
+        <p className="font-label-sm text-label-sm tracking-widest text-on-primary/60 uppercase">MEMBERSHIP GROWTH</p>
+        <p className="font-display-md text-[clamp(2rem,8vw,3rem)] md:text-display-md">+12</p>
+        <div className="flex items-center gap-2 text-on-primary/60">
+          <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
+            loyalty
+          </span>
+          <span className="text-xs font-bold tracking-tighter uppercase">NEW MEMBERS THIS WEEK</span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function CourtsBlock({
+  title,
+  courts,
+  activeCount,
+  onToggle,
+}: {
+  title: string;
+  courts: Court[];
+  activeCount: number;
+  onToggle: (id: number) => void;
+}) {
+  return (
+    <section className="space-y-stack-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+        <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+          {title}
+        </h2>
+        <span className="font-label-sm text-label-sm text-outline uppercase">
+          Live Status: {activeCount}/8 Courts Active
+        </span>
+      </div>
+      <div className="grid grid-cols-1 gap-stack-sm min-[400px]:grid-cols-2 min-[400px]:gap-gutter lg:grid-cols-4">
+        {courts.map((court) => (
+          <div
+            key={court.id}
+            className={`space-y-4 border border-outline-variant p-stack-sm ${
+              court.maint ? "bg-surface-container-high opacity-70" : "bg-surface-container-lowest"
+            }`}
+          >
+            <div className="flex items-start justify-between">
+              <span className="font-headline-sm text-headline-sm text-primary">COURT {court.id}</span>
+              <div className="flex items-center gap-2">
+                <span
+                  className={`text-[10px] font-bold tracking-tighter uppercase ${
+                    court.status === "Active"
+                      ? "text-on-primary-container"
+                      : court.status === "Maintenance"
+                        ? "text-error"
+                        : "text-outline"
+                  }`}
+                >
+                  {court.status}
+                </span>
+                <div
+                  className={`h-2 w-2 rounded-full ${
+                    court.status === "Active"
+                      ? "bg-on-primary-container"
+                      : court.status === "Maintenance"
+                        ? "bg-error"
+                        : "bg-outline"
+                  }`}
+                />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <p className="font-label-sm text-label-sm text-outline uppercase">Reserved by</p>
+              <p className="font-body-md text-body-md font-medium text-primary">{court.player}</p>
+            </div>
+            <div className="flex items-center justify-between border-t border-outline-variant/30 pt-2">
+              <div className="flex items-center gap-1 text-outline">
+                <span className="material-symbols-outlined text-sm">schedule</span>
+                <span className="font-mono text-[12px]">{court.time}</span>
+              </div>
+              <label className="relative inline-flex cursor-pointer items-center">
+                <input
+                  type="checkbox"
+                  checked={court.maint}
+                  onChange={() => onToggle(court.id)}
+                  className="peer sr-only"
+                />
+                <div className="peer h-4 w-8 rounded-full bg-outline-variant after:absolute after:top-[2px] after:left-[2px] after:h-3 after:w-3 after:rounded-full after:border after:border-gray-300 after:bg-white after:transition-all after:content-[''] peer-checked:bg-primary peer-checked:after:translate-x-full peer-checked:after:border-white peer-focus:outline-none" />
+              </label>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function MemberTable({ members, compact = false }: { members: Member[]; compact?: boolean }) {
+  return (
+    <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
+      <div className="admin-table-scroll overflow-x-auto">
+        <table className="w-full min-w-[40rem] text-left">
+          <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
+            <tr>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">ID</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">NAME</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">VIP TIER</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">BALANCE</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">LAST ACTIVE</th>
+              {!compact && (
+                <th className="px-6 py-4 text-right font-headline-sm text-[14px] tracking-widest">ACTIONS</th>
+              )}
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-outline-variant/30 font-body-md text-body-md">
+            {members.map((member) => (
+              <tr key={member.id} className="group transition-colors hover:bg-surface-container-low">
+                <td className="px-6 py-5 font-mono text-sm">{member.id}</td>
+                <td className="px-6 py-5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-high text-xs font-bold">
+                      {initials(member.name)}
+                    </div>
+                    <span className="font-semibold text-primary">{member.name}</span>
+                  </div>
+                </td>
+                <td className="px-6 py-5">
+                  <span
+                    className={`inline-block bg-surface-container-high px-3 py-1 text-[10px] font-bold tracking-wider uppercase ${member.color}`}
+                  >
+                    {member.tier}
+                  </span>
+                </td>
+                <td className="px-6 py-5 font-mono font-semibold text-primary">{member.balance}</td>
+                <td className="px-6 py-5 text-sm text-on-surface-variant italic">{member.last}</td>
+                {!compact && (
+                  <td className="space-x-2 px-6 py-5 text-right">
+                    <button type="button" className="text-[10px] font-bold tracking-widest text-primary uppercase hover:underline">
+                      TOP UP
+                    </button>
+                    <button type="button" className="text-[10px] font-bold tracking-widest text-outline uppercase transition-colors hover:text-primary">
+                      EDIT
+                    </button>
+                    <button type="button" className="text-[10px] font-bold tracking-widest text-error uppercase opacity-30 transition-opacity hover:opacity-100">
+                      SUSPEND
+                    </button>
+                  </td>
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
