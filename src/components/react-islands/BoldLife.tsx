@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { loadSiteContent, type GalleryImage } from "@/lib/site-content";
+import { useLocale } from "@/lib/use-locale";
 
 export default function BoldLife() {
+  const { t } = useLocale();
   const [images, setImages] = useState<GalleryImage[]>(() => loadSiteContent().gallery);
 
   useEffect(() => {
@@ -11,7 +13,7 @@ export default function BoldLife() {
   return (
     <section id="life" className="py-stack-lg">
       <div className="mb-stack-md flex flex-col gap-2 px-margin-mobile sm:flex-row sm:items-center sm:justify-between md:px-margin-desktop">
-        <h2 className="font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">BOLD LIFE</h2>
+        <h2 className="font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">{t("life.title")}</h2>
         <span className="truncate font-sans text-[10px] font-semibold uppercase text-on-surface-variant sm:text-label-sm">
           @BOLDPICKLEBALL
         </span>

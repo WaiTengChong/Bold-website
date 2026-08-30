@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { loadSiteContent, publishedNews, type NewsItem } from "@/lib/site-content";
+import { useLocale } from "@/lib/use-locale";
 
 export default function SiteNews() {
+  const { t } = useLocale();
   const [items, setItems] = useState<NewsItem[]>(() => publishedNews(loadSiteContent()));
 
   useEffect(() => {
@@ -14,7 +16,7 @@ export default function SiteNews() {
     <section id="news" className="px-margin-mobile py-stack-lg md:px-margin-desktop">
       <div className="mx-auto max-w-container-max">
         <h2 className="mb-stack-md font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">
-          Club News
+          {t("news.title")}
         </h2>
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {items.map((item) => (

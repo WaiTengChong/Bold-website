@@ -1,6 +1,6 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
-import AuthPanel from "@/components/AuthPanel.astro";
+import AuthPanel from "@/components/react-islands/AuthPanel";
 ---
 
 <BaseLayout
@@ -8,11 +8,6 @@ import AuthPanel from "@/components/AuthPanel.astro";
   description="Create your BOLD Pickleball account to book courts and join the club."
 >
   <main class="overflow-x-hidden">
-    <AuthPanel
-      mode="signup"
-      eyebrow="Join BOLD"
-      title="Create Account"
-      subtitle="Sign up with your phone number to start booking courts."
-    />
+    <AuthPanel client:load mode="signup" />
   </main>
 </BaseLayout>

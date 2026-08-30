@@ -1,8 +1,9 @@
 ---
 import "@/styles/global.css";
-import SiteHeader from "@/components/SiteHeader.astro";
+import SiteHeader from "@/components/react-islands/SiteHeader";
 import SiteFooter from "@/components/SiteFooter.astro";
-import MobileChrome from "@/components/MobileChrome.astro";
+import MobileChrome from "@/components/react-islands/MobileChrome";
+import I18nBoot from "@/components/react-islands/I18nBoot";
 import { withBase } from "@/lib/utils";
 
 interface Props {
@@ -29,9 +30,10 @@ const { title, description } = Astro.props;
     <title>{title}</title>
   </head>
   <body class="overflow-x-hidden bg-surface text-on-surface pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
-    <SiteHeader />
+    <I18nBoot client:load />
+    <SiteHeader client:load />
     <slot />
     <SiteFooter />
-    <MobileChrome />
+    <MobileChrome client:load />
   </body>
 </html>

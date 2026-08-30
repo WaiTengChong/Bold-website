@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ensureAdminSeed, isAdmin } from "@/lib/auth-client";
+import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export default function AdminNavLink({ className }: Props) {
+  const { t } = useLocale();
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -18,7 +20,7 @@ export default function AdminNavLink({ className }: Props) {
 
   return (
     <a href={withBase("/admin")} className={className}>
-      Admin
+      {t("header.admin")}
     </a>
   );
 }

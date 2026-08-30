@@ -2,11 +2,11 @@
 import Icon from "@/components/Icon.astro";
 
 const items = [
-  { label: "PLAY", icon: "activity" as const },
-  { label: "TRAIN", icon: "dumbbell" as const },
-  { label: "RECOVER", icon: "heart" as const },
-  { label: "CONNECT", icon: "users" as const },
-  { label: "BELONG", icon: "award" as const },
+  { key: "values.play", icon: "activity" as const },
+  { key: "values.train", icon: "dumbbell" as const },
+  { key: "values.recover", icon: "heart" as const },
+  { key: "values.connect", icon: "users" as const },
+  { key: "values.belong", icon: "award" as const },
 ];
 ---
 
@@ -14,9 +14,9 @@ const items = [
   <div class="flex w-max animate-bold-scroll">
     {[0, 1].map((copy) => (
       <div class="flex items-center gap-stack-lg px-margin-desktop" aria-hidden={copy === 1 ? "true" : undefined}>
-        {items.map(({ label, icon }) => (
+        {items.map(({ key, icon }) => (
           <>
-            <span class="font-display text-headline-lg-mobile text-on-primary opacity-20 md:text-display-md">{label}</span>
+            <span class="font-display text-headline-lg-mobile text-on-primary opacity-20 md:text-display-md" data-i18n={key}>{key}</span>
             <Icon name={icon} class="size-8 text-on-primary-container" />
           </>
         ))}

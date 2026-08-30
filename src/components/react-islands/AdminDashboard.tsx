@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { ensureAdminSeed, getSession, isAdmin, logout } from "@/lib/auth-client";
-import { ADMIN_TITLES, adminHref, samePath, viewFromPath, type ViewId } from "@/lib/admin-nav";
+import { adminHref, samePath, viewFromPath, type ViewId } from "@/lib/admin-nav";
+import type { MessageKey } from "@/lib/i18n";
+import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
 import AdminSidebar from "./AdminSidebar";
 import AdminCms from "./AdminCms";
+import LanguageToggle from "./LanguageToggle";
 
 type Court = {
   id: number;
@@ -61,7 +64,17 @@ function greetingDate() {
     .toUpperCase();
 }
 
+const navKeys: Record<ViewId, MessageKey> = {
+  dashboard: "admin.nav.dashboard",
+  schedule: "admin.nav.schedule",
+  members: "admin.nav.members",
+  content: "admin.nav.content",
+  inventory: "admin.nav.inventory",
+  settings: "admin.nav.settings",
+};
+
 export default function AdminDashboard({ view: initialView = "dashboard" }: { view?: ViewId }) {
+  const { t } = useLocale();
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
   const [courts, setCourts] = useState(INITIAL_COURTS);
@@ -145,7 +158,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
     if (!samePath(window.location.pathname, href)) {
       window.history.pushState({ view: id }, "", href);
     }
-    document.title = `BOLD PICKLEBALL | ${id[0].toUpperCase()}${id.slice(1)}`;
+    document.title = `BOLD PICKLEBALL | ${t(navKeys[id])}`;
     requestAnimationFrame(() => {
       document.getElementById("admin-main")?.scrollTo({ top: 0 });
     });
@@ -188,16 +201,17 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
               type="button"
               className="shrink-0 text-primary md:pointer-events-none"
               aria-expanded={navOpen}
-              aria-label="Open menu"
+              aria-label={t("admin.openMenu")}
               onClick={() => setNavOpen(true)}
             >
               <span className="material-symbols-outlined">menu</span>
             </button>
             <h1 className="font-headline-lg-mobile text-headline-lg-mobile truncate text-primary uppercase md:font-headline-lg md:text-headline-lg">
-              {ADMIN_TITLES[view]}
+              {t(navKeys[view])}
             </h1>
           </div>
           <div className="flex shrink-0 items-center gap-2 md:gap-gutter">
+            <LanguageToggle />
             <div className="hidden items-center gap-6 md:flex">
               <span className="material-symbols-outlined cursor-pointer text-on-surface-variant transition-colors hover:text-primary">
                 notifications
@@ -210,7 +224,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
               href={withBase("/booking")}
               className="bg-primary px-3 py-2 font-bold tracking-wider text-on-primary uppercase text-[11px] transition-all active:scale-95 active:opacity-80 sm:px-6 sm:text-label-md"
             >
-              QUICK BOOK
+              {t("admin.quickBook")}
             </a>
           </div>
         </header>
@@ -221,7 +235,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
               <div>
                 <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">{greetingDate()}</p>
                 <p className="font-body-md text-body-md text-on-surface-variant">
-                  Welcome, Facility Manager
+                  {t("admin.welcome")}
                   {session?.phone ? ` · +${session.dialCode} ${session.phone}` : ""}
                 </p>
               </div>
@@ -233,9 +247,11 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                   onClick={() => goTo("schedule")}
                 >
                   <span className="font-label-md text-label-md text-on-error-container uppercase">
-                    {maintCourts.length} court{maintCourts.length === 1 ? "" : "s"} in maintenance
+                    {maintCourts.length === 1
+                      ? t("admin.maintAlert", { count: maintCourts.length })
+                      : t("admin.maintAlertPlural", { count: maintCourts.length })}
                   </span>
-                  <span className="font-label-sm text-label-sm tracking-widest text-error uppercase">View schedule</span>
+                  <span className="font-label-sm text-label-sm tracking-widest text-error uppercase">{t("admin.viewSchedule")}</span>
                 </button>
               )}
 
@@ -243,10 +259,10 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
 
               <section className="grid grid-cols-2 gap-stack-sm md:grid-cols-4">
                 {[
-                  { id: "book", label: "Quick Book", hint: "Reserve a court", icon: "event_available", href: withBase("/booking") },
-                  { id: "schedule", label: "Schedule", hint: "Today's courts", icon: "calendar_today" },
-                  { id: "content", label: "Site content", hint: "Photos, events, news", icon: "photo_library" },
-                  { id: "members", label: "Members", hint: "Manage roster", icon: "groups" },
+                  { id: "book", label: t("admin.quickBookAction"), hint: t("admin.quickBookHint"), icon: "event_available", href: withBase("/booking") },
+                  { id: "schedule", label: t("admin.scheduleAction"), hint: t("admin.scheduleHint"), icon: "calendar_today" },
+                  { id: "content", label: t("admin.contentAction"), hint: t("admin.contentHint"), icon: "photo_library" },
+                  { id: "members", label: t("admin.membersAction"), hint: t("admin.membersHint"), icon: "groups" },
                 ].map((action) =>
                   action.href ? (
                     <a
@@ -277,19 +293,19 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                 )}
               </section>
 
-              <CourtsBlock title="COURT OCCUPANCY" courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+              <CourtsBlock title={t("admin.courtOccupancy")} courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
 
               <section className="space-y-stack-sm">
                 <div className="flex items-end justify-between gap-4">
                   <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-                    RECENT MEMBERS
+                    {t("admin.recentMembers")}
                   </h2>
                   <button
                     type="button"
                     className="font-label-sm text-label-sm tracking-widest text-primary uppercase hover:underline"
                     onClick={() => goTo("members")}
                   >
-                    View all
+                    {t("admin.viewAll")}
                   </button>
                 </div>
                 <MemberTable members={recentMembers} compact />
@@ -298,20 +314,20 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
           )}
 
           {view === "schedule" && (
-            <CourtsBlock title="TODAY'S COURT SCHEDULE" courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+            <CourtsBlock title={t("admin.todaySchedule")} courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
           )}
 
           {view === "members" && (
             <section className="space-y-stack-sm">
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
                 <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-                  MEMBER MANAGEMENT
+                  {t("admin.memberMgmt")}
                 </h2>
                 <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:gap-4">
                   <div className="relative min-w-0 flex-1 sm:flex-none">
                     <input
                       className="w-full border-b border-primary bg-transparent py-2 pr-4 pl-8 font-label-md text-label-md uppercase outline-none focus:border-primary-container focus:ring-0 sm:w-64"
-                      placeholder="SEARCH MEMBERS..."
+                      placeholder={t("admin.searchMembers")}
                       type="text"
                       value={query}
                       onChange={(e) => setQuery(e.target.value)}
@@ -322,16 +338,16 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                     type="button"
                     className="border border-primary px-6 py-2 font-bold tracking-wider text-primary uppercase text-label-md transition-all hover:bg-primary hover:text-on-primary"
                   >
-                    EXPORT LIST
+                    {t("admin.exportList")}
                   </button>
                 </div>
               </div>
               {filtered.length === 0 ? (
                 <div className="flex flex-col items-center border border-dashed border-outline-variant px-4 py-12 text-center">
                   <span className="material-symbols-outlined mb-3 text-outline">group_off</span>
-                  <p className="font-headline-sm text-headline-sm text-primary uppercase">No members match</p>
+                  <p className="font-headline-sm text-headline-sm text-primary uppercase">{t("admin.noMembers")}</p>
                   <p className="font-body-md text-body-md mt-2 max-w-sm text-on-surface-variant">
-                    Try another name, ID, or tier — or clear the search to see the full roster.
+                    {t("admin.noMembersHint")}
                   </p>
                 </div>
               ) : (
@@ -345,17 +361,17 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
           {view === "inventory" && (
             <section className="space-y-stack-sm">
               <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-                PRO SHOP INVENTORY
+                {t("admin.inventory")}
               </h2>
               <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
                 <div className="admin-table-scroll overflow-x-auto">
                   <table className="w-full min-w-[28rem] text-left">
                     <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
                       <tr>
-                        <th className="px-6 py-4 text-[14px] tracking-widest">SKU</th>
-                        <th className="px-6 py-4 text-[14px] tracking-widest">ITEM</th>
-                        <th className="px-6 py-4 text-[14px] tracking-widest">STOCK</th>
-                        <th className="px-6 py-4 text-[14px] tracking-widest">STATUS</th>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">{t("admin.sku")}</th>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">{t("admin.item")}</th>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">{t("admin.stock")}</th>
+                        <th className="px-6 py-4 text-[14px] tracking-widest">{t("admin.statusCol")}</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-outline-variant/30 font-body-md text-body-md">
@@ -370,7 +386,11 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                                 row.status === "In stock" ? "text-on-primary-container" : "text-error"
                               }`}
                             >
-                              {row.status}
+                              {row.status === "In stock"
+                                ? t("admin.inStock")
+                                : row.status === "Low"
+                                  ? t("admin.low")
+                                  : t("admin.reorder")}
                             </span>
                           </td>
                         </tr>
@@ -385,29 +405,29 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
           {view === "settings" && (
             <section className="space-y-stack-sm">
               <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-                FACILITY SETTINGS
+                {t("admin.settings")}
               </h2>
               <div className="space-y-4 border border-outline-variant bg-surface-container-lowest p-stack-md">
                 <div className="flex items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
                   <div>
-                    <p className="font-label-md text-label-md text-primary uppercase">Guest booking</p>
-                    <p className="font-body-md text-body-md text-on-surface-variant">Allow non-members to reserve courts</p>
+                    <p className="font-label-md text-label-md text-primary uppercase">{t("admin.guestBooking")}</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.guestBookingDesc")}</p>
                   </div>
-                  <span className="font-label-sm text-label-sm text-outline uppercase">Off</span>
+                  <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.off")}</span>
                 </div>
                 <div className="flex items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
                   <div>
-                    <p className="font-label-md text-label-md text-primary uppercase">SMS reminders</p>
-                    <p className="font-body-md text-body-md text-on-surface-variant">Send booking reminders 2 hours before play</p>
+                    <p className="font-label-md text-label-md text-primary uppercase">{t("admin.smsReminders")}</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.smsRemindersDesc")}</p>
                   </div>
-                  <span className="font-label-sm text-label-sm text-on-primary-container uppercase">On</span>
+                  <span className="font-label-sm text-label-sm text-on-primary-container uppercase">{t("admin.on")}</span>
                 </div>
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="font-label-md text-label-md text-primary uppercase">Opening hours</p>
-                    <p className="font-body-md text-body-md text-on-surface-variant">06:00 – 23:00 daily</p>
+                    <p className="font-label-md text-label-md text-primary uppercase">{t("admin.openingHours")}</p>
+                    <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.openingHoursDesc")}</p>
                   </div>
-                  <span className="font-label-sm text-label-sm text-outline uppercase">Edit</span>
+                  <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.edit")}</span>
                 </div>
               </div>
             </section>
@@ -419,32 +439,33 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
 }
 
 function KpiRow() {
+  const { t } = useLocale();
   return (
     <section className="grid grid-cols-1 gap-gutter md:grid-cols-3">
       <div className="space-y-4 border border-outline-variant p-stack-md">
-        <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">TOTAL DAILY REVENUE</p>
+        <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">{t("admin.kpi.revenue")}</p>
         <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">$12,492.00</p>
         <div className="flex items-center gap-2 text-on-primary-container">
           <span className="material-symbols-outlined text-sm">trending_up</span>
-          <span className="text-xs font-bold tracking-tighter uppercase">+18.5% VS YESTERDAY</span>
+          <span className="text-xs font-bold tracking-tighter uppercase">{t("admin.kpi.vsYesterday")}</span>
         </div>
       </div>
       <div className="space-y-4 border border-outline-variant p-stack-md">
-        <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">MEMBERS ON-SITE</p>
+        <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">{t("admin.kpi.onSite")}</p>
         <p className="font-display-md text-[clamp(2rem,8vw,3rem)] text-primary md:text-display-md">42</p>
         <div className="flex items-center gap-2 text-primary">
           <span className="material-symbols-outlined text-sm">people</span>
-          <span className="text-xs font-bold tracking-tighter uppercase">85% CAPACITY</span>
+          <span className="text-xs font-bold tracking-tighter uppercase">{t("admin.kpi.capacity")}</span>
         </div>
       </div>
       <div className="space-y-4 border border-outline-variant bg-primary p-stack-md text-on-primary">
-        <p className="font-label-sm text-label-sm tracking-widest text-on-primary/60 uppercase">MEMBERSHIP GROWTH</p>
+        <p className="font-label-sm text-label-sm tracking-widest text-on-primary/60 uppercase">{t("admin.kpi.growth")}</p>
         <p className="font-display-md text-[clamp(2rem,8vw,3rem)] md:text-display-md">+12</p>
         <div className="flex items-center gap-2 text-on-primary/60">
           <span className="material-symbols-outlined text-sm" style={{ fontVariationSettings: "'FILL' 1" }}>
             loyalty
           </span>
-          <span className="text-xs font-bold tracking-tighter uppercase">NEW MEMBERS THIS WEEK</span>
+          <span className="text-xs font-bold tracking-tighter uppercase">{t("admin.kpi.newMembers")}</span>
         </div>
       </div>
     </section>
@@ -462,6 +483,14 @@ function CourtsBlock({
   activeCount: number;
   onToggle: (id: number) => void;
 }) {
+  const { t } = useLocale();
+
+  const statusLabel = (status: Court["status"]) => {
+    if (status === "Active") return t("admin.status.active");
+    if (status === "Maintenance") return t("admin.status.maintenance");
+    return t("admin.status.available");
+  };
+
   return (
     <section className="space-y-stack-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -469,7 +498,7 @@ function CourtsBlock({
           {title}
         </h2>
         <span className="font-label-sm text-label-sm text-outline uppercase">
-          Live Status: {activeCount}/8 Courts Active
+          {t("admin.liveStatus", { active: activeCount })}
         </span>
       </div>
       <div className="grid grid-cols-1 gap-stack-sm min-[400px]:grid-cols-2 min-[400px]:gap-gutter lg:grid-cols-4">
@@ -481,7 +510,9 @@ function CourtsBlock({
             }`}
           >
             <div className="flex items-start justify-between">
-              <span className="font-headline-sm text-headline-sm text-primary">COURT {court.id}</span>
+              <span className="font-headline-sm text-headline-sm text-primary">
+                {t("admin.court")} {court.id}
+              </span>
               <div className="flex items-center gap-2">
                 <span
                   className={`text-[10px] font-bold tracking-tighter uppercase ${
@@ -492,7 +523,7 @@ function CourtsBlock({
                         : "text-outline"
                   }`}
                 >
-                  {court.status}
+                  {statusLabel(court.status)}
                 </span>
                 <div
                   className={`h-2 w-2 rounded-full ${
@@ -506,7 +537,7 @@ function CourtsBlock({
               </div>
             </div>
             <div className="space-y-1">
-              <p className="font-label-sm text-label-sm text-outline uppercase">Reserved by</p>
+              <p className="font-label-sm text-label-sm text-outline uppercase">{t("admin.reservedBy")}</p>
               <p className="font-body-md text-body-md font-medium text-primary">{court.player}</p>
             </div>
             <div className="flex items-center justify-between border-t border-outline-variant/30 pt-2">
@@ -532,19 +563,20 @@ function CourtsBlock({
 }
 
 function MemberTable({ members, compact = false }: { members: Member[]; compact?: boolean }) {
+  const { t } = useLocale();
   return (
     <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
       <div className="admin-table-scroll overflow-x-auto">
         <table className="w-full min-w-[40rem] text-left">
           <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
             <tr>
-              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">ID</th>
-              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">NAME</th>
-              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">VIP TIER</th>
-              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">BALANCE</th>
-              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">LAST ACTIVE</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">{t("admin.table.id")}</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">{t("admin.table.name")}</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">{t("admin.table.tier")}</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">{t("admin.table.balance")}</th>
+              <th className="px-6 py-4 font-headline-sm text-[14px] tracking-widest">{t("admin.table.lastActive")}</th>
               {!compact && (
-                <th className="px-6 py-4 text-right font-headline-sm text-[14px] tracking-widest">ACTIONS</th>
+                <th className="px-6 py-4 text-right font-headline-sm text-[14px] tracking-widest">{t("admin.table.actions")}</th>
               )}
             </tr>
           </thead>
@@ -572,13 +604,13 @@ function MemberTable({ members, compact = false }: { members: Member[]; compact?
                 {!compact && (
                   <td className="space-x-2 px-6 py-5 text-right">
                     <button type="button" className="text-[10px] font-bold tracking-widest text-primary uppercase hover:underline">
-                      TOP UP
+                      {t("admin.topUp")}
                     </button>
                     <button type="button" className="text-[10px] font-bold tracking-widest text-outline uppercase transition-colors hover:text-primary">
-                      EDIT
+                      {t("admin.edit")}
                     </button>
                     <button type="button" className="text-[10px] font-bold tracking-widest text-error uppercase opacity-30 transition-opacity hover:opacity-100">
-                      SUSPEND
+                      {t("admin.suspend")}
                     </button>
                   </td>
                 )}

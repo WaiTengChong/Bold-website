@@ -1,5 +1,7 @@
 import type { Session } from "@/lib/auth-client";
 import { ADMIN_NAV_ITEMS, adminHref, type ViewId } from "@/lib/admin-nav";
+import type { MessageKey } from "@/lib/i18n";
+import { useLocale } from "@/lib/use-locale";
 
 type Props = {
   view: ViewId;
@@ -10,14 +12,25 @@ type Props = {
   onLogout: () => void;
 };
 
+const navKeys: Record<ViewId, MessageKey> = {
+  dashboard: "admin.nav.dashboard",
+  schedule: "admin.nav.schedule",
+  members: "admin.nav.members",
+  content: "admin.nav.content",
+  inventory: "admin.nav.inventory",
+  settings: "admin.nav.settings",
+};
+
 export default function AdminSidebar({ view, open, session, onClose, onNavigate, onLogout }: Props) {
+  const { t } = useLocale();
+
   return (
     <>
       {open && (
         <button
           type="button"
           className="fixed inset-0 left-[min(20rem,88vw)] z-[55] bg-primary/40 md:hidden"
-          aria-label="Close menu"
+          aria-label={t("admin.closeMenu")}
           onClick={onClose}
         />
       )}
@@ -31,9 +44,9 @@ export default function AdminSidebar({ view, open, session, onClose, onNavigate,
             <span className="font-headline-lg text-headline-lg block uppercase tracking-widest text-primary dark:text-on-primary">
               BOLD
             </span>
-            <span className="font-label-sm text-label-sm tracking-[0.2em] text-on-primary/60">ADMIN CONSOLE</span>
+            <span className="font-label-sm text-label-sm tracking-[0.2em] text-on-primary/60">{t("admin.console")}</span>
           </div>
-          <button type="button" className="text-on-primary md:hidden" aria-label="Close menu" onClick={onClose}>
+          <button type="button" className="text-on-primary md:hidden" aria-label={t("admin.closeMenu")} onClick={onClose}>
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>
@@ -61,7 +74,7 @@ export default function AdminSidebar({ view, open, session, onClose, onNavigate,
                 >
                   {item.icon}
                 </span>
-                <span className="font-headline-sm text-headline-sm uppercase">{item.label}</span>
+                <span className="font-headline-sm text-headline-sm uppercase">{t(navKeys[item.id])}</span>
               </a>
             );
           })}
@@ -73,7 +86,7 @@ export default function AdminSidebar({ view, open, session, onClose, onNavigate,
             </div>
             <div>
               <p className="font-label-md text-label-md text-on-primary">John Doe</p>
-              <p className="text-[10px] tracking-wider text-on-primary/50 uppercase">Facility Manager</p>
+              <p className="text-[10px] tracking-wider text-on-primary/50 uppercase">{t("admin.role")}</p>
               <p className="text-[10px] text-on-primary/40">
                 +{session?.dialCode} {session?.phone}
               </p>
@@ -84,7 +97,7 @@ export default function AdminSidebar({ view, open, session, onClose, onNavigate,
             className="mt-4 font-label-sm text-label-sm tracking-widest text-on-primary/60 uppercase hover:text-on-primary"
             onClick={onLogout}
           >
-            Log out
+            {t("admin.logout")}
           </button>
         </div>
       </aside>

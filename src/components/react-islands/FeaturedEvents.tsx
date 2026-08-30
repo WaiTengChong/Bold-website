@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { loadSiteContent, visibleSideEvents, type SiteContent } from "@/lib/site-content";
+import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
 
 export default function FeaturedEvents() {
+  const { t } = useLocale();
   const [content, setContent] = useState<SiteContent>(() => loadSiteContent());
 
   useEffect(() => {
@@ -17,13 +19,13 @@ export default function FeaturedEvents() {
       <div className="mx-auto max-w-container-max">
         <div className="mb-stack-md flex items-end justify-between">
           <h2 className="font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">
-            Featured Events
+            {t("events.title")}
           </h2>
           <a
             href={withBase("/#events")}
             className="font-sans text-label-sm font-semibold uppercase text-primary-container underline underline-offset-4"
           >
-            View All
+            {t("events.viewAll")}
           </a>
         </div>
 

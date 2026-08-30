@@ -1,53 +1,29 @@
 ---
 import { withBase } from "@/lib/utils";
-
-interface Props {
-  eyebrow?: string;
-  title?: string;
-  perks?: string[];
-  ctaLabel?: string;
-  ctaHref?: string;
-}
-
-const {
-  eyebrow = "EXCLUSIVITY REIMAGINED",
-  title = "THE BOLD\nMEMBERSHIP",
-  perks = [
-    "UNLIMITED COURT ACCESS",
-    "24/7 ADVANCED RECOVERY SUITE",
-    "CONCIERGE EQUIPMENT SERVICE",
-    "PRIVATE COACHING PREFERENCE",
-  ],
-  ctaLabel = "INQUIRE NOW",
-  ctaHref = withBase("/membership"),
-} = Astro.props;
-
-const titleLines = title.split("\n");
 ---
 
 <section id="membership" class="relative overflow-hidden bg-primary-container py-stack-lg md:py-stack-xl">
   <div class="relative z-10 px-margin-mobile text-center md:px-margin-desktop">
-    <span class="mb-4 block font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-on-primary-container sm:text-label-sm sm:tracking-[0.4em]">
-      {eyebrow}
+    <span class="mb-4 block font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-on-primary-container sm:text-label-sm sm:tracking-[0.4em]" data-i18n="membership.eyebrow">
+      EXCLUSIVITY REIMAGINED
     </span>
     <h2 class="mb-stack-md font-display text-[clamp(2.25rem,10vw,3rem)] uppercase text-on-primary md:text-display-lg">
-      {titleLines.map((line, i) => (
-        <>
-          {i > 0 && <br />}
-          {line}
-        </>
-      ))}
+      <span data-i18n="membership.title1">THE BOLD</span>
+      <br />
+      <span data-i18n="membership.title2">MEMBERSHIP</span>
     </h2>
     <ul class="mb-stack-lg space-y-3 font-sans text-body-md font-light text-on-primary/80 sm:space-y-4 sm:text-body-lg">
-      {perks.map((perk) => (
-        <li>{perk}</li>
-      ))}
+      <li data-i18n="membership.perk1">UNLIMITED COURT ACCESS</li>
+      <li data-i18n="membership.perk2">24/7 ADVANCED RECOVERY SUITE</li>
+      <li data-i18n="membership.perk3">CONCIERGE EQUIPMENT SERVICE</li>
+      <li data-i18n="membership.perk4">PRIVATE COACHING PREFERENCE</li>
     </ul>
     <a
-      href={ctaHref}
+      href={withBase("/membership")}
       class="inline-flex max-w-full bg-on-primary px-8 py-4 font-display text-headline-sm uppercase tracking-widest text-primary transition-all hover:opacity-90 active:scale-95 sm:px-12 sm:py-5"
+      data-i18n="membership.cta"
     >
-      {ctaLabel}
+      INQUIRE NOW
     </a>
   </div>
 </section>

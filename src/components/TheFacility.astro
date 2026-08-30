@@ -24,13 +24,13 @@ const mapsUrl =
       <div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
       <div class="relative z-10 mx-auto w-full max-w-container-max px-margin-mobile pb-stack-xl md:px-margin-desktop">
         <div class="max-w-4xl">
-          <span class="mb-6 inline-block bg-primary-container px-4 py-1 font-sans text-label-sm font-semibold uppercase tracking-[0.2em] text-on-primary-container">
+          <span class="mb-6 inline-block bg-primary-container px-4 py-1 font-sans text-label-sm font-semibold uppercase tracking-[0.2em] text-on-primary-container" data-i18n="facility.hero.badge">
             The Premier Destination
           </span>
           <h1 class="mb-8 font-display text-display-md leading-none text-on-primary md:text-display-lg">
-            ENGINEERED FOR <br /><span class="text-primary-fixed">PERFECTION</span>
+            <span data-i18n="facility.hero.title1">ENGINEERED FOR</span> <br /><span class="text-primary-fixed" data-i18n="facility.hero.title2">PERFECTION</span>
           </h1>
-          <p class="max-w-2xl font-sans text-body-lg font-light text-on-primary/80">
+          <p class="max-w-2xl font-sans text-body-lg font-light text-on-primary/80" data-i18n="facility.hero.subtitle">
             A high-performance sanctuary bridging elite athletic competition and luxury lifestyle.
             Experience 18,000 square feet of meticulously designed space crafted for the discerning athlete.
           </p>
@@ -41,8 +41,8 @@ const mapsUrl =
     <!-- Blueprint bento grid -->
     <section id="blueprint" class="mx-auto max-w-container-max px-margin-mobile py-stack-xl md:px-margin-desktop">
       <div class="mb-stack-lg border-l-4 border-primary pl-8">
-        <h2 class="font-display text-display-md uppercase text-primary">THE BLUEPRINT</h2>
-        <p class="max-w-xl text-on-surface-variant">
+        <h2 class="font-display text-display-md uppercase text-primary" data-i18n="facility.blueprint.title">THE BLUEPRINT</h2>
+        <p class="max-w-xl text-on-surface-variant" data-i18n="facility.blueprint.subtitle">
           Every square inch of BOLD is designed with professional-grade specifications to ensure optimal play and recovery.
         </p>
       </div>
@@ -204,10 +204,10 @@ const mapsUrl =
     <!-- CTA -->
     <section class="relative overflow-hidden py-stack-xl">
       <div class="relative z-10 mx-auto max-w-2xl px-margin-mobile text-center">
-        <h2 class="mb-8 font-display text-display-md uppercase text-primary">The Court Is Calling</h2>
+        <h2 class="mb-8 font-display text-display-md uppercase text-primary" data-i18n="facility.cta.title">The Court Is Calling</h2>
         <div class="flex flex-col justify-center gap-4 md:flex-row">
-          <a href={withBase("/booking")} class="bg-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-on-primary hover:opacity-90">Reserve a Court</a>
-          <a href={withBase("/booking")} class="border border-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary">Request Tour</a>
+          <a href={withBase("/booking")} class="bg-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-on-primary hover:opacity-90" data-i18n="facility.cta.book">Reserve a Court</a>
+          <a href={withBase("/booking")} class="border border-primary px-12 py-5 text-sm font-bold uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary" data-i18n="facility.cta.tour">Request Tour</a>
         </div>
       </div>
     </section>

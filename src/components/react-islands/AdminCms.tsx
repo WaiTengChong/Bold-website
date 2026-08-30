@@ -10,6 +10,7 @@ import {
   type SideEvent,
   type SiteContent,
 } from "@/lib/site-content";
+import { useLocale } from "@/lib/use-locale";
 
 type Tab = "photos" | "events" | "news";
 
@@ -17,6 +18,7 @@ const fieldClass =
   "w-full border-b border-primary bg-transparent py-2 font-label-md text-label-md text-primary outline-none";
 
 export default function AdminCms() {
+  const { t } = useLocale();
   const [tab, setTab] = useState<Tab>("photos");
   const [draft, setDraft] = useState<SiteContent>(() => loadSiteContent());
   const [status, setStatus] = useState("");
@@ -29,13 +31,13 @@ export default function AdminCms() {
   const save = () => {
     saveSiteContent(draft);
     setError("");
-    setStatus("Saved — open the homepage in this browser to preview.");
+    setStatus(t("admin.cms.saved"));
   };
 
   const reset = () => {
     setDraft(resetSiteContent());
     setError("");
-    setStatus("Reset to site defaults.");
+    setStatus(t("admin.cms.resetDone"));
   };
 
   const replaceSrc = async (file: File | undefined, apply: (src: string) => void) => {
@@ -54,11 +56,9 @@ export default function AdminCms() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
-            SITE CONTENT
+            {t("admin.cms.title")}
           </h2>
-          <p className="font-body-md text-body-md text-on-surface-variant">
-            Photos, events, and news on the public homepage. Stored in this browser only.
-          </p>
+          <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.cms.desc")}</p>
         </div>
         <div className="flex gap-2">
           <button
@@ -66,14 +66,14 @@ export default function AdminCms() {
             className="border border-outline px-4 py-2 font-label-sm text-label-sm tracking-widest text-outline uppercase"
             onClick={reset}
           >
-            Reset
+            {t("admin.cms.reset")}
           </button>
           <button
             type="button"
             className="bg-primary px-4 py-2 font-label-sm text-label-sm tracking-widest text-on-primary uppercase"
             onClick={save}
           >
-            Save
+            {t("admin.cms.save")}
           </button>
         </div>
       </div>
@@ -99,7 +99,7 @@ export default function AdminCms() {
             }`}
             onClick={() => setTab(id)}
           >
-            {id}
+            {id === "photos" ? t("admin.cms.tab.photos") : id === "events" ? t("admin.cms.tab.events") : t("admin.cms.tab.news")}
           </button>
         ))}
       </div>

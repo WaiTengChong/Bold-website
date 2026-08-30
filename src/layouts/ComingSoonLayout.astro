@@ -1,40 +1,39 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro";
+import type { MessageKey } from "@/lib/i18n";
 import { withBase } from "@/lib/utils";
 
 interface Props {
   title: string;
   description: string;
-  heading: string;
-  message: string;
+  headingKey: MessageKey;
+  messageKey: MessageKey;
 }
 
-const { title, description, heading, message } = Astro.props;
+const { title, description, headingKey, messageKey } = Astro.props;
 ---
 
 <BaseLayout {title} {description}>
   <main
     class="mx-auto flex min-h-[70vh] max-w-container-max flex-col items-center justify-center px-margin-mobile py-stack-xl text-center md:px-margin-desktop"
   >
-    <span class="mb-4 font-sans text-label-sm font-semibold uppercase tracking-[0.4em] text-on-surface-variant">
+    <span class="mb-4 font-sans text-label-sm font-semibold uppercase tracking-[0.4em] text-on-surface-variant" data-i18n="comingSoon.label">
       Coming Soon
     </span>
-    <h1 class="mb-stack-md font-display text-display-md uppercase text-primary md:text-display-lg">
-      {heading}
-    </h1>
-    <p class="mb-stack-lg max-w-xl font-sans text-body-lg font-light text-on-surface-variant">
-      {message}
-    </p>
+    <h1 class="mb-stack-md font-display text-display-md uppercase text-primary md:text-display-lg" data-i18n={headingKey}></h1>
+    <p class="mb-stack-lg max-w-xl font-sans text-body-lg font-light text-on-surface-variant" data-i18n={messageKey}></p>
     <div class="flex flex-col gap-4 sm:flex-row">
       <a
         href={withBase("/")}
         class="bg-primary px-10 py-4 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary transition-all hover:opacity-90"
+        data-i18n="comingSoon.backHome"
       >
         Back to Home
       </a>
       <a
         href={withBase("/facility")}
         class="border border-primary px-10 py-4 font-sans text-label-md font-medium uppercase tracking-widest text-primary transition-all hover:bg-primary hover:text-on-primary"
+        data-i18n="comingSoon.viewFacility"
       >
         View The Facility
       </a>

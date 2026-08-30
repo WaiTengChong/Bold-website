@@ -7,7 +7,7 @@ import { withBase } from "@/lib/utils";
   <div class="mx-auto grid w-full max-w-container-max grid-cols-1 gap-gutter px-margin-mobile py-stack-xl md:grid-cols-4 md:px-margin-desktop">
     <div class="md:col-span-2">
       <div class="mb-stack-md font-display text-headline-lg-mobile uppercase text-on-primary md:text-display-md">BOLD</div>
-      <p class="mb-stack-md max-w-sm font-sans text-body-md font-light text-on-primary/70">
+      <p class="mb-stack-md max-w-sm font-sans text-body-md font-light text-on-primary/70" data-i18n="footer.tagline">
         The premier destination for elite athletes and discerning enthusiasts. Redefining the standard of pickleball
         hospitality.
       </p>
@@ -17,20 +17,20 @@ import { withBase } from "@/lib/utils";
       </div>
     </div>
     <div>
-      <h3 class="mb-6 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary">Explore</h3>
+      <h3 class="mb-6 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary" data-i18n="footer.explore">Explore</h3>
       <nav class="flex flex-col gap-3" aria-label="Explore">
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/")}>The Club</a>
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/membership")}>Membership</a>
-        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/#events")}>Programs</a>
+        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/")} data-i18n="footer.club">The Club</a>
+        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/membership")} data-i18n="footer.membership">Membership</a>
+        <a class="font-sans text-body-md font-light text-on-primary/70 underline transition-all hover:text-on-primary" href={withBase("/#events")} data-i18n="footer.programs">Programs</a>
       </nav>
     </div>
     <div>
-      <h3 class="mb-6 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary">Legal</h3>
-      <p class="font-sans text-body-md font-light text-on-primary/50">Legal and privacy pages coming soon.</p>
+      <h3 class="mb-6 font-sans text-label-md font-medium uppercase tracking-widest text-on-primary" data-i18n="footer.legal">Legal</h3>
+      <p class="font-sans text-body-md font-light text-on-primary/50" data-i18n="footer.legalNote">Legal and privacy pages coming soon.</p>
     </div>
   </div>
   <div class="border-t border-on-primary-fixed-variant/10 px-margin-mobile py-8 text-center md:px-margin-desktop">
-    <p class="font-sans text-label-sm font-semibold uppercase tracking-widest text-on-primary/40">
+    <p class="font-sans text-label-sm font-semibold uppercase tracking-widest text-on-primary/40" data-i18n="footer.copyright">
       © 2026 BOLD PICKLEBALL. ALL RIGHTS RESERVED.
     </p>
   </div>
