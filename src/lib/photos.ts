@@ -2,9 +2,9 @@ import { withBase } from "@/lib/utils";
 
 /** Brand photography from UI/Photo — served from /public/photos */
 export const PHOTOS = {
-  brandLogo: withBase("/photos/brand-logo.jpg"),
-  facilityInterior: withBase("/photos/facility-interior.jpg"),
-  facilityCollage: withBase("/photos/facility-collage.jpg"),
+  brandLogo: withBase("/photos/brand-logo.webp"),
+  facilityInterior: withBase("/photos/facility-interior.webp"),
+  facilityCollage: withBase("/photos/facility-collage.webp"),
 } as const;
 
 export type GalleryImage = {

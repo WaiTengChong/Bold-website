@@ -17,6 +17,8 @@ export default function SiteHero() {
         className="absolute inset-0 h-full w-full object-cover opacity-60"
         width={2000}
         height={1333}
+        fetchPriority="high"
+        decoding="async"
       />
       <div
         className="absolute inset-0 flex flex-col items-center justify-end px-margin-mobile pb-stack-lg text-center"
