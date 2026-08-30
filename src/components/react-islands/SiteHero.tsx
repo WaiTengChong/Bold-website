@@ -12,7 +12,7 @@ export default function SiteHero() {
   }, []);
 
   return (
-    <section className="relative min-h-[90dvh] w-full max-w-full overflow-hidden bg-primary" aria-label="Hero">
+    <section className="relative min-h-[72dvh] w-full max-w-full overflow-hidden bg-primary" aria-label="Hero">
       <img
         src={hero.imageSrc}
         alt={hero.imageAlt}
@@ -23,7 +23,7 @@ export default function SiteHero() {
         decoding="async"
       />
       <div
-        className="absolute inset-0 flex flex-col items-center justify-end px-margin-mobile pb-stack-lg text-center"
+        className="absolute inset-0 flex flex-col items-center justify-end px-margin-mobile pb-stack-md text-center"
         style={{ background: "linear-gradient(0deg, rgba(0,21,13,0.8) 0%, rgba(0,21,13,0) 50%)" }}
       >
         <p className="mb-2 max-w-full font-display text-headline-lg-mobile tracking-[0.12em] text-on-primary sm:tracking-[0.2em] md:text-headline-lg">
@@ -36,7 +36,7 @@ export default function SiteHero() {
         </h1>
         <a
           href={withBase("/booking")}
-          className="w-full max-w-md bg-primary-container px-margin-mobile py-6 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-all hover:opacity-90 active:scale-95"
+          className="w-full max-w-md bg-primary-container px-margin-mobile py-4 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-all hover:opacity-90 active:scale-95"
         >
           {t("hero.cta")}
         </a>

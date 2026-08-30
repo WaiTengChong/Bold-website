@@ -10,7 +10,7 @@ export default function AuthPanel({ mode }: { mode: Mode }) {
   const subtitle = mode === "login" ? t("auth.login.subtitle") : t("auth.signup.subtitle");
 
   return (
-    <section className="mx-auto flex min-h-[70vh] w-full max-w-container-max items-center justify-center overflow-x-hidden px-margin-mobile py-stack-xl md:px-margin-desktop">
+    <section className="mx-auto flex min-h-[55vh] w-full max-w-container-max items-center justify-center overflow-x-hidden px-margin-mobile py-stack-lg md:px-margin-desktop">
       <div className="auth-panel w-full max-w-md min-w-0 overflow-hidden border border-outline-variant/40 bg-surface-container-lowest p-margin-mobile md:p-10">
         <span className="mb-3 block font-sans text-label-sm font-semibold uppercase tracking-[0.4em] text-on-surface-variant">
           {eyebrow}

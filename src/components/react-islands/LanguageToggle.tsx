@@ -9,19 +9,26 @@ type Props = {
 export default function LanguageToggle({ className = "", variant = "default" }: Props) {
   const { locale, setLocale, t } = useLocale();
 
-  const base =
+  const shell =
     variant === "admin"
-      ? "font-label-sm text-label-sm tracking-widest uppercase transition-colors"
-      : "font-sans text-[11px] font-medium uppercase tracking-wide sm:text-label-sm sm:tracking-widest";
+      ? "border-on-primary/20 bg-on-primary/10 hover:border-on-primary/50 hover:bg-on-primary/20"
+      : "border-outline-variant/60 bg-surface-container-lowest hover:border-primary hover:bg-surface-container-low hover:shadow-sm";
+
+  const base =
+    "cursor-pointer rounded-none px-2 py-1 font-sans text-[11px] font-medium uppercase tracking-wide transition-all sm:text-label-sm sm:tracking-widest";
 
   const active =
-    variant === "admin" ? "text-on-primary font-bold" : "text-primary font-semibold";
+    variant === "admin"
+      ? "bg-on-primary-container text-on-primary shadow-sm"
+      : "bg-primary text-on-primary shadow-sm";
   const idle =
-    variant === "admin" ? "text-on-primary/50 hover:text-on-primary" : "text-on-surface-variant hover:text-primary";
+    variant === "admin"
+      ? "text-on-primary/60 hover:bg-on-primary/15 hover:text-on-primary"
+      : "text-on-surface-variant hover:bg-primary/10 hover:text-primary";
 
   return (
     <div
-      className={`flex shrink-0 items-center gap-1 ${className}`}
+      className={`group/lang flex shrink-0 items-center gap-0.5 border px-1 py-0.5 transition-all duration-150 ${shell} ${className}`}
       role="group"
       aria-label={t("lang.label")}
     >
@@ -33,7 +40,10 @@ export default function LanguageToggle({ className = "", variant = "default" }: 
       >
         {t("lang.en")}
       </button>
-      <span className={variant === "admin" ? "text-on-primary/30" : "text-on-surface-variant/40"} aria-hidden>
+      <span
+        className={variant === "admin" ? "text-on-primary/25 select-none" : "text-outline-variant/50 select-none"}
+        aria-hidden
+      >
         /
       </span>
       <button

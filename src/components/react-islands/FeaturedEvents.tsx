@@ -31,7 +31,7 @@ export default function FeaturedEvents() {
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           <article className="flex flex-col overflow-hidden border border-[#E5E7EB] bg-surface-container-low">
-            <div className="relative h-64 overflow-hidden">
+            <div className="relative h-52 overflow-hidden">
               <img
                 src={featured.imageSrc}
                 alt={featured.imageAlt}

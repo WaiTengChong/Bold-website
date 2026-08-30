@@ -111,9 +111,9 @@
   /* Spacing */
   --spacing-unit: 8px;
   --spacing-stack-sm: 16px;
-  --spacing-stack-md: 32px;
-  --spacing-stack-lg: 64px;
-  --spacing-stack-xl: 120px;
+  --spacing-stack-md: 24px;
+  --spacing-stack-lg: 48px;
+  --spacing-stack-xl: 72px;
   --spacing-gutter: 32px;
   --spacing-margin-mobile: 20px;
   --spacing-margin-desktop: 64px;
