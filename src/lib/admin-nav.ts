@@ -21,14 +21,14 @@ export const ADMIN_TITLES: Record<ViewId, string> = {
 };
 
 export function adminHref(id: ViewId) {
-  return withBase(id === "dashboard" ? "/admin" : `/admin/${id}`);
+  return withBase(id === "dashboard" ? "/console" : `/console/${id}`);
 }
 
 export function viewFromPath(pathname: string): ViewId {
   const path = pathname.replace(/\/+$/, "");
   for (const item of ADMIN_NAV_ITEMS) {
     if (item.id === "dashboard") continue;
-    if (path.endsWith(`/admin/${item.id}`)) return item.id;
+    if (path.endsWith(`/console/${item.id}`)) return item.id;
   }
   return "dashboard";
 }

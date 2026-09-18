@@ -17,5 +17,11 @@ export function withBase(path: string): string {
   if (path.startsWith("/#")) return `${base}${path.slice(1)}`;
   if (path === "/") return base;
 
-  return `${base}${path.replace(/^\//, "")}`;
+  const normalized = path.replace(/^\//, "");
+  const resolved = `${base}${normalized}`;
+  // ponytail: GitHub Pages needs trailing slash to serve directory index.html
+  if (!normalized.includes(".") && !resolved.endsWith("/")) {
+    return `${resolved}/`;
+  }
+  return resolved;
 }

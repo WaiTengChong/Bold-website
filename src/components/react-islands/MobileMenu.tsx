@@ -27,7 +27,7 @@ export default function MobileMenu() {
 
   const links = useMemo(() => {
     const items = baseLinkDefs.map((link) => ({ ...link, label: t(link.key) }));
-    if (admin) items.push({ href: withBase("/admin"), key: "header.admin" as MessageKey, label: t("header.admin") });
+    if (admin) items.push({ href: withBase("/console"), key: "header.admin" as MessageKey, label: t("header.admin") });
     return items;
   }, [admin, t]);
 

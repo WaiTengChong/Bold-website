@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 export default defineConfig({
   site: 'https://waitengchong.github.io',
   base: '/Bold-website',
+  trailingSlash: 'always',
   integrations: [react()],
   vite: {
     plugins: [tailwindcss()],

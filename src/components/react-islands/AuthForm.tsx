@@ -72,7 +72,7 @@ export default function AuthForm({ mode }: Props) {
       return;
     }
 
-    const dest = mode === "login" && "role" in result && result.role === "admin" ? "/admin" : "/booking";
+    const dest = mode === "login" && "role" in result && result.role === "admin" ? "/console" : "/booking";
     window.location.href = withBase(dest);
   };
 
