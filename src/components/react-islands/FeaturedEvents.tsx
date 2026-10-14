@@ -23,7 +23,7 @@ export default function FeaturedEvents() {
           </h2>
           <a
             href={withBase("/#events")}
-            className="font-sans text-label-sm font-semibold uppercase text-primary-container underline underline-offset-4"
+            className="font-sans text-label-sm font-semibold uppercase text-primary underline underline-offset-4"
           >
             {t("events.viewAll")}
           </a>
@@ -73,7 +73,7 @@ export default function FeaturedEvents() {
                     fill="none"
                     stroke="currentColor"
                     strokeWidth="1.5"
-                    className="size-8 text-on-primary sm:size-10"
+                    className="size-8 text-primary sm:size-10"
                     aria-hidden
                   >
                     {event.icon === "fitness_center" ? (

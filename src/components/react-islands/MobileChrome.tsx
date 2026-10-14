@@ -83,7 +83,7 @@ export default function MobileChrome() {
       </nav>
       <a
         href={withBase("/booking")}
-        className="pointer-events-auto fixed right-3 bottom-[calc(6.75rem+env(safe-area-inset-bottom,0px))] z-[90] flex size-14 touch-manipulation items-center justify-center rounded-full bg-primary-container text-on-primary shadow-2xl transition-all active:scale-95 sm:right-5 sm:bottom-[calc(7rem+env(safe-area-inset-bottom,0px))] md:hidden"
+        className="pointer-events-auto fixed right-3 bottom-[calc(6.75rem+env(safe-area-inset-bottom,0px))] z-[90] flex size-14 touch-manipulation items-center justify-center rounded-full bg-primary text-on-primary shadow-2xl transition-all active:scale-95 sm:right-5 sm:bottom-[calc(7rem+env(safe-area-inset-bottom,0px))] md:hidden"
         aria-label={t("mobile.bookAria")}
       >
         <svg className="size-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>

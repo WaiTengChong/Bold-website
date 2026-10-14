@@ -25,10 +25,10 @@ colors:
   outline: '#727974'
   outline-variant: '#c1c8c3'
   surface-tint: '#476557'
-  primary: '#00150d'
+  primary: '#2f4d40'
   on-primary: '#ffffff'
-  primary-container: '#0d2b20'
-  on-primary-container: '#759485'
+  primary-container: '#d4ebe1'
+  on-primary-container: '#1a3d30'
   inverse-primary: '#adcebd'
   secondary: '#5d5f5f'
   on-secondary: '#ffffff'
@@ -148,8 +148,9 @@ The palette is intentionally restricted to evoke a sense of prestige and focus.
 
 | Role | Token | Hex | Usage |
 |------|-------|-----|-------|
-| **Primary** (Deep Forest Green) | `primary` | `#00150d` | Primary actions, heavy typography, brand-defining surfaces. Represents the court and brand heritage. |
-| **Primary Container** | `primary-container` | `#0d2b20` | Elevated primary surfaces, CTAs on dark hero sections |
+| **Primary** (Forest Green) | `primary` | `#2f4d40` | Primary actions, headings, borders, and accent typography — mid/deep green, not near-black. |
+| **Primary Container** | `primary-container` | `#d4ebe1` | Soft green-tinted bands (footer, marquee, membership), filled secondary buttons, highlighted surfaces |
+| **On Primary Container** | `on-primary-container` | `#1a3d30` | Text and icons on primary-container backgrounds |
 | **On Primary** | `on-primary` | `#ffffff` | Text and icons on primary backgrounds |
 | **Background / Surface** | `background`, `surface` | `#f9f9ff` | Default page background — ultra-light cool gray |
 | **Pure White** | `surface-container-lowest` | `#ffffff` | Cards, elevated panels, maximum contrast surfaces |
@@ -164,7 +165,8 @@ The palette is intentionally restricted to evoke a sense of prestige and focus.
 
 ### Color Principles
 
-- **Primary (Deep Forest Green):** Used for primary actions, heavy typography, and brand-defining surfaces. It represents the "court" and the heritage of the brand.
+- **Primary (Forest Green):** Mid/deep green for actions, headlines, and borders — readable on light surfaces without filling pages with near-black.
+- **Primary Container:** Light mint-green tint for large marketing bands and soft highlights; pair with `on-primary-container` for body copy.
 - **Surface (Ultra-light Gray):** Used for subtle sectioning, grouping elements without the use of harsh lines.
 - **Accent Grays:** Utilized for borders, secondary text, and disabled states to maintain a low-noise environment.
 

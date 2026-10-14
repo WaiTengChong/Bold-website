@@ -16,15 +16,14 @@ export default function SiteHero() {
       <img
         src={hero.imageSrc}
         alt={hero.imageAlt}
-        className="absolute inset-0 h-full w-full object-cover opacity-60"
+        className="absolute inset-0 h-full w-full object-cover opacity-70"
         width={2000}
         height={1333}
         fetchPriority="high"
         decoding="async"
       />
       <div
-        className="absolute inset-0 flex flex-col items-center justify-end px-margin-mobile pb-stack-md text-center"
-        style={{ background: "linear-gradient(0deg, rgba(0,21,13,0.8) 0%, rgba(0,21,13,0) 50%)" }}
+        className="absolute inset-0 flex flex-col items-center justify-end bg-gradient-to-t from-primary/40 via-transparent to-transparent px-margin-mobile pb-stack-md text-center"
       >
         <p className="mb-2 max-w-full font-display text-headline-lg-mobile tracking-[0.12em] text-on-primary sm:tracking-[0.2em] md:text-headline-lg">
           {t("hero.brand")}
@@ -36,7 +35,7 @@ export default function SiteHero() {
         </h1>
         <a
           href={withBase("/booking")}
-          className="w-full max-w-md bg-primary-container px-margin-mobile py-4 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-all hover:opacity-90 active:scale-95"
+          className="w-full max-w-md bg-primary px-margin-mobile py-4 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-all hover:opacity-90 active:scale-95"
         >
           {t("hero.cta")}
         </a>
