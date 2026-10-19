@@ -1,10 +1,13 @@
 ---
-import ComingSoonLayout from "@/layouts/ComingSoonLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import BookingFlow from "@/components/react-islands/BookingFlow";
 ---
 
-<ComingSoonLayout
+<BaseLayout
   title="BOLD PICKLEBALL | Court Booking"
-  description="BOLD Pickleball — Reserve a court. Court booking portal coming soon."
-  headingKey="comingSoon.booking.heading"
-  messageKey="comingSoon.booking.message"
-/>
+  description="BOLD Pickleball — Reserve a court. Demo booking flow with date, time, and court selection."
+>
+  <main class="overflow-x-hidden">
+    <BookingFlow client:load />
+  </main>
+</BaseLayout>

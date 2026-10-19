@@ -1,10 +1,13 @@
 ---
-import ComingSoonLayout from "@/layouts/ComingSoonLayout.astro";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MembershipPlans from "@/components/react-islands/MembershipPlans";
 ---
 
-<ComingSoonLayout
+<BaseLayout
   title="BOLD PICKLEBALL | Membership"
-  description="BOLD Pickleball — Membership plans. Coming soon."
-  headingKey="comingSoon.membership.heading"
-  messageKey="comingSoon.membership.message"
-/>
+  description="BOLD Pickleball — Membership tiers and court packages. Demo plans for club walkthrough."
+>
+  <main class="overflow-x-hidden">
+    <MembershipPlans client:load />
+  </main>
+</BaseLayout>
