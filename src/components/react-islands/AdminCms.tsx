@@ -138,6 +138,10 @@ export default function AdminCms() {
 
       {tab === "events" && (
         <div className="space-y-stack-sm">
+          <p className="border border-outline-variant/60 bg-surface-container-low p-3 font-sans text-body-md font-light text-on-surface-variant">
+            Event titles and copy are localized in site i18n. Use this tab for the featured hero image and to show or hide
+            side cards on the homepage (mixer, clinic).
+          </p>
           <div className="space-y-3 border border-outline-variant bg-surface-container-lowest p-stack-md">
             <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">Featured event</p>
             <label className="block">

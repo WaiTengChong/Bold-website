@@ -1,0 +1,13 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import EventsPage from "@/components/react-islands/EventsPage";
+---
+
+<BaseLayout
+  title="BOLD PICKLEBALL | Events"
+  description="BOLD Pickleball — Club events, clinics, and social play. Demo program calendar."
+>
+  <main class="overflow-x-hidden">
+    <EventsPage client:load />
+  </main>
+</BaseLayout>
