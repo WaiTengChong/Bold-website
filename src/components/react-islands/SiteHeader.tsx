@@ -17,8 +17,8 @@ export default function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-outline-variant/30 bg-surface/90 backdrop-blur-xl">
-      <div className="mx-auto flex w-full max-w-container-max min-w-0 items-center justify-between gap-2 px-4 py-3 md:grid md:grid-cols-3 md:gap-0 md:px-margin-desktop md:py-4">
-        <div className="flex min-w-0 items-center gap-2 md:gap-4">
+      <div className="mx-auto flex w-full max-w-container-max min-w-0 items-center gap-2 px-4 py-3 md:gap-3 md:px-margin-desktop md:py-4 lg:gap-4">
+        <div className="flex min-w-0 shrink-0 items-center gap-2 md:gap-4">
           <div className="relative z-50 md:hidden">
             <MobileMenu />
           </div>
@@ -31,7 +31,10 @@ export default function SiteHeader() {
           </a>
         </div>
 
-        <nav className="hidden items-center justify-center gap-8 md:flex" aria-label="Site">
+        <nav
+          className="hidden min-w-0 flex-1 items-center justify-center gap-3 md:flex lg:gap-6 xl:gap-8"
+          aria-label="Site"
+        >
           {links.map((link) => {
             const active = isNavActive(pathname, link.href);
             return (
@@ -51,8 +54,8 @@ export default function SiteHeader() {
           })}
         </nav>
 
-        <div className="relative z-50 flex shrink-0 items-center justify-end gap-2 md:gap-4">
-          <LanguageToggle />
+        <div className="ml-auto flex shrink-0 items-center justify-end gap-2 md:ml-0 md:gap-3 lg:gap-4">
+          <LanguageToggle className="hidden md:flex" />
           <a
             href={withBase("/booking")}
             className="shrink-0 bg-primary-container px-2.5 py-1.5 font-sans text-[11px] font-medium uppercase tracking-wide text-on-primary-container transition-all active:scale-95 sm:px-4 sm:py-2 sm:text-label-md sm:tracking-widest md:hidden"
