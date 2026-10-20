@@ -1,3 +1,4 @@
+import { CLUB_NEWS } from "@/lib/news-data";
 import { HOMEPAGE_GALLERY, PHOTOS } from "@/lib/photos";
 import { withBase } from "@/lib/utils";
 
@@ -30,13 +31,14 @@ export type SideEvent = {
   visible: boolean;
 };
 
-export type NewsItem = {
+export type NewsCmsEntry = {
   id: string;
-  title: string;
-  date: string;
-  body: string;
   published: boolean;
+  imageSrc?: string;
 };
+
+/** @deprecated demo CMS row — copy lives in i18n */
+export type NewsItem = NewsCmsEntry;
 
 export type SiteContent = {
   hero: { imageSrc: string; imageAlt: string };
@@ -67,23 +69,31 @@ export function defaultSiteContent(): SiteContent {
       { id: "mixer", title: "SOCIAL MIXER", meta: "FRIDAYS @ 7PM", variant: "primary", icon: "groups", visible: true },
       { id: "clinic", title: "ELITE CLINIC", meta: "WEDNESDAYS @ 10AM", variant: "container", icon: "fitness_center", visible: true },
     ],
-    news: [
-      {
-        id: "court-hours",
-        title: "Extended Friday hours",
-        date: "12 OCT",
-        body: "Courts stay open until 23:00 every Friday through the fall season.",
-        published: true,
-      },
-      {
-        id: "pro-shop",
-        title: "New paddles in the pro shop",
-        date: "5 OCT",
-        body: "Carbon pro paddles are back in stock. Members get 10% off this week.",
-        published: true,
-      },
-    ],
+    news: defaultNewsCms(),
   };
+}
+
+function defaultNewsCms(): NewsCmsEntry[] {
+  return CLUB_NEWS.map((article) => ({
+    id: article.id,
+    published: article.homepage === true || article.id === "member-guest",
+  }));
+}
+
+function normalizeNewsCms(raw: unknown, fallback: NewsCmsEntry[]): NewsCmsEntry[] {
+  const byId = new Map(fallback.map((entry) => [entry.id, { ...entry }]));
+  if (!Array.isArray(raw)) return [...byId.values()];
+  for (const item of raw) {
+    if (!isRecord(item) || typeof item.id !== "string") continue;
+    const existing = byId.get(item.id);
+    if (existing) {
+      if ("published" in item) existing.published = Boolean(item.published);
+      if (typeof item.imageSrc === "string" && item.imageSrc.length > 0) {
+        existing.imageSrc = item.imageSrc;
+      }
+    }
+  }
+  return [...byId.values()];
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -111,7 +121,7 @@ export function loadSiteContent(): SiteContent {
       sideEvents: Array.isArray(parsed.sideEvents) && parsed.sideEvents.length > 0
         ? (parsed.sideEvents as SideEvent[])
         : fallback.sideEvents,
-      news: Array.isArray(parsed.news) ? (parsed.news as NewsItem[]) : fallback.news,
+      news: normalizeNewsCms(parsed.news, fallback.news),
     };
   } catch {
     return fallback;
@@ -128,16 +138,20 @@ export function resetSiteContent(): SiteContent {
   return next;
 }
 
-export function publishedNews(content: SiteContent): NewsItem[] {
-  return content.news.filter((item) => item.published);
+export function publishedNewsIds(content: SiteContent): Set<string> {
+  return new Set(content.news.filter((item) => item.published).map((item) => item.id));
+}
+
+export function newsImageOverrides(content: SiteContent): Map<string, string> {
+  const map = new Map<string, string>();
+  for (const item of content.news) {
+    if (item.imageSrc) map.set(item.id, item.imageSrc);
+  }
+  return map;
 }
 
 export function visibleSideEvents(content: SiteContent): SideEvent[] {
   return content.sideEvents.filter((item) => item.visible);
-}
-
-export function newNewsId(): string {
-  return `news-${Date.now()}`;
 }
 
 export function fileToDataUrl(file: File): Promise<string> {
