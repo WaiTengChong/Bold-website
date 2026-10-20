@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
+import { CLUB_NEWS } from "@/lib/news-data";
 import {
   fileToDataUrl,
   loadSiteContent,
-  newNewsId,
   resetSiteContent,
   saveSiteContent,
   type GalleryImage,
@@ -209,9 +209,15 @@ export default function AdminCms() {
 
       {tab === "news" && (
         <div className="space-y-stack-sm">
-          {draft.news.map((item, index) => (
+          <p className="border border-outline-variant/60 bg-surface-container-low p-3 font-sans text-body-md font-light text-on-surface-variant">
+            {t("admin.cms.newsHint")}
+          </p>
+          {draft.news.map((item, index) => {
+            const defaultImage = CLUB_NEWS.find((story) => story.id === item.id)?.imageSrc ?? "";
+            return (
             <div key={item.id} className="space-y-3 border border-outline-variant bg-surface-container-lowest p-stack-md">
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <p className="font-label-sm text-label-sm tracking-widest text-outline uppercase">{item.id}</p>
                 <label className="flex items-center gap-2 font-label-sm text-label-sm uppercase">
                   <input
                     type="checkbox"
@@ -220,46 +226,21 @@ export default function AdminCms() {
                   />
                   Published
                 </label>
-                <button
-                  type="button"
-                  className="font-label-sm text-label-sm tracking-widest text-error uppercase"
-                  onClick={() => setDraft({ ...draft, news: draft.news.filter((_, i) => i !== index) })}
-                >
-                  Remove
-                </button>
               </div>
-              <input
-                className={fieldClass}
-                value={item.title}
-                onChange={(e) => patchNews(draft, setDraft, index, { title: e.target.value })}
-              />
-              <input
-                className={fieldClass}
-                value={item.date}
-                onChange={(e) => patchNews(draft, setDraft, index, { date: e.target.value })}
-              />
-              <textarea
-                className={`${fieldClass} min-h-20 normal-case`}
-                value={item.body}
-                onChange={(e) => patchNews(draft, setDraft, index, { body: e.target.value })}
+              <ImageEditor
+                label="Story image"
+                image={{
+                  src: item.imageSrc ?? defaultImage,
+                  alt: item.id,
+                }}
+                onChange={(next) => patchNews(draft, setDraft, index, { imageSrc: next.src || undefined })}
+                onFile={(file) =>
+                  replaceSrc(file, (imageSrc) => patchNews(draft, setDraft, index, { imageSrc }))
+                }
               />
             </div>
-          ))}
-          <button
-            type="button"
-            className="border border-primary px-4 py-2 font-label-sm text-label-sm tracking-widest text-primary uppercase"
-            onClick={() =>
-              setDraft({
-                ...draft,
-                news: [
-                  ...draft.news,
-                  { id: newNewsId(), title: "New update", date: "TODAY", body: "", published: false },
-                ],
-              })
-            }
-          >
-            Add news
-          </button>
+            );
+          })}
         </div>
       )}
     </section>

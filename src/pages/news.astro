@@ -1,0 +1,13 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import NewsPage from "@/components/react-islands/NewsPage";
+---
+
+<BaseLayout
+  title="BOLD PICKLEBALL | Club News"
+  description="BOLD Pickleball — Club updates, facility news, and member announcements."
+>
+  <main class="overflow-x-hidden">
+    <NewsPage client:load />
+  </main>
+</BaseLayout>

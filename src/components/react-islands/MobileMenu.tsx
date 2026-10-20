@@ -11,6 +11,7 @@ const baseLinkDefs: { href: string; key: MessageKey }[] = [
   { href: withBase("/"), key: "menu.club" },
   { href: withBase("/facility"), key: "menu.facility" },
   { href: withBase("/events"), key: "menu.events" },
+  { href: withBase("/news"), key: "menu.news" },
   { href: withBase("/#membership"), key: "menu.membership" },
   { href: withBase("/#life"), key: "menu.life" },
   { href: "#", key: "menu.shop" },
