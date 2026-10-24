@@ -16,9 +16,7 @@ const ICONS: Record<EventIcon, typeof Users> = {
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-on-surface-variant/80 sm:text-label-sm">
-        {label}
-      </dt>
+      <dt className="font-sans text-label-sm font-medium text-on-surface-variant">{label}</dt>
       <dd className="mt-0.5 font-sans text-body-md font-light text-on-surface">{value}</dd>
     </div>
   );
@@ -39,25 +37,23 @@ export default function EventCard({ event, t, imageSrc, variant }: EventCardProp
 
   if (variant === "hero") {
     return (
-      <article className="flex h-full flex-col overflow-hidden border border-[#E5E7EB] bg-surface-container-low">
+      <article className="bold-card flex h-full flex-col overflow-hidden">
         <div className="relative h-56 overflow-hidden sm:h-64 md:h-72">
           <img
             src={src}
             alt={t(event.imageAltKey)}
-            className="h-full w-full object-cover grayscale transition-all duration-700 hover:grayscale-0"
+            className="h-full w-full object-cover grayscale transition-[filter] duration-700 hover:grayscale-0"
             style={event.imagePosition ? { objectPosition: event.imagePosition } : undefined}
             width={1200}
             height={800}
             loading="lazy"
           />
-          <span className="absolute top-4 left-4 bg-primary px-3 py-1 font-sans text-label-sm font-semibold uppercase text-on-primary">
+          <span className="absolute top-4 left-4 bg-primary px-3 py-1 font-sans text-label-sm font-medium text-on-primary">
             {t(event.keys.date)}
           </span>
         </div>
         <div className="flex flex-1 flex-col p-6 md:p-8 lg:p-10">
-          <p className="font-sans text-label-sm font-semibold uppercase tracking-wide text-on-surface-variant">
-            {t(event.keys.time)}
-          </p>
+          <p className="font-sans text-label-md text-on-surface-variant">{t(event.keys.time)}</p>
           <h3 className="mt-2 font-display text-headline-sm uppercase text-primary md:text-headline-lg">{title}</h3>
           <p className="mt-3 font-sans text-body-md font-light leading-relaxed text-on-surface-variant">{blurb}</p>
           <dl className="mt-6 grid grid-cols-1 gap-4 border-t border-outline-variant/30 pt-6 sm:grid-cols-2">
@@ -66,10 +62,7 @@ export default function EventCard({ event, t, imageSrc, variant }: EventCardProp
             <MetaRow label={t("events.meta.spots")} value={t(event.keys.spots)} />
           </dl>
           <div className="mt-auto pt-6">
-            <a
-              href={event.ctaHref}
-              className="inline-flex border border-primary px-6 py-2.5 font-sans text-label-md font-medium uppercase tracking-wider text-primary transition-all hover:bg-primary hover:text-on-primary"
-            >
+            <a href={event.ctaHref} className="bold-btn-outline">
               {t(event.keys.cta)}
             </a>
           </div>
@@ -80,7 +73,7 @@ export default function EventCard({ event, t, imageSrc, variant }: EventCardProp
 
   if (variant === "side") {
     return (
-      <article className="flex min-w-0 flex-col overflow-hidden border border-[#E5E7EB] bg-surface-container-lowest">
+      <article className="bold-card flex min-w-0 flex-col overflow-hidden bg-surface-container-lowest shadow-none">
         <div className="relative h-36 overflow-hidden sm:h-40">
           <img
             src={src}
@@ -101,28 +94,29 @@ export default function EventCard({ event, t, imageSrc, variant }: EventCardProp
           </div>
         </div>
         <div className="flex flex-1 flex-col p-4 sm:p-5">
-          <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.15em] text-on-surface-variant sm:text-label-sm">
-            {t(event.keys.date)} · {t(event.keys.time)}
+          <p className="font-sans text-label-sm text-on-surface-variant">
+            <span className="block">{t(event.keys.date)}</span>
+            <span className="block">{t(event.keys.time)}</span>
           </p>
           <h3 className="mt-1 font-display text-headline-sm uppercase leading-tight text-primary">{title}</h3>
           <p className="mt-2 line-clamp-3 font-sans text-body-md font-light text-on-surface-variant">{blurb}</p>
           <ul className="mt-3 space-y-1 font-sans text-label-sm text-on-surface-variant">
             <li>
-              <span className="font-semibold uppercase tracking-wide text-on-surface-variant/80">{t("events.meta.venue")}: </span>
+              <span className="font-medium text-on-surface-variant">{t("events.meta.venue")}: </span>
               {t(event.keys.venue)}
             </li>
             <li>
-              <span className="font-semibold uppercase tracking-wide text-on-surface-variant/80">{t("events.meta.format")}: </span>
+              <span className="font-medium text-on-surface-variant">{t("events.meta.format")}: </span>
               {t(event.keys.format)}
             </li>
             <li>
-              <span className="font-semibold uppercase tracking-wide text-on-surface-variant/80">{t("events.meta.spots")}: </span>
+              <span className="font-medium text-on-surface-variant">{t("events.meta.spots")}: </span>
               {t(event.keys.spots)}
             </li>
           </ul>
           <a
             href={event.ctaHref}
-            className="mt-4 inline-flex self-start font-sans text-label-sm font-semibold uppercase tracking-wide text-primary underline underline-offset-4"
+            className="bold-text-link mt-4 inline-flex self-start"
           >
             {t(event.keys.cta)}
           </a>
@@ -132,7 +126,7 @@ export default function EventCard({ event, t, imageSrc, variant }: EventCardProp
   }
 
   return (
-    <article className="flex h-full flex-col overflow-hidden border border-[#E5E7EB] bg-surface-container-lowest">
+    <article className="bold-card flex h-full flex-col overflow-hidden bg-surface-container-lowest shadow-none">
       <div className="relative h-44 overflow-hidden">
         <img
           src={src}
@@ -165,22 +159,19 @@ export default function EventCard({ event, t, imageSrc, variant }: EventCardProp
         <p className="mt-3 font-sans text-body-md font-light text-on-surface-variant">{blurb}</p>
         <dl className="mt-4 grid gap-2 font-sans text-label-sm text-on-surface-variant">
           <div>
-            <span className="font-semibold uppercase tracking-wide text-on-surface-variant/80">{t("events.meta.venue")}: </span>
+            <span className="font-medium text-on-surface-variant">{t("events.meta.venue")}: </span>
             {t(event.keys.venue)}
           </div>
           <div>
-            <span className="font-semibold uppercase tracking-wide text-on-surface-variant/80">{t("events.meta.format")}: </span>
+            <span className="font-medium text-on-surface-variant">{t("events.meta.format")}: </span>
             {t(event.keys.format)}
           </div>
           <div>
-            <span className="font-semibold uppercase tracking-wide text-on-surface-variant/80">{t("events.meta.spots")}: </span>
+            <span className="font-medium text-on-surface-variant">{t("events.meta.spots")}: </span>
             {t(event.keys.spots)}
           </div>
         </dl>
-        <a
-          href={event.ctaHref}
-          className="mt-5 inline-flex border border-primary px-5 py-2 font-sans text-label-sm font-medium uppercase tracking-wider text-primary transition-all hover:bg-primary hover:text-on-primary"
-        >
+        <a href={event.ctaHref} className="bold-btn-outline mt-5">
           {t(event.keys.cta)}
         </a>
       </div>

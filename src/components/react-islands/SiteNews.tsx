@@ -33,21 +33,16 @@ export default function SiteNews() {
   if (visible.length === 0) return null;
 
   return (
-    <section id="news" className="px-margin-mobile py-stack-lg md:px-margin-desktop">
-      <div className="mx-auto max-w-container-max">
-        <div className="mb-stack-md flex flex-wrap items-end justify-between gap-3">
-          <h2 className="font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">
-            {t("news.title")}
-          </h2>
-          <a
-            href={withBase("/news")}
-            className="font-sans text-label-sm font-semibold uppercase text-primary underline underline-offset-4"
-          >
+    <section id="news" className="px-margin-mobile py-stack-lg md:px-margin-desktop md:py-stack-xl">
+      <div className="mx-auto max-w-container-max min-w-0">
+        <div className="mb-stack-md flex flex-wrap items-end justify-between gap-3 border-b border-outline-variant/30 pb-4">
+          <h2 className="bold-section-title">{t("news.title")}</h2>
+          <a href={withBase("/news")} className="bold-text-link">
             {t("news.viewAll")}
           </a>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-stretch">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 lg:items-stretch lg:gap-8">
           <div className="lg:col-span-7">
             <NewsCard
               article={featured}

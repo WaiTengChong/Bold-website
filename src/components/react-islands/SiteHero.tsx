@@ -12,33 +12,40 @@ export default function SiteHero() {
   }, []);
 
   return (
-    <section className="relative min-h-[72dvh] w-full max-w-full overflow-hidden bg-primary" aria-label="Hero">
-      <img
-        src={hero.imageSrc}
-        alt={hero.imageAlt}
-        className="absolute inset-0 h-full w-full object-cover opacity-70"
-        width={2000}
-        height={1333}
-        fetchPriority="high"
-        decoding="async"
-      />
-      <div
-        className="absolute inset-0 flex flex-col items-center justify-end bg-gradient-to-t from-primary/40 via-transparent to-transparent px-margin-mobile pb-stack-md text-center"
-      >
-        <p className="mb-2 max-w-full font-display text-headline-lg-mobile tracking-[0.12em] text-on-primary sm:tracking-[0.2em] md:text-headline-lg">
+    <section
+      className="grid min-h-[min(720px,calc(100dvh-5rem))] w-full max-w-full grid-cols-1 lg:grid-cols-12"
+      aria-label="Hero"
+    >
+      <div className="flex min-w-0 flex-col justify-end bg-tertiary px-margin-mobile py-stack-md text-left lg:col-span-5 lg:px-margin-desktop lg:py-stack-lg">
+        <p className="mb-3 max-w-full font-sans text-body-md font-light text-on-tertiary-container">
           {t("hero.brand")}
         </p>
-        <h1 className="mb-stack-md max-w-full px-1 font-display text-[clamp(2.25rem,11vw,3rem)] uppercase leading-tight text-on-primary md:text-display-lg">
-          {t("hero.line1")}
-          <br />
-          {t("hero.line2")}
+        <h1 className="mb-stack-md max-w-[14ch] min-w-0 font-display text-[clamp(2.5rem,8vw,4.5rem)] uppercase leading-[0.95] text-on-tertiary">
+          {t("hero.line1")} {t("hero.line2")}
         </h1>
-        <a
-          href={withBase("/booking")}
-          className="w-full max-w-md bg-primary px-margin-mobile py-4 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-all hover:opacity-90 active:scale-95"
-        >
-          {t("hero.cta")}
-        </a>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <a href={withBase("/booking")} className="bold-btn-primary w-full sm:w-auto">
+            {t("hero.cta")}
+          </a>
+          <a href={withBase("/membership")} className="bold-text-link px-1 py-2">
+            {t("header.join")}
+          </a>
+        </div>
+      </div>
+      <div className="relative min-h-[280px] min-w-0 lg:col-span-7 lg:min-h-0">
+        <img
+          src={hero.imageSrc}
+          alt={hero.imageAlt}
+          className="absolute inset-0 h-full w-full object-cover"
+          width={2000}
+          height={1333}
+          fetchPriority="high"
+          decoding="async"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-tertiary/80 via-tertiary/10 to-transparent lg:from-tertiary/40"
+          aria-hidden
+        />
       </div>
     </section>
   );
