@@ -89,11 +89,11 @@ export default function MobileMenu() {
               if (e.target === e.currentTarget) close();
             }}
           >
-            <div className="absolute top-[max(1rem,env(safe-area-inset-top,0px))] right-4">
+            <div className="relative z-20 flex shrink-0 justify-end px-4 pt-[max(1rem,env(safe-area-inset-top,0px))] pb-2">
               <LanguageToggle />
             </div>
             <nav
-              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-margin-mobile pt-[calc(4.5rem+env(safe-area-inset-top,0px))] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] [-webkit-overflow-scrolling:touch]"
+              className="relative z-0 min-h-0 flex-1 overflow-y-auto overscroll-contain px-margin-mobile pt-2 pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] [-webkit-overflow-scrolling:touch]"
               aria-label="Mobile site"
             >
               <ul className="flex flex-col gap-4 sm:gap-5">
