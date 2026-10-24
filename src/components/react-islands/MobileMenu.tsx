@@ -37,9 +37,20 @@ export default function MobileMenu() {
     ensureAdminSeed();
     setAdmin(isAdmin());
     return () => {
+      document.documentElement.removeAttribute("data-mobile-menu-open");
       document.body.style.overflow = "";
     };
   }, []);
+
+  useEffect(() => {
+    if (!open) {
+      document.documentElement.removeAttribute("data-mobile-menu-open");
+      document.body.style.overflow = "";
+      return;
+    }
+    document.documentElement.setAttribute("data-mobile-menu-open", "");
+    document.body.style.overflow = "hidden";
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -73,25 +84,31 @@ export default function MobileMenu() {
             role="dialog"
             aria-modal="true"
             aria-label="Site navigation"
-            className="fixed inset-x-0 top-0 bottom-[calc(5rem+env(safe-area-inset-bottom,0px))] z-40 bg-surface/95 backdrop-blur-xl md:hidden"
+            className="fixed inset-0 z-[110] flex flex-col bg-surface/95 backdrop-blur-xl pt-[env(safe-area-inset-top,0px)] md:hidden"
             onClick={(e) => {
               if (e.target === e.currentTarget) close();
             }}
           >
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-[max(1rem,env(safe-area-inset-top,0px))] right-4">
               <LanguageToggle />
             </div>
-            <nav className="flex h-full flex-col justify-center gap-8 px-margin-mobile pt-20 pb-8">
-              {links.map((link) => (
-                <a
-                  key={link.key}
-                  href={link.href}
-                  className="font-display text-display-md uppercase text-primary transition-opacity hover:opacity-70"
-                  onClick={close}
-                >
-                  {link.label}
-                </a>
-              ))}
+            <nav
+              className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-margin-mobile pt-[calc(4.5rem+env(safe-area-inset-top,0px))] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))] [-webkit-overflow-scrolling:touch]"
+              aria-label="Mobile site"
+            >
+              <ul className="flex flex-col gap-4 sm:gap-5">
+                {links.map((link) => (
+                  <li key={link.key}>
+                    <a
+                      href={link.href}
+                      className="block py-1 font-display text-[clamp(1.625rem,6.5vw,2rem)] leading-tight tracking-wide text-primary transition-opacity hover:opacity-70"
+                      onClick={close}
+                    >
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </nav>
           </div>,
           document.body,
