@@ -11,12 +11,10 @@ export default function BoldLife() {
   }, []);
 
   return (
-    <section id="life" className="py-stack-lg">
-      <div className="mb-stack-md flex flex-col gap-2 px-margin-mobile sm:flex-row sm:items-center sm:justify-between md:px-margin-desktop">
-        <h2 className="font-display text-headline-lg-mobile uppercase text-primary md:text-headline-lg">{t("life.title")}</h2>
-        <span className="truncate font-sans text-[10px] font-semibold uppercase text-on-surface-variant sm:text-label-sm">
-          @BOLDPICKLEBALL
-        </span>
+    <section id="life" className="border-t border-outline-variant/30 bg-tertiary py-stack-lg md:py-stack-xl">
+      <div className="mb-stack-md flex flex-col gap-2 px-margin-mobile sm:flex-row sm:items-end sm:justify-between md:px-margin-desktop">
+        <h2 className="bold-section-title text-on-tertiary">{t("life.title")}</h2>
+        <span className="truncate font-sans text-label-md text-on-tertiary-container">@BOLDPICKLEBALL</span>
       </div>
       <div className="grid grid-cols-3 gap-0.5 px-0.5 sm:gap-1 sm:px-1">
         {images.map((image) => (

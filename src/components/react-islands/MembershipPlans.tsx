@@ -59,15 +59,10 @@ export default function MembershipPlans() {
 
   return (
     <div className="mx-auto w-full max-w-container-max px-margin-mobile pb-stack-xl pt-stack-md md:px-margin-desktop md:pt-stack-lg">
-      <header className="mb-stack-lg text-center">
-        <span className="mb-2 block font-sans text-label-sm font-semibold uppercase tracking-[0.35em] text-on-surface-variant">
-          {t("membership.page.eyebrow")}
-        </span>
-        <h1 className="font-display text-headline-lg-mobile uppercase text-primary md:text-display-md">{t("membership.page.title")}</h1>
-        <p className="mx-auto mt-3 max-w-2xl font-sans text-body-md font-light text-on-surface-variant">{t("membership.page.subtitle")}</p>
-        <p className="mt-4 inline-block border border-primary/30 bg-primary-container/40 px-4 py-2 font-sans text-label-sm text-on-primary-container">
-          {t("membership.page.demoNote")}
-        </p>
+      <header className="bold-page-header mb-stack-lg">
+        <h1>{t("membership.page.title")}</h1>
+        <p>{t("membership.page.subtitle")}</p>
+        <p className="bold-demo-badge">{t("membership.page.demoNote")}</p>
       </header>
 
       <div className="grid gap-6 md:grid-cols-3">

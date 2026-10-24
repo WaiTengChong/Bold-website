@@ -1,3 +1,5 @@
+/* Hallmark · v2.0.0 · redesign: full · theme: custom (BOLD luxury editorial) · genre: editorial · job: book a court */
+/* critique: centred hero wash, tracked caps nav, mint-everywhere sections, card-in-card borders */
 @import "tailwindcss";
 
 /* Limit scan to app source — avoid UI prototypes / google-cloud-sdk */
@@ -49,6 +51,9 @@
   --color-background: #f9f9ff;
   --color-on-background: #151c27;
   --color-surface-variant: #dce2f3;
+  --color-elevated: #ffffff;
+  --color-elevated-border: color-mix(in srgb, var(--color-outline-variant) 65%, transparent);
+  --shadow-soft: 0 24px 48px color-mix(in srgb, var(--color-on-surface) 6%, transparent);
 
   /* Typography */
   --font-display: "Bebas Neue", sans-serif;
@@ -135,7 +140,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body {
@@ -144,7 +149,12 @@
     color: var(--color-on-surface);
     min-height: 100dvh;
     max-width: 100%;
-    overflow-x: hidden;
+    overflow-x: clip;
+  }
+
+  :where(a, button, [role="button"], input, select, textarea):focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
   }
 
   main {
@@ -185,6 +195,119 @@
 }
 
 @layer components {
+  .bold-page-header {
+    margin-bottom: var(--spacing-stack-lg);
+    max-width: 42rem;
+  }
+
+  .bold-page-header h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-headline-lg-mobile);
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+
+  @media (min-width: 768px) {
+    .bold-page-header h1 {
+      font-size: var(--text-display-md);
+    }
+  }
+
+  .bold-page-header p {
+    margin-top: 12px;
+    font-size: var(--text-body-md);
+    font-weight: 300;
+    color: var(--color-on-surface-variant);
+  }
+
+  .bold-demo-badge {
+    display: inline-block;
+    margin-top: 16px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent);
+    background-color: color-mix(in srgb, var(--color-primary-container) 55%, transparent);
+    padding: 8px 16px;
+    font-size: var(--text-label-md);
+    color: var(--color-on-primary-container);
+  }
+
+  .bold-section-title {
+    font-family: var(--font-display);
+    font-size: var(--text-headline-lg-mobile);
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+    overflow-wrap: break-word;
+    min-width: 0;
+  }
+
+  @media (min-width: 768px) {
+    .bold-section-title {
+      font-size: var(--text-headline-lg);
+    }
+  }
+
+  .bold-text-link {
+    font-size: var(--text-label-md);
+    font-weight: 500;
+    color: var(--color-primary);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transition: color 0.15s ease, opacity 0.15s ease;
+  }
+
+  .bold-text-link:hover {
+    opacity: 0.85;
+  }
+
+  .bold-btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-primary);
+    padding: 16px 24px;
+    font-family: var(--font-sans);
+    font-size: var(--text-label-md);
+    font-weight: 500;
+    color: var(--color-on-primary);
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+
+  .bold-btn-primary:hover {
+    opacity: 0.92;
+  }
+
+  .bold-btn-primary:active {
+    transform: scale(0.98);
+  }
+
+  .bold-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-primary);
+    padding: 12px 24px;
+    font-family: var(--font-sans);
+    font-size: var(--text-label-md);
+    font-weight: 500;
+    color: var(--color-primary);
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .bold-btn-outline:hover {
+    background-color: var(--color-primary);
+    color: var(--color-on-primary);
+  }
+
+  .bold-card {
+    border: 1px solid var(--color-elevated-border);
+    background-color: var(--color-elevated);
+    box-shadow: var(--shadow-soft);
+  }
+
   .auth-form {
     display: flex;
     flex-direction: column;
