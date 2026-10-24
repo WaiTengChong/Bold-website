@@ -55,7 +55,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center justify-end gap-2 md:ml-0 md:gap-3 lg:gap-4">
-          <LanguageToggle className="hidden md:flex" />
+          <LanguageToggle className="relative z-[120] shrink-0" />
           <a href={withBase("/booking")} className="bold-btn-primary shrink-0 px-3 py-2 text-[13px] md:hidden">
             {t("header.book")}
           </a>
