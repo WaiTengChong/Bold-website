@@ -59,6 +59,7 @@ export default function MobileChrome() {
   return (
     <>
       <nav
+        data-mobile-chrome
         className="pointer-events-auto fixed right-0 bottom-0 left-0 z-[100] flex max-w-full justify-around border-t border-outline-variant/30 bg-surface px-1 pt-2 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] md:hidden"
         aria-label="Mobile primary"
       >
@@ -83,6 +84,7 @@ export default function MobileChrome() {
       </nav>
       <a
         href={withBase("/booking")}
+        data-mobile-chrome
         className="pointer-events-auto fixed right-3 bottom-[calc(6.75rem+env(safe-area-inset-bottom,0px))] z-[90] flex size-14 touch-manipulation items-center justify-center rounded-full bg-primary text-on-primary shadow-2xl transition-all active:scale-95 sm:right-5 sm:bottom-[calc(7rem+env(safe-area-inset-bottom,0px))] md:hidden"
         aria-label={t("mobile.bookAria")}
       >
