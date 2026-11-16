@@ -1,10 +1,14 @@
 import { useEffect, useState } from "react";
 import { CLUB_NEWS } from "@/lib/news-data";
+import { apiEnabled } from "@/lib/api-client";
 import {
+  fetchSiteContentFromApi,
   fileToDataUrl,
   loadSiteContent,
   resetSiteContent,
   saveSiteContent,
+  saveSiteContentToApi,
+  uploadCmsImage,
   type GalleryImage,
   type NewsItem,
   type SideEvent,
@@ -25,16 +29,39 @@ export default function AdminCms() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    setDraft(loadSiteContent());
+    void (async () => {
+      if (apiEnabled()) {
+        const fromApi = await fetchSiteContentFromApi();
+        if (fromApi) {
+          setDraft(fromApi);
+          return;
+        }
+      }
+      setDraft(loadSiteContent());
+    })();
   }, []);
 
   const save = () => {
-    saveSiteContent(draft);
-    setError("");
-    setStatus(t("admin.cms.saved"));
+    void (async () => {
+      try {
+        if (apiEnabled()) {
+          await saveSiteContentToApi(draft);
+        } else {
+          saveSiteContent(draft);
+        }
+        setError("");
+        setStatus(t("admin.cms.saved"));
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Save failed");
+      }
+    })();
   };
 
   const reset = () => {
+    if (apiEnabled()) {
+      setError(t("admin.cms.reset"));
+      return;
+    }
     setDraft(resetSiteContent());
     setError("");
     setStatus(t("admin.cms.resetDone"));
@@ -43,7 +70,7 @@ export default function AdminCms() {
   const replaceSrc = async (file: File | undefined, apply: (src: string) => void) => {
     if (!file) return;
     try {
-      const src = await fileToDataUrl(file);
+      const src = apiEnabled() ? await uploadCmsImage(file) : await fileToDataUrl(file);
       apply(src);
       setError("");
     } catch (err) {

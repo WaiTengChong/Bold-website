@@ -5,7 +5,7 @@ import {
   homepageSideEvents,
   isHomepageEventVisible,
 } from "@/lib/events-data";
-import { loadSiteContent } from "@/lib/site-content";
+import { resolveSiteContent } from "@/lib/site-content";
 import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
 
@@ -15,13 +15,14 @@ export default function FeaturedEvents() {
   const [hiddenSideIds, setHiddenSideIds] = useState<Set<string>>(() => new Set());
 
   useEffect(() => {
-    const content = loadSiteContent();
-    setFeaturedImageSrc(content.featured.imageSrc);
-    const hidden = new Set<string>();
-    for (const side of content.sideEvents) {
-      if (!side.visible) hidden.add(side.id);
-    }
-    setHiddenSideIds(hidden);
+    void resolveSiteContent().then((content) => {
+      setFeaturedImageSrc(content.featured.imageSrc);
+      const hidden = new Set<string>();
+      for (const side of content.sideEvents) {
+        if (!side.visible) hidden.add(side.id);
+      }
+      setHiddenSideIds(hidden);
+    });
   }, []);
 
   const featured = featuredHomeEvent();

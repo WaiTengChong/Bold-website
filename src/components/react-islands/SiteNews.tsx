@@ -7,7 +7,7 @@ import {
   newsImageOverride,
   resolveFeaturedNews,
 } from "@/lib/news-data";
-import { loadSiteContent, newsImageOverrides, publishedNewsIds } from "@/lib/site-content";
+import { loadSiteContent, newsImageOverrides, publishedNewsIds, resolveSiteContent } from "@/lib/site-content";
 import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
 
@@ -17,9 +17,10 @@ export default function SiteNews() {
   const [imageOverrides, setImageOverrides] = useState<Map<string, string>>(() => newsImageOverrides(loadSiteContent()));
 
   useEffect(() => {
-    const content = loadSiteContent();
-    setPublishedIds(publishedNewsIds(content));
-    setImageOverrides(newsImageOverrides(content));
+    void resolveSiteContent().then((content) => {
+      setPublishedIds(publishedNewsIds(content));
+      setImageOverrides(newsImageOverrides(content));
+    });
   }, []);
 
   const visible = useMemo(() => CLUB_NEWS.filter((n) => isNewsPublished(n.id, publishedIds)), [publishedIds]);

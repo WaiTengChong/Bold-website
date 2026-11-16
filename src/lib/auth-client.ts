@@ -1,3 +1,5 @@
+import { apiEnabled, apiFetch, clearApiToken, getApiToken, setApiToken, ApiError } from "@/lib/api-client";
+
 const USERS_KEY = "bold_users";
 const SESSION_KEY = "bold_session";
 
@@ -6,7 +8,6 @@ export type UserRole = "member" | "admin";
 export type StoredUser = {
   dialCode: string;
   phone: string;
-  /** ponytail: plain text demo only — hash server-side + JWT when a backend exists */
   password: string;
   role?: UserRole;
 };
@@ -16,13 +17,6 @@ export type Session = {
   phone: string;
   role: UserRole;
 };
-
-/** Demo admin: +852 88888888 / admin1234 — not listed in public nav */
-export const DEMO_ADMIN = {
-  dialCode: "852",
-  phone: "88888888",
-  password: "admin1234",
-} as const;
 
 function readUsers(): StoredUser[] {
   if (typeof localStorage === "undefined") return [];
@@ -44,15 +38,9 @@ function writeSession(session: Session): void {
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 }
 
+/** No-op when API is enabled — admin is seeded in PostgreSQL only. */
 export function ensureAdminSeed(): void {
-  if (typeof localStorage === "undefined") return;
-  const users = readUsers();
-  const exists = users.some(
-    (u) => u.dialCode === DEMO_ADMIN.dialCode && u.phone === DEMO_ADMIN.phone,
-  );
-  if (exists) return;
-  users.push({ ...DEMO_ADMIN, role: "admin" });
-  writeUsers(users);
+  if (apiEnabled()) return;
 }
 
 function roleOf(user: StoredUser): UserRole {
@@ -63,11 +51,30 @@ function userKey(dialCode: string, phone: string): string {
   return `${dialCode}:${phone}`;
 }
 
-export function signup(
+function apiErrorMessage(err: unknown): string {
+  if (err instanceof ApiError) return err.message;
+  return "Something went wrong. Try again.";
+}
+
+export async function signup(
   dialCode: string,
   phone: string,
   password: string,
-): { ok: true } | { ok: false; error: string } {
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  if (apiEnabled()) {
+    try {
+      const res = await apiFetch<{ accessToken: string; user: Session }>("/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({ dialCode, phone, password }),
+      });
+      setApiToken(res.accessToken);
+      writeSession(res.user);
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: apiErrorMessage(err) };
+    }
+  }
+
   const users = readUsers();
   const key = userKey(dialCode, phone);
   if (users.some((u) => userKey(u.dialCode, u.phone) === key)) {
@@ -79,12 +86,25 @@ export function signup(
   return { ok: true };
 }
 
-export function login(
+export async function login(
   dialCode: string,
   phone: string,
   password: string,
-): { ok: true; role: UserRole } | { ok: false; error: string } {
-  ensureAdminSeed();
+): Promise<{ ok: true; role: UserRole } | { ok: false; error: string }> {
+  if (apiEnabled()) {
+    try {
+      const res = await apiFetch<{ accessToken: string; user: Session }>("/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ dialCode, phone, password }),
+      });
+      setApiToken(res.accessToken);
+      writeSession(res.user);
+      return { ok: true, role: res.user.role };
+    } catch (err) {
+      return { ok: false, error: apiErrorMessage(err) };
+    }
+  }
+
   const users = readUsers();
   const match = users.find(
     (u) => u.dialCode === dialCode && u.phone === phone && u.password === password,
@@ -98,6 +118,10 @@ export function login(
 }
 
 export function logout(): void {
+  if (apiEnabled() && getApiToken()) {
+    void apiFetch("/auth/logout", { method: "POST" }).catch(() => undefined);
+  }
+  clearApiToken();
   localStorage.removeItem(SESSION_KEY);
 }
 
@@ -113,6 +137,19 @@ export function getSession(): Session | null {
       role: parsed.role === "admin" ? "admin" : "member",
     };
   } catch {
+    return null;
+  }
+}
+
+export async function hydrateSession(): Promise<Session | null> {
+  if (!apiEnabled() || !getApiToken()) return getSession();
+  try {
+    const me = await apiFetch<Session>("/auth/me");
+    writeSession(me);
+    return me;
+  } catch {
+    clearApiToken();
+    localStorage.removeItem(SESSION_KEY);
     return null;
   }
 }

@@ -1,12 +1,21 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { Calendar, Check, ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
+import { apiEnabled } from "@/lib/api-client";
 import { getSession } from "@/lib/auth-client";
+import {
+  createBookingApi,
+  fetchCourtMaintenance,
+  fetchDaySlots,
+  fetchMyBookings,
+  maintenanceCourtIds,
+  type DaySlot,
+} from "@/lib/booking-api";
 import {
   addBooking,
   bookingDays,
   courtAvailable,
   COURT_IDS,
-  MAINTENANCE_COURT_IDS,
+  isOccupiedFromDay,
   readBookings,
   type StoredBooking,
   timeSlots,
@@ -44,17 +53,52 @@ export default function BookingFlow() {
   const [bookings, setBookings] = useState<StoredBooking[]>([]);
   const [confirmed, setConfirmed] = useState<StoredBooking | null>(null);
   const [sessionPhone, setSessionPhone] = useState<string | null>(null);
+  const [maintenance, setMaintenance] = useState(maintenanceCourtIds());
+  const [daySlots, setDaySlots] = useState<DaySlot[]>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const refreshBookings = useCallback(() => setBookings(readBookings()), []);
+  const refreshBookings = useCallback(async () => {
+    if (apiEnabled() && getSession()) {
+      try {
+        setBookings(await fetchMyBookings());
+        return;
+      } catch {
+        setBookings([]);
+        return;
+      }
+    }
+    setBookings(readBookings());
+  }, []);
 
   useEffect(() => {
-    refreshBookings();
+    void fetchCourtMaintenance().then(setMaintenance);
+    void refreshBookings();
     const session = getSession();
     if (session) setSessionPhone(`+${session.dialCode} ${session.phone}`);
   }, [refreshBookings]);
 
+  useEffect(() => {
+    if (!date || !apiEnabled()) {
+      setDaySlots([]);
+      return;
+    }
+    void fetchDaySlots(date).then(setDaySlots);
+  }, [date]);
+
   const days = useMemo(() => bookingDays(), []);
   const slots = useMemo(() => timeSlots(), []);
+
+  const slotOpen = useCallback(
+    (courtId: number, slotTime: string) => {
+      if (maintenance.has(courtId)) return false;
+      if (apiEnabled()) {
+        return !isOccupiedFromDay(courtId, slotTime, daySlots);
+      }
+      return courtAvailable(courtId, date, slotTime, bookings, maintenance);
+    },
+    [maintenance, daySlots, date, bookings],
+  );
 
   const resetFlow = () => {
     setStep("date");
@@ -71,16 +115,34 @@ export default function BookingFlow() {
     else if (step === "confirm") setStep("court");
   };
 
-  const confirmBooking = () => {
+  const confirmBooking = async () => {
     if (!date || !time || courtId == null) return;
+    setSubmitError(null);
+    setSubmitting(true);
     const label =
       guestName.trim() ||
       sessionPhone ||
       t("booking.guestDefault");
-    const booking = addBooking({ date, time, courtId, guestLabel: label });
-    setConfirmed(booking);
-    refreshBookings();
-    setStep("success");
+    try {
+      const booking = apiEnabled()
+        ? await createBookingApi({
+            date,
+            time,
+            courtId,
+            guestName: getSession() ? undefined : label,
+          })
+        : addBooking({ date, time, courtId, guestLabel: label });
+      setConfirmed(booking);
+      await refreshBookings();
+      if (apiEnabled()) {
+        void fetchDaySlots(date).then(setDaySlots);
+      }
+      setStep("success");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Booking failed");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const progress = step === "success" ? STEPS.length : stepIndex(step);
@@ -166,7 +228,7 @@ export default function BookingFlow() {
                 </p>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
                   {slots.map((slot) => {
-                    const anyCourt = COURT_IDS.some((id) => courtAvailable(id, date, slot, bookings));
+                    const anyCourt = COURT_IDS.some((id) => slotOpen(id, slot));
                     return (
                       <button
                         key={slot}
@@ -197,8 +259,8 @@ export default function BookingFlow() {
                 </p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {COURT_IDS.map((id) => {
-                    const maint = MAINTENANCE_COURT_IDS.has(id);
-                    const available = courtAvailable(id, date, time, bookings);
+                    const maint = maintenance.has(id);
+                    const available = slotOpen(id, time);
                     const taken = !maint && !available;
                     return (
                       <button
@@ -265,12 +327,18 @@ export default function BookingFlow() {
                     <ChevronLeft className="size-4" aria-hidden />
                     {t("booking.back")}
                   </button>
+                  {submitError && (
+                    <p className="mt-4 font-sans text-body-md text-error" role="alert">
+                      {submitError}
+                    </p>
+                  )}
                   <button
                     type="button"
-                    onClick={confirmBooking}
-                    className="inline-flex flex-1 items-center justify-center gap-2 bg-primary px-6 py-3 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90"
+                    disabled={submitting}
+                    onClick={() => void confirmBooking()}
+                    className="inline-flex flex-1 items-center justify-center gap-2 bg-primary px-6 py-3 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
                   >
-                    {t("booking.confirmCta")}
+                    {submitting ? t("auth.wait") : t("booking.confirmCta")}
                     <ChevronRight className="size-4" aria-hidden />
                   </button>
                 </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { loadSiteContent, type GalleryImage } from "@/lib/site-content";
+import { loadSiteContent, resolveSiteContent, type GalleryImage } from "@/lib/site-content";
 import { useLocale } from "@/lib/use-locale";
 
 export default function BoldLife() {
@@ -7,7 +7,7 @@ export default function BoldLife() {
   const [images, setImages] = useState<GalleryImage[]>(() => loadSiteContent().gallery);
 
   useEffect(() => {
-    setImages(loadSiteContent().gallery);
+    void resolveSiteContent().then((c) => setImages(c.gallery));
   }, []);
 
   return (
