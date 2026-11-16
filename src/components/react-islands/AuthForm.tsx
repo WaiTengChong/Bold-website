@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { ensureAdminSeed, login, signup } from "@/lib/auth-client";
+import { login, signup } from "@/lib/auth-client";
 import type { MessageKey } from "@/lib/i18n";
 import { DEFAULT_DIAL_CODE, PHONE_DIAL_CODES } from "@/lib/phone-codes";
 import { useLocale } from "@/lib/use-locale";
@@ -24,10 +24,6 @@ export default function AuthForm({ mode }: Props) {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    ensureAdminSeed();
-  }, []);
 
   const phoneError = useMemo(() => {
     const digits = stripPhone(phone);
@@ -64,7 +60,10 @@ export default function AuthForm({ mode }: Props) {
 
     setSubmitting(true);
     const digits = stripPhone(phone);
-    const result = mode === "signup" ? signup(dialCode, digits, password) : login(dialCode, digits, password);
+    const result =
+      mode === "signup"
+        ? await signup(dialCode, digits, password)
+        : await login(dialCode, digits, password);
 
     if (!result.ok) {
       setSubmitError(result.error);

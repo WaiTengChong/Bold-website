@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ensureAdminSeed, isAdmin } from "@/lib/auth-client";
+import { isAdmin } from "@/lib/auth-client";
 import { withBase } from "@/lib/utils";
 
 type Props = {
@@ -10,7 +10,6 @@ export default function AdminNavLink({ className }: Props) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
-    ensureAdminSeed();
     setShow(isAdmin());
   }, []);
 

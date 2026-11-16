@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ensureAdminSeed, getSession, isAdmin, logout } from "@/lib/auth-client";
+import { apiEnabled, apiFetch } from "@/lib/api-client";
+import { getSession, hydrateSession, isAdmin, logout } from "@/lib/auth-client";
+import { fetchCourtMaintenance } from "@/lib/booking-api";
 import { adminHref, samePath, viewFromPath, type ViewId } from "@/lib/admin-nav";
 import type { MessageKey } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -82,15 +84,49 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
   const [query, setQuery] = useState("");
   const [navOpen, setNavOpen] = useState(false);
   const [view, setView] = useState<ViewId>(initialView);
+  const [guestBookingEnabled, setGuestBookingEnabled] = useState(true);
 
   useEffect(() => {
-    ensureAdminSeed();
-    if (!isAdmin()) {
-      window.location.replace(withBase("/login"));
-      return;
-    }
-    setAllowed(true);
-    setReady(true);
+    void (async () => {
+      await hydrateSession();
+      if (!isAdmin()) {
+        window.location.replace(withBase("/login"));
+        return;
+      }
+      if (apiEnabled()) {
+        try {
+          const courtRows = await apiFetch<{ id: number; inMaintenance: boolean }[]>("/courts");
+          setCourts(
+            courtRows.map((c) => ({
+              id: c.id,
+              status: c.inMaintenance ? "Maintenance" : "Available",
+              player: "-",
+              time: "-",
+              maint: c.inMaintenance,
+            })),
+          );
+          const settings = await apiFetch<{ guestBookingEnabled: boolean }>("/settings");
+          setGuestBookingEnabled(settings.guestBookingEnabled);
+          const apiMembers = await apiFetch<
+            { id: string; dialCode: string; phone: string; role: string; createdAt: string }[]
+          >("/admin/members");
+          setMembers(
+            apiMembers.map((m, i) => ({
+              id: m.id.slice(0, 8).toUpperCase(),
+              name: `+${m.dialCode} ${m.phone}`,
+              tier: m.role === "admin" ? "Admin" : "Member",
+              balance: "—",
+              last: new Date(m.createdAt).toLocaleDateString(),
+              color: i % 2 === 0 ? "text-on-primary-container" : "text-primary",
+            })),
+          );
+        } catch {
+          /* keep demo rows if API unreachable */
+        }
+      }
+      setAllowed(true);
+      setReady(true);
+    })();
   }, []);
 
   useEffect(() => {
@@ -133,17 +169,48 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
   const recentMembers = members.slice(0, 3);
 
   const toggleMaint = (id: number) => {
-    setCourts((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        const maint = !c.maint;
-        return {
-          ...c,
-          maint,
-          status: maint ? "Maintenance" : c.player === "-" ? "Available" : "Active",
-        };
-      }),
-    );
+    void (async () => {
+      const court = courts.find((c) => c.id === id);
+      if (!court) return;
+      const next = !court.maint;
+      if (apiEnabled()) {
+        try {
+          await apiFetch(`/admin/courts/${id}/maintenance`, {
+            method: "PATCH",
+            body: JSON.stringify({ inMaintenance: next }),
+          });
+          await fetchCourtMaintenance();
+        } catch {
+          return;
+        }
+      }
+      setCourts((prev) =>
+        prev.map((c) => {
+          if (c.id !== id) return c;
+          return {
+            ...c,
+            maint: next,
+            status: next ? "Maintenance" : c.player === "-" ? "Available" : "Active",
+          };
+        }),
+      );
+    })();
+  };
+
+  const toggleGuestBooking = () => {
+    void (async () => {
+      if (!apiEnabled()) return;
+      const next = !guestBookingEnabled;
+      try {
+        const res = await apiFetch<{ guestBookingEnabled: boolean }>("/settings", {
+          method: "PATCH",
+          body: JSON.stringify({ guestBookingEnabled: next }),
+        });
+        setGuestBookingEnabled(res.guestBookingEnabled);
+      } catch {
+        /* ignore */
+      }
+    })();
   };
 
   const handleLogout = () => {
@@ -413,7 +480,19 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                     <p className="font-label-md text-label-md text-primary uppercase">{t("admin.guestBooking")}</p>
                     <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.guestBookingDesc")}</p>
                   </div>
-                  <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.off")}</span>
+                  {apiEnabled() ? (
+                    <button
+                      type="button"
+                      onClick={toggleGuestBooking}
+                      className={`font-label-sm text-label-sm uppercase ${
+                        guestBookingEnabled ? "text-on-primary-container" : "text-outline"
+                      }`}
+                    >
+                      {guestBookingEnabled ? t("admin.on") : t("admin.off")}
+                    </button>
+                  ) : (
+                    <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.off")}</span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
                   <div>

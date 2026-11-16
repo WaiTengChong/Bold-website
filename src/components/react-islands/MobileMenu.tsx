@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
-import { ensureAdminSeed, isAdmin } from "@/lib/auth-client";
+import { isAdmin } from "@/lib/auth-client";
 import type { MessageKey } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
@@ -34,7 +34,6 @@ export default function MobileMenu() {
 
   useEffect(() => {
     setMounted(true);
-    ensureAdminSeed();
     setAdmin(isAdmin());
     return () => {
       document.documentElement.removeAttribute("data-mobile-menu-open");
