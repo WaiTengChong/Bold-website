@@ -20,14 +20,16 @@ import { withBase } from "@/lib/utils";
       rel="stylesheet"
     />
   </head>
-  <body class="min-h-dvh bg-surface text-on-surface">
-    <div class="mx-auto flex min-h-dvh max-w-container-max flex-col px-margin-mobile py-stack-lg md:px-margin-desktop">
-      <div class="mb-stack-md flex justify-end">
-        <LanguageToggle client:load />
-      </div>
-      <div class="auth-panel mx-auto w-full max-w-md border border-outline-variant/40 bg-surface-container-lowest p-margin-mobile md:p-10">
+  <body class="min-h-dvh overflow-x-clip bg-surface text-on-surface">
+  <main class="cut-surface-page flex min-h-dvh flex-col">
+    <div class="mb-4 flex justify-end">
+      <LanguageToggle client:load />
+    </div>
+    <div class="cut-surface-layout my-auto">
+      <div class="auth-panel">
         <ConsoleAuthPanel client:load />
       </div>
     </div>
+  </main>
   </body>
 </html>

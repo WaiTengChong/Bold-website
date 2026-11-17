@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import MobileMenu from "@/components/react-islands/MobileMenu";
 import AdminNavLink from "@/components/react-islands/AdminNavLink";
+import HeaderAuthActions from "@/components/react-islands/HeaderAuthActions";
 import LanguageToggle from "@/components/react-islands/LanguageToggle";
 import { desktopNavLinkDefs, isNavActive } from "@/lib/nav";
 import { useLocale } from "@/lib/use-locale";
@@ -55,20 +56,13 @@ export default function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center justify-end gap-2 md:ml-0 md:gap-3 lg:gap-4">
-          <LanguageToggle className="relative z-[120] shrink-0" />
+          <LanguageToggle className="relative z-[120] hidden shrink-0 md:flex" />
           <a href={withBase("/booking")} className="bold-btn-primary shrink-0 px-3 py-2 text-[13px] md:hidden">
             {t("header.book")}
           </a>
+          <HeaderAuthActions layout="compact" className="md:hidden" />
           <AdminNavLink className="hidden font-sans text-body-md font-medium text-primary transition-opacity hover:opacity-80 md:inline" />
-          <a
-            href={withBase("/login")}
-            className="hidden font-sans text-body-md font-medium text-on-surface-variant transition-colors hover:text-primary md:inline"
-          >
-            {t("header.login")}
-          </a>
-          <a href={withBase("/membership")} className="bold-btn-primary hidden md:inline-flex">
-            {t("header.join")}
-          </a>
+          <HeaderAuthActions layout="desktop" />
         </div>
       </div>
     </header>

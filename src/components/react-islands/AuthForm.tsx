@@ -150,88 +150,85 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
   return (
     <form className="auth-form" onSubmit={handleSubmit} noValidate>
-      {mode === "signup" && (
-        <div className="auth-field-row">
-          <div className="auth-field auth-field--half">
-            <label htmlFor="auth-surname" className="auth-label">
-              {t("auth.surname")}
+      {mode === "signup" ? (
+        <fieldset className="auth-form-section">
+          <legend className="auth-form-section__title">{t("auth.section.required")}</legend>
+          <div className="auth-field-row">
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-surname" className="auth-label">
+                {t("auth.surname")}
+              </label>
+              <input
+                id="auth-surname"
+                className="auth-input"
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
+                onBlur={() => markTouched("surname")}
+                autoComplete="family-name"
+                aria-invalid={!!showError("surname", surnameError)}
+              />
+              {showError("surname", surnameError) && (
+                <p className="auth-error" role="alert">
+                  {surnameError}
+                </p>
+              )}
+            </div>
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-given-name" className="auth-label">
+                {t("auth.givenName")}
+              </label>
+              <input
+                id="auth-given-name"
+                className="auth-input"
+                value={givenName}
+                onChange={(e) => setGivenName(e.target.value)}
+                onBlur={() => markTouched("givenName")}
+                autoComplete="given-name"
+                aria-invalid={!!showError("givenName", givenNameError)}
+              />
+              {showError("givenName", givenNameError) && (
+                <p className="auth-error" role="alert">
+                  {givenNameError}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="auth-field">
+            <label htmlFor="auth-dial-code" className="auth-label">
+              {t("auth.countryCode")}
             </label>
-            <input
-              id="auth-surname"
-              className="auth-input"
-              value={surname}
-              onChange={(e) => setSurname(e.target.value)}
-              onBlur={() => markTouched("surname")}
-              autoComplete="family-name"
-              aria-invalid={!!showError("surname", surnameError)}
-            />
-            {showError("surname", surnameError) && (
+            <div className="auth-phone-row">
+              <select
+                id="auth-dial-code"
+                className="auth-input auth-select"
+                value={dialCode}
+                onChange={(e) => setDialCode(e.target.value)}
+                autoComplete="tel-country-code"
+              >
+                {PHONE_DIAL_CODES.map((code) => (
+                  <option key={code.value} value={code.value}>
+                    {code.label}
+                  </option>
+                ))}
+              </select>
+              <input
+                id="auth-phone"
+                type="tel"
+                className="auth-input auth-phone-input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                onBlur={() => markTouched("phone")}
+                autoComplete="tel-national"
+                placeholder={t("auth.phone")}
+                aria-invalid={!!showError("phone", phoneError)}
+              />
+            </div>
+            {showError("phone", phoneError) && (
               <p className="auth-error" role="alert">
-                {surnameError}
+                {phoneError}
               </p>
             )}
           </div>
-          <div className="auth-field auth-field--half">
-            <label htmlFor="auth-given-name" className="auth-label">
-              {t("auth.givenName")}
-            </label>
-            <input
-              id="auth-given-name"
-              className="auth-input"
-              value={givenName}
-              onChange={(e) => setGivenName(e.target.value)}
-              onBlur={() => markTouched("givenName")}
-              autoComplete="given-name"
-              aria-invalid={!!showError("givenName", givenNameError)}
-            />
-            {showError("givenName", givenNameError) && (
-              <p className="auth-error" role="alert">
-                {givenNameError}
-              </p>
-            )}
-          </div>
-        </div>
-      )}
-
-      <div className="auth-field">
-        <label htmlFor="auth-dial-code" className="auth-label">
-          {t("auth.countryCode")}
-        </label>
-        <div className="auth-phone-row">
-          <select
-            id="auth-dial-code"
-            className="auth-input auth-select"
-            value={dialCode}
-            onChange={(e) => setDialCode(e.target.value)}
-            autoComplete="tel-country-code"
-          >
-            {PHONE_DIAL_CODES.map((code) => (
-              <option key={code.value} value={code.value}>
-                {code.label}
-              </option>
-            ))}
-          </select>
-          <input
-            id="auth-phone"
-            type="tel"
-            className="auth-input auth-phone-input"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            onBlur={() => markTouched("phone")}
-            autoComplete="tel-national"
-            placeholder={t("auth.phone")}
-            aria-invalid={!!showError("phone", phoneError)}
-          />
-        </div>
-        {showError("phone", phoneError) && (
-          <p className="auth-error" role="alert">
-            {phoneError}
-          </p>
-        )}
-      </div>
-
-      {mode === "signup" && (
-        <>
           <div className="auth-field-row">
             <div className="auth-field auth-field--half">
               <label htmlFor="auth-dob" className="auth-label">
@@ -278,7 +275,6 @@ export default function AuthForm({ mode }: { mode: Mode }) {
               )}
             </div>
           </div>
-
           <div className="auth-field">
             <label htmlFor="auth-email" className="auth-label">
               {t("auth.email")}
@@ -299,110 +295,173 @@ export default function AuthForm({ mode }: { mode: Mode }) {
               </p>
             )}
           </div>
-
-          <details className="auth-optional">
-            <summary>{t("auth.optionalSection")}</summary>
-            <div className="auth-optional__body">
-              <div className="auth-field">
-                <label htmlFor="auth-lang" className="auth-label">
-                  {t("auth.preferredLanguage")}
-                </label>
-                <select
-                  id="auth-lang"
-                  className="auth-input auth-select"
-                  value={preferredLanguage}
-                  onChange={(e) => setPreferredLanguage(e.target.value as "" | "zh" | "en")}
-                >
-                  <option value="">{t("auth.lang.unset")}</option>
-                  <option value="zh">{t("auth.lang.zh")}</option>
-                  <option value="en">{t("auth.lang.en")}</option>
-                </select>
-              </div>
-              <fieldset className="auth-field">
-                <legend className="auth-label">{t("auth.consentLegend")}</legend>
-                <label className="auth-check">
-                  <input type="checkbox" checked={consentEmail} onChange={(e) => setConsentEmail(e.target.checked)} />
-                  {t("auth.consentEmail")}
-                </label>
-                <label className="auth-check">
-                  <input
-                    type="checkbox"
-                    checked={consentWhatsapp}
-                    onChange={(e) => setConsentWhatsapp(e.target.checked)}
-                  />
-                  {t("auth.consentWhatsapp")}
-                </label>
-              </fieldset>
-              <div className="auth-field">
-                <label htmlFor="auth-ec-name" className="auth-label">
-                  {t("auth.emergencyName")}
-                </label>
-                <input
-                  id="auth-ec-name"
-                  className="auth-input"
-                  value={emergencyContactName}
-                  onChange={(e) => setEmergencyContactName(e.target.value)}
-                />
-              </div>
-              <div className="auth-field">
-                <label htmlFor="auth-ec-phone" className="auth-label">
-                  {t("auth.emergencyPhone")}
-                </label>
-                <input
-                  id="auth-ec-phone"
-                  type="tel"
-                  className="auth-input"
-                  value={emergencyContactPhone}
-                  onChange={(e) => setEmergencyContactPhone(e.target.value)}
-                />
-              </div>
-            </div>
-          </details>
-        </>
-      )}
-
-      <div className="auth-field">
-        <label htmlFor="auth-password" className="auth-label">
-          {t("auth.password")}
-        </label>
-        <input
-          id="auth-password"
-          type="password"
-          className="auth-input"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onBlur={() => markTouched("password")}
-          autoComplete={mode === "login" ? "current-password" : "new-password"}
-          aria-invalid={!!showError("password", passwordError)}
-        />
-        {showError("password", passwordError) && (
-          <p className="auth-error" role="alert">
-            {passwordError}
-          </p>
-        )}
-      </div>
-
-      {mode === "signup" && (
+        </fieldset>
+      ) : (
         <div className="auth-field">
-          <label htmlFor="auth-confirm-password" className="auth-label">
-            {t("auth.confirmPassword")}
+          <label htmlFor="auth-dial-code" className="auth-label">
+            {t("auth.countryCode")}
           </label>
-          <input
-            id="auth-confirm-password"
-            type="password"
-            className="auth-input"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            onBlur={() => markTouched("confirmPassword")}
-            autoComplete="new-password"
-            aria-invalid={!!showError("confirmPassword", confirmError)}
-          />
-          {showError("confirmPassword", confirmError) && (
+          <div className="auth-phone-row">
+            <select
+              id="auth-dial-code"
+              className="auth-input auth-select"
+              value={dialCode}
+              onChange={(e) => setDialCode(e.target.value)}
+              autoComplete="tel-country-code"
+            >
+              {PHONE_DIAL_CODES.map((code) => (
+                <option key={code.value} value={code.value}>
+                  {code.label}
+                </option>
+              ))}
+            </select>
+            <input
+              id="auth-phone"
+              type="tel"
+              className="auth-input auth-phone-input"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              onBlur={() => markTouched("phone")}
+              autoComplete="tel-national"
+              placeholder={t("auth.phone")}
+              aria-invalid={!!showError("phone", phoneError)}
+            />
+          </div>
+          {showError("phone", phoneError) && (
             <p className="auth-error" role="alert">
-              {confirmError}
+              {phoneError}
             </p>
           )}
         </div>
+      )}
+
+      {mode === "signup" ? (
+        <fieldset className="auth-form-section">
+          <legend className="auth-form-section__title">{t("auth.section.password")}</legend>
+          <div className="auth-field">
+            <label htmlFor="auth-password" className="auth-label">
+              {t("auth.password")}
+            </label>
+            <input
+              id="auth-password"
+              type="password"
+              className="auth-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => markTouched("password")}
+              autoComplete="new-password"
+              aria-invalid={!!showError("password", passwordError)}
+            />
+            {showError("password", passwordError) && (
+              <p className="auth-error" role="alert">
+                {passwordError}
+              </p>
+            )}
+          </div>
+          <div className="auth-field">
+            <label htmlFor="auth-confirm-password" className="auth-label">
+              {t("auth.confirmPassword")}
+            </label>
+            <input
+              id="auth-confirm-password"
+              type="password"
+              className="auth-input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onBlur={() => markTouched("confirmPassword")}
+              autoComplete="new-password"
+              aria-invalid={!!showError("confirmPassword", confirmError)}
+            />
+            {showError("confirmPassword", confirmError) && (
+              <p className="auth-error" role="alert">
+                {confirmError}
+              </p>
+            )}
+          </div>
+        </fieldset>
+      ) : (
+        <div className="auth-field">
+          <label htmlFor="auth-password" className="auth-label">
+            {t("auth.password")}
+          </label>
+          <input
+            id="auth-password"
+            type="password"
+            className="auth-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={() => markTouched("password")}
+            autoComplete="current-password"
+            aria-invalid={!!showError("password", passwordError)}
+          />
+          {showError("password", passwordError) && (
+            <p className="auth-error" role="alert">
+              {passwordError}
+            </p>
+          )}
+        </div>
+      )}
+
+      {mode === "signup" && (
+        <fieldset className="auth-form-section auth-form-section--optional">
+          <legend className="auth-form-section__title">{t("auth.optionalSection")}</legend>
+          <p className="auth-form-section__hint">{t("auth.optionalHint")}</p>
+          <div className="auth-field">
+            <label htmlFor="auth-lang" className="auth-label">
+              {t("auth.preferredLanguage")}
+            </label>
+            <select
+              id="auth-lang"
+              className="auth-input auth-select"
+              value={preferredLanguage}
+              onChange={(e) => setPreferredLanguage(e.target.value as "" | "zh" | "en")}
+            >
+              <option value="">{t("auth.lang.unset")}</option>
+              <option value="zh">{t("auth.lang.zh")}</option>
+              <option value="en">{t("auth.lang.en")}</option>
+            </select>
+          </div>
+          <fieldset className="auth-field auth-field--plain">
+            <legend className="auth-label">{t("auth.consentLegend")}</legend>
+            <label className="auth-check">
+              <input type="checkbox" checked={consentEmail} onChange={(e) => setConsentEmail(e.target.checked)} />
+              {t("auth.consentEmail")}
+            </label>
+            <label className="auth-check">
+              <input
+                type="checkbox"
+                checked={consentWhatsapp}
+                onChange={(e) => setConsentWhatsapp(e.target.checked)}
+              />
+              {t("auth.consentWhatsapp")}
+            </label>
+          </fieldset>
+          <div className="auth-field-row">
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-ec-name" className="auth-label">
+                {t("auth.emergencyName")}
+              </label>
+              <input
+                id="auth-ec-name"
+                className="auth-input"
+                value={emergencyContactName}
+                onChange={(e) => setEmergencyContactName(e.target.value)}
+              />
+            </div>
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-ec-phone" className="auth-label">
+                {t("auth.emergencyPhone")}
+              </label>
+              <input
+                id="auth-ec-phone"
+                type="tel"
+                className="auth-input"
+                value={emergencyContactPhone}
+                onChange={(e) => setEmergencyContactPhone(e.target.value)}
+              />
+            </div>
+          </div>
+        </fieldset>
       )}
 
       {submitError && (

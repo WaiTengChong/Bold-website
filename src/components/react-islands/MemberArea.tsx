@@ -114,26 +114,25 @@ export default function MemberArea() {
 
   if (!ready) {
     return (
-      <section className="mx-auto max-w-container-max px-margin-mobile py-stack-lg md:px-margin-desktop">
+      <section className="cut-surface-page">
         <p className="font-sans text-body-md text-on-surface-variant">{t("auth.wait")}</p>
       </section>
     );
   }
 
   return (
-    <section className="mx-auto w-full max-w-container-max px-margin-mobile py-stack-lg md:px-margin-desktop">
-      <header className="mb-stack-md">
-        <span className="mb-2 block font-sans text-label-sm font-semibold uppercase tracking-[0.4em] text-on-surface-variant">
-          {t("member.eyebrow")}
-        </span>
-        <h1 className="font-display text-headline-lg-mobile uppercase text-primary md:text-display-md">
-          {t("member.title")}
-        </h1>
-        <p className="mt-2 font-sans text-body-md text-on-surface-variant">
-          {profile?.surname}
-          {profile?.givenName ? ` ${profile.givenName}` : ""} · {phoneLabel}
-        </p>
-      </header>
+    <section className="cut-surface-page">
+      <div className="member-shell">
+        <header className="bold-page-header mb-stack-md">
+          <p className="font-sans text-label-sm font-semibold uppercase tracking-[0.35em] text-on-surface-variant">
+            {t("member.eyebrow")}
+          </p>
+          <h1>{t("member.title")}</h1>
+          <p>
+            {profile?.surname}
+            {profile?.givenName ? ` ${profile.givenName}` : ""} · {phoneLabel}
+          </p>
+        </header>
 
       <div className="member-tabs" role="tablist">
         <button
@@ -160,7 +159,7 @@ export default function MemberArea() {
         <div className="member-panel">
           <div className="mb-stack-sm flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-display text-title-lg uppercase text-on-surface">{t("member.bookings.heading")}</h2>
-            <a href={withBase("/booking")} className="auth-crosslink__link font-sans text-label-md">
+            <a href={withBase("/booking")} className="bold-text-link">
               {t("member.bookings.new")}
             </a>
           </div>
@@ -184,7 +183,7 @@ export default function MemberArea() {
       )}
 
       {tab === "profile" && (
-        <div className="member-panel auth-form max-w-lg">
+        <div className="member-panel auth-form">
           <div className="auth-field">
             <label className="auth-label">{t("auth.phone")}</label>
             <input className="auth-input" value={phoneLabel} disabled readOnly />
@@ -282,18 +281,23 @@ export default function MemberArea() {
         </div>
       )}
 
-      <p className="mt-stack-md">
-        <button
-          type="button"
-          className="font-sans text-label-md text-on-surface-variant underline"
-          onClick={() => {
-            memberLogout();
-            window.location.href = withBase("/");
-          }}
-        >
-          {t("member.logout")}
-        </button>
-      </p>
+        <div className="member-panel__actions">
+          <a href={withBase("/booking")} className="bold-text-link md:hidden">
+            {t("member.bookings.new")}
+          </a>
+          <button
+            type="button"
+            className="bold-btn-outline min-h-12 px-5 py-3"
+            onClick={() => {
+              memberLogout();
+              window.dispatchEvent(new Event("bold-auth-change"));
+              window.location.href = withBase("/");
+            }}
+          >
+            {t("member.logout")}
+          </button>
+        </div>
+      </div>
     </section>
   );
 }

@@ -80,8 +80,15 @@ function writeUsers(users: StoredUser[]): void {
   localStorage.setItem(USERS_KEY, JSON.stringify(users));
 }
 
+function emitAuthChange(): void {
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new Event("bold-auth-change"));
+  }
+}
+
 function writeMemberSession(session: MemberProfile): void {
   localStorage.setItem(MEMBER_SESSION_KEY, JSON.stringify(session));
+  emitAuthChange();
 }
 
 function writeStaffSession(session: StaffSession): void {
@@ -230,6 +237,7 @@ export function memberLogout(): void {
   }
   clearMemberApiToken();
   localStorage.removeItem(MEMBER_SESSION_KEY);
+  emitAuthChange();
 }
 
 export function staffLogout(): void {
