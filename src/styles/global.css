@@ -457,6 +457,105 @@
     opacity: 0.8;
   }
 
+  .auth-field-row {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 480px) {
+    .auth-field-row {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .auth-field--half {
+    min-width: 0;
+  }
+
+  .auth-optional {
+    margin: 4px 0 8px;
+    font-family: var(--font-sans);
+    font-size: var(--text-body-md);
+    color: var(--color-on-surface-variant);
+  }
+
+  .auth-optional summary {
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--color-primary);
+    list-style: none;
+  }
+
+  .auth-optional summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .auth-optional__body {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .auth-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: var(--text-body-sm);
+    line-height: 1.4;
+  }
+
+  .member-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .member-tab {
+    border: 1px solid var(--color-outline-variant);
+    padding: 10px 18px;
+    font-family: var(--font-sans);
+    font-size: var(--text-label-md);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-on-surface-variant);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .member-tab--active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    background: var(--color-surface-container-low);
+  }
+
+  .member-panel {
+    border: 1px solid var(--color-outline-variant);
+    background: var(--color-surface-container-lowest);
+    padding: var(--space-stack-md);
+  }
+
+  .member-booking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .member-booking-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    border-bottom: 1px solid var(--color-outline-variant);
+    padding-bottom: 8px;
+  }
+
   .admin-console {
     --radius-full: 9999px;
   }

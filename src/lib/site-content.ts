@@ -1,4 +1,4 @@
-import { apiEnabled, apiFetch } from "@/lib/api-client";
+import { apiEnabled, apiFetch, staffApiFetch } from "@/lib/api-client";
 import { CLUB_NEWS } from "@/lib/news-data";
 import { HOMEPAGE_GALLERY, PHOTOS } from "@/lib/photos";
 import { withBase } from "@/lib/utils";
@@ -183,7 +183,7 @@ export async function resolveSiteContent(): Promise<SiteContent> {
 }
 
 export async function saveSiteContentToApi(content: SiteContent): Promise<void> {
-  await apiFetch("/content/site", {
+  await staffApiFetch("/content/site", {
     method: "PUT",
     body: JSON.stringify(relativizeForApi(content)),
   });
@@ -192,7 +192,7 @@ export async function saveSiteContentToApi(content: SiteContent): Promise<void> 
 export async function uploadCmsImage(file: File): Promise<string> {
   if (!apiEnabled()) return fileToDataUrl(file);
   const dataUrl = await fileToDataUrl(file);
-  const res = await apiFetch<{ ok: boolean; src?: string; error?: string }>("/admin/media", {
+  const res = await staffApiFetch<{ ok: boolean; src?: string; error?: string }>("/admin/media", {
     method: "POST",
     body: JSON.stringify({ dataUrl }),
   });

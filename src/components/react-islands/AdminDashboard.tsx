@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { apiEnabled, apiFetch } from "@/lib/api-client";
-import { getSession, hydrateSession, isAdmin, logout } from "@/lib/auth-client";
+import { apiEnabled, staffApiFetch } from "@/lib/api-client";
+import { getStaffSession, isAdmin, isStaffLoggedIn, staffLogout } from "@/lib/auth-client";
 import { fetchCourtMaintenance } from "@/lib/booking-api";
 import { adminHref, samePath, viewFromPath, type ViewId } from "@/lib/admin-nav";
 import type { MessageKey } from "@/lib/i18n";
@@ -86,16 +86,29 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
   const [view, setView] = useState<ViewId>(initialView);
   const [guestBookingEnabled, setGuestBookingEnabled] = useState(true);
 
+  const [staffList, setStaffList] = useState<
+    { id: string; dialCode: string; phone: string; surname: string; givenName: string; email: string; role: string }[]
+  >([]);
+  const [staffForm, setStaffForm] = useState({
+    dialCode: "852",
+    phone: "",
+    password: "",
+    surname: "",
+    givenName: "",
+    email: "",
+    role: "staff" as "staff" | "admin",
+  });
+  const [staffMsg, setStaffMsg] = useState<string | null>(null);
+
   useEffect(() => {
     void (async () => {
-      await hydrateSession();
-      if (!isAdmin()) {
-        window.location.replace(withBase("/login"));
+      if (!isStaffLoggedIn()) {
+        window.location.replace(withBase("/console/login"));
         return;
       }
       if (apiEnabled()) {
         try {
-          const courtRows = await apiFetch<{ id: number; inMaintenance: boolean }[]>("/courts");
+          const courtRows = await staffApiFetch<{ id: number; inMaintenance: boolean }[]>("/courts");
           setCourts(
             courtRows.map((c) => ({
               id: c.id,
@@ -105,21 +118,33 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
               maint: c.inMaintenance,
             })),
           );
-          const settings = await apiFetch<{ guestBookingEnabled: boolean }>("/settings");
+          const settings = await staffApiFetch<{ guestBookingEnabled: boolean }>("/settings");
           setGuestBookingEnabled(settings.guestBookingEnabled);
-          const apiMembers = await apiFetch<
-            { id: string; dialCode: string; phone: string; role: string; createdAt: string }[]
+          const apiMembers = await staffApiFetch<
+            {
+              id: string;
+              dialCode: string;
+              phone: string;
+              surname: string;
+              givenName: string;
+              email: string;
+              createdAt: string;
+            }[]
           >("/admin/members");
           setMembers(
             apiMembers.map((m, i) => ({
               id: m.id.slice(0, 8).toUpperCase(),
-              name: `+${m.dialCode} ${m.phone}`,
-              tier: m.role === "admin" ? "Admin" : "Member",
+              name: [m.surname, m.givenName].filter(Boolean).join(" ") || `+${m.dialCode} ${m.phone}`,
+              tier: m.email || "Member",
               balance: "—",
               last: new Date(m.createdAt).toLocaleDateString(),
               color: i % 2 === 0 ? "text-on-primary-container" : "text-primary",
             })),
           );
+          if (isAdmin()) {
+            const staff = await staffApiFetch<typeof staffList>("/admin/staff");
+            setStaffList(staff);
+          }
         } catch {
           /* keep demo rows if API unreachable */
         }
@@ -175,7 +200,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
       const next = !court.maint;
       if (apiEnabled()) {
         try {
-          await apiFetch(`/admin/courts/${id}/maintenance`, {
+          await staffApiFetch(`/admin/courts/${id}/maintenance`, {
             method: "PATCH",
             body: JSON.stringify({ inMaintenance: next }),
           });
@@ -202,7 +227,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
       if (!apiEnabled()) return;
       const next = !guestBookingEnabled;
       try {
-        const res = await apiFetch<{ guestBookingEnabled: boolean }>("/settings", {
+        const res = await staffApiFetch<{ guestBookingEnabled: boolean }>("/settings", {
           method: "PATCH",
           body: JSON.stringify({ guestBookingEnabled: next }),
         });
@@ -214,7 +239,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
   };
 
   const handleLogout = () => {
-    logout();
+    staffLogout();
     window.location.href = withBase("/login");
   };
 
@@ -248,7 +273,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
     );
   }
 
-  const session = getSession();
+  const session = getStaffSession();
 
   return (
     <div className="admin-console light flex h-dvh max-w-full overflow-hidden bg-surface text-on-surface">
@@ -509,6 +534,102 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                   <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.edit")}</span>
                 </div>
               </div>
+              {isAdmin() && apiEnabled() && (
+                <div className="mt-stack-md space-y-4 border border-outline-variant bg-surface-container-lowest p-stack-md">
+                  <h3 className="font-label-md text-label-md uppercase text-primary">{t("admin.staff.heading")}</h3>
+                  {staffList.length > 0 && (
+                    <ul className="space-y-2 font-body-sm text-body-sm text-on-surface">
+                      {staffList.map((s) => (
+                        <li key={s.id}>
+                          {[s.surname, s.givenName].filter(Boolean).join(" ") || `+${s.dialCode} ${s.phone}`} ·{" "}
+                          {s.role === "admin" ? t("admin.staff.role.admin") : t("admin.staff.role.staff")}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <form
+                    className="auth-form max-w-md"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void (async () => {
+                        setStaffMsg(null);
+                        try {
+                          const created = await staffApiFetch<(typeof staffList)[0]>("/admin/staff", {
+                            method: "POST",
+                            body: JSON.stringify(staffForm),
+                          });
+                          setStaffList((prev) => [created, ...prev]);
+                          setStaffForm({
+                            dialCode: "852",
+                            phone: "",
+                            password: "",
+                            surname: "",
+                            givenName: "",
+                            email: "",
+                            role: "staff",
+                          });
+                          setStaffMsg("OK");
+                        } catch {
+                          setStaffMsg("ERR");
+                        }
+                      })();
+                    }}
+                  >
+                    <div className="auth-field">
+                      <label className="auth-label">{t("admin.staff.role")}</label>
+                      <select
+                        className="auth-input auth-select"
+                        value={staffForm.role}
+                        onChange={(e) =>
+                          setStaffForm((f) => ({ ...f, role: e.target.value as "staff" | "admin" }))
+                        }
+                      >
+                        <option value="staff">{t("admin.staff.role.staff")}</option>
+                        <option value="admin">{t("admin.staff.role.admin")}</option>
+                      </select>
+                    </div>
+                    <div className="auth-field-row">
+                      <input
+                        className="auth-input"
+                        placeholder={t("auth.surname")}
+                        value={staffForm.surname}
+                        onChange={(e) => setStaffForm((f) => ({ ...f, surname: e.target.value }))}
+                      />
+                      <input
+                        className="auth-input"
+                        placeholder={t("auth.givenName")}
+                        value={staffForm.givenName}
+                        onChange={(e) => setStaffForm((f) => ({ ...f, givenName: e.target.value }))}
+                      />
+                    </div>
+                    <input
+                      className="auth-input auth-field"
+                      placeholder={t("auth.email")}
+                      value={staffForm.email}
+                      onChange={(e) => setStaffForm((f) => ({ ...f, email: e.target.value }))}
+                    />
+                    <input
+                      className="auth-input auth-field"
+                      placeholder={t("auth.phone")}
+                      value={staffForm.phone}
+                      onChange={(e) => setStaffForm((f) => ({ ...f, phone: e.target.value }))}
+                    />
+                    <input
+                      type="password"
+                      className="auth-input auth-field"
+                      placeholder={t("auth.password")}
+                      value={staffForm.password}
+                      onChange={(e) => setStaffForm((f) => ({ ...f, password: e.target.value }))}
+                    />
+                    <button type="submit" className="auth-submit">
+                      {t("admin.staff.create")}
+                    </button>
+                    {staffMsg === "OK" && (
+                      <p className="font-body-sm text-primary">{t("admin.staff.create")} ✓</p>
+                    )}
+                  </form>
+                </div>
+              )}
             </section>
           )}
         </div>

@@ -1,4 +1,5 @@
-const TOKEN_KEY = "bold_api_token";
+const MEMBER_TOKEN_KEY = "bold_member_api_token";
+const STAFF_TOKEN_KEY = "bold_staff_api_token";
 
 export class ApiError extends Error {
   constructor(
@@ -21,25 +22,52 @@ export function apiBaseUrl(): string {
     .replace(/\/$/, "");
 }
 
-export function getApiToken(): string | null {
+export function getMemberApiToken(): string | null {
   if (typeof localStorage === "undefined") return null;
-  return localStorage.getItem(TOKEN_KEY);
+  return localStorage.getItem(MEMBER_TOKEN_KEY);
 }
 
+export function setMemberApiToken(token: string): void {
+  localStorage.setItem(MEMBER_TOKEN_KEY, token);
+}
+
+export function clearMemberApiToken(): void {
+  localStorage.removeItem(MEMBER_TOKEN_KEY);
+}
+
+export function getStaffApiToken(): string | null {
+  if (typeof localStorage === "undefined") return null;
+  return localStorage.getItem(STAFF_TOKEN_KEY);
+}
+
+export function setStaffApiToken(token: string): void {
+  localStorage.setItem(STAFF_TOKEN_KEY, token);
+}
+
+export function clearStaffApiToken(): void {
+  localStorage.removeItem(STAFF_TOKEN_KEY);
+}
+
+/** @deprecated use getMemberApiToken */
+export function getApiToken(): string | null {
+  return getMemberApiToken();
+}
+
+/** @deprecated use setMemberApiToken */
 export function setApiToken(token: string): void {
-  localStorage.setItem(TOKEN_KEY, token);
+  setMemberApiToken(token);
 }
 
+/** @deprecated use clearMemberApiToken */
 export function clearApiToken(): void {
-  localStorage.removeItem(TOKEN_KEY);
+  clearMemberApiToken();
 }
 
-export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+async function fetchWithToken<T>(path: string, token: string | null, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
   if (!headers.has("Content-Type") && init?.body) {
     headers.set("Content-Type", "application/json");
   }
-  const token = getApiToken();
   if (token) headers.set("Authorization", `Bearer ${token}`);
 
   const res = await fetch(`${apiBaseUrl()}${path}`, { ...init, headers, credentials: "include" });
@@ -51,4 +79,12 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   }
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
+}
+
+export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  return fetchWithToken<T>(path, getMemberApiToken(), init);
+}
+
+export async function staffApiFetch<T>(path: string, init?: RequestInit): Promise<T> {
+  return fetchWithToken<T>(path, getStaffApiToken(), init);
 }

@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { Request } from "express";
-import { JwtAuthGuard, OptionalJwtAuthGuard, Roles } from "../auth/auth.guards";
+import { Audience, AudienceGuard, JwtAuthGuard, OptionalMemberJwtAuthGuard, Roles } from "../auth/auth.guards";
 import { RolesGuard } from "../auth/roles.guard";
 import type { JwtPayload } from "../auth/jwt.strategy";
 import { BookingsService } from "./bookings.service";
@@ -34,7 +34,7 @@ export class BookingsController {
   }
 
   @Post()
-  @UseGuards(OptionalJwtAuthGuard)
+  @UseGuards(OptionalMemberJwtAuthGuard)
   create(
     @Req() req: Request & { user?: JwtPayload | null },
     @Body() body: { date: string; time: string; courtId: number; guestName?: string },
@@ -43,7 +43,8 @@ export class BookingsController {
   }
 
   @Get("mine")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AudienceGuard)
+  @Audience("member")
   mine(@Req() req: Request & { user: JwtPayload }) {
     return this.bookings.mine(req.user.sub);
   }
@@ -55,8 +56,9 @@ export class BookingsController {
   }
 
   @Get("admin/overview")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("admin")
+  @UseGuards(JwtAuthGuard, AudienceGuard, RolesGuard)
+  @Audience("staff")
+  @Roles("staff")
   adminOverview() {
     return this.bookings.adminList();
   }

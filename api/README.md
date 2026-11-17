@@ -53,15 +53,16 @@ Run the stack on a host with a public URL (VPS, tunnel, etc.):
 
 Do **not** merge this PR for production GitHub Pages — the static site at `https://waitengchong.github.io/Bold-website/` stays on demo localStorage unless a coordinator wires preview env vars.
 
-## Seed admin
+## Seed admin (staff table)
 
 | Field | Value |
 |-------|--------|
 | Dial code | `852` |
 | Phone | `88888888` |
 | Password | `admin1234` |
+| Login | `POST /api/v1/auth/staff/login` |
 
-Password is only in this README and the database hash — not in frontend source.
+Password is only in this README and the database hash — not in frontend source. Members use `POST /api/v1/auth/login`; staff use `/auth/staff/login`.
 
 ## Scripts
 

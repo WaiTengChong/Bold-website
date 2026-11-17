@@ -1,0 +1,33 @@
+---
+import "@/styles/global.css";
+import ConsoleAuthPanel from "@/components/react-islands/ConsoleAuthPanel";
+import LanguageToggle from "@/components/react-islands/LanguageToggle";
+import { withBase } from "@/lib/utils";
+---
+
+<!doctype html>
+<html class="light" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href={withBase("/favicon.svg")} />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>BOLD PICKLEBALL | Staff sign in</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="min-h-dvh bg-surface text-on-surface">
+    <div class="mx-auto flex min-h-dvh max-w-container-max flex-col px-margin-mobile py-stack-lg md:px-margin-desktop">
+      <div class="mb-stack-md flex justify-end">
+        <LanguageToggle client:load />
+      </div>
+      <div class="auth-panel mx-auto w-full max-w-md border border-outline-variant/40 bg-surface-container-lowest p-margin-mobile md:p-10">
+        <ConsoleAuthPanel client:load />
+      </div>
+    </div>
+  </body>
+</html>

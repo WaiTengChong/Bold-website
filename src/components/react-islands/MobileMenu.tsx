@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
-import { isAdmin } from "@/lib/auth-client";
+import { isMemberLoggedIn, isStaffLoggedIn } from "@/lib/auth-client";
 import type { MessageKey } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
@@ -24,17 +24,22 @@ export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const [member, setMember] = useState(false);
   const menuId = useId();
 
   const links = useMemo(() => {
     const items = baseLinkDefs.map((link) => ({ ...link, label: t(link.key) }));
+    if (member) {
+      items.unshift({ href: withBase("/account"), key: "member.title" as MessageKey, label: t("member.title") });
+    }
     if (admin) items.push({ href: withBase("/console"), key: "header.admin" as MessageKey, label: t("header.admin") });
     return items;
-  }, [admin, t]);
+  }, [admin, member, t]);
 
   useEffect(() => {
     setMounted(true);
-    setAdmin(isAdmin());
+    setAdmin(isStaffLoggedIn());
+    setMember(isMemberLoggedIn());
     return () => {
       document.documentElement.removeAttribute("data-mobile-menu-open");
       document.body.style.overflow = "";

@@ -23,9 +23,14 @@ async function main() {
   }
 
   await pool.query(
-    `INSERT INTO users (dial_code, phone, password_hash, role)
-     VALUES ($1, $2, $3, 'admin')
-     ON CONFLICT (dial_code, phone) DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'admin'`,
+    `INSERT INTO staff (dial_code, phone, password_hash, surname, given_name, email, role)
+     VALUES ($1, $2, $3, '系統', '管理員', 'admin@bold.example', 'admin')
+     ON CONFLICT (dial_code, phone) DO UPDATE SET
+       password_hash = EXCLUDED.password_hash,
+       role = 'admin',
+       surname = EXCLUDED.surname,
+       given_name = EXCLUDED.given_name,
+       email = EXCLUDED.email`,
     ["852", "88888888", ADMIN_HASH],
   );
 
@@ -35,7 +40,7 @@ async function main() {
   ];
   for (const b of seedBookings) {
     await pool.query(
-      `INSERT INTO bookings (id, user_id, guest_name, court_id, booking_date, booking_time, status, payment_status)
+      `INSERT INTO bookings (id, member_id, guest_name, court_id, booking_date, booking_time, status, payment_status)
        VALUES ($1, NULL, $2, $3, $4::date, $5, 'active', 'awaiting_payment')
        ON CONFLICT (id) DO NOTHING`,
       [b.id, b.guest, b.courtId, b.date, b.time],
