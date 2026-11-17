@@ -12,7 +12,9 @@ export default function ConsoleAuthPanel() {
         <h1>{t("console.login.title")}</h1>
         <p>{t("console.login.subtitle")}</p>
       </div>
-      <ConsoleAuthForm />
+      <div className="auth-panel__form">
+        <ConsoleAuthForm />
+      </div>
     </>
   );
 }

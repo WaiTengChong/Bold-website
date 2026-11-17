@@ -10,9 +10,9 @@ export default function AuthPanel({ mode }: { mode: Mode }) {
   const subtitle = mode === "login" ? t("auth.login.subtitle") : t("auth.signup.subtitle");
 
   return (
-    <section className="cut-surface-page">
-      <div className="cut-surface-layout cut-surface-layout--wide">
-        <div className="auth-panel">
+    <section className="cut-surface-page cut-surface-page--auth">
+      <div className="cut-surface-layout cut-surface-layout--auth">
+        <div className="auth-panel auth-panel--split">
           <div className="auth-panel__intro bold-page-header">
             <p className="font-sans text-label-sm font-semibold uppercase tracking-[0.35em] text-on-surface-variant">
               {eyebrow}
@@ -20,7 +20,9 @@ export default function AuthPanel({ mode }: { mode: Mode }) {
             <h1>{title}</h1>
             <p>{subtitle}</p>
           </div>
-          <AuthForm mode={mode} />
+          <div className="auth-panel__form">
+            <AuthForm mode={mode} />
+          </div>
         </div>
       </div>
     </section>

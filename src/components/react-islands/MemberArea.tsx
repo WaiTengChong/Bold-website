@@ -183,7 +183,10 @@ export default function MemberArea() {
       )}
 
       {tab === "profile" && (
-        <div className="member-panel auth-form">
+        <div className="member-panel">
+          <form className="auth-form auth-form--profile" onSubmit={(e) => e.preventDefault()}>
+          <fieldset className="auth-form-section">
+            <legend className="auth-form-section__title">{t("member.tab.profile")}</legend>
           <div className="auth-field">
             <label className="auth-label">{t("auth.phone")}</label>
             <input className="auth-input" value={phoneLabel} disabled readOnly />
@@ -229,62 +232,73 @@ export default function MemberArea() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          <div className="auth-field">
-            <label className="auth-label">{t("auth.preferredLanguage")}</label>
-            <select
-              className="auth-input auth-select"
-              value={preferredLanguage}
-              onChange={(e) => setPreferredLanguage(e.target.value as "" | "zh" | "en")}
-            >
-              <option value="">{t("auth.lang.unset")}</option>
-              <option value="zh">{t("auth.lang.zh")}</option>
-              <option value="en">{t("auth.lang.en")}</option>
-            </select>
-          </div>
-          <fieldset className="auth-field">
-            <legend className="auth-label">{t("auth.consentLegend")}</legend>
-            <label className="auth-check">
-              <input type="checkbox" checked={consentEmail} onChange={(e) => setConsentEmail(e.target.checked)} />
-              {t("auth.consentEmail")}
-            </label>
-            <label className="auth-check">
-              <input type="checkbox" checked={consentWhatsapp} onChange={(e) => setConsentWhatsapp(e.target.checked)} />
-              {t("auth.consentWhatsapp")}
-            </label>
           </fieldset>
-          <div className="auth-field">
-            <label className="auth-label">{t("auth.emergencyName")}</label>
-            <input
-              className="auth-input"
-              value={emergencyContactName}
-              onChange={(e) => setEmergencyContactName(e.target.value)}
-            />
+          <fieldset className="auth-form-section auth-form-section--optional">
+            <legend className="auth-form-section__title">{t("auth.optionalSection")}</legend>
+            <p className="auth-form-section__hint">{t("auth.optionalHint")}</p>
+            <div className="auth-field">
+              <label className="auth-label">{t("auth.preferredLanguage")}</label>
+              <select
+                className="auth-input auth-select"
+                value={preferredLanguage}
+                onChange={(e) => setPreferredLanguage(e.target.value as "" | "zh" | "en")}
+              >
+                <option value="">{t("auth.lang.unset")}</option>
+                <option value="zh">{t("auth.lang.zh")}</option>
+                <option value="en">{t("auth.lang.en")}</option>
+              </select>
+            </div>
+            <fieldset className="auth-field auth-field--plain">
+              <legend className="auth-label">{t("auth.consentLegend")}</legend>
+              <label className="auth-check">
+                <input type="checkbox" checked={consentEmail} onChange={(e) => setConsentEmail(e.target.checked)} />
+                {t("auth.consentEmail")}
+              </label>
+              <label className="auth-check">
+                <input
+                  type="checkbox"
+                  checked={consentWhatsapp}
+                  onChange={(e) => setConsentWhatsapp(e.target.checked)}
+                />
+                {t("auth.consentWhatsapp")}
+              </label>
+            </fieldset>
+            <div className="auth-field-row">
+              <div className="auth-field auth-field--half">
+                <label className="auth-label">{t("auth.emergencyName")}</label>
+                <input
+                  className="auth-input"
+                  value={emergencyContactName}
+                  onChange={(e) => setEmergencyContactName(e.target.value)}
+                />
+              </div>
+              <div className="auth-field auth-field--half">
+                <label className="auth-label">{t("auth.emergencyPhone")}</label>
+                <input
+                  type="tel"
+                  className="auth-input"
+                  value={emergencyContactPhone}
+                  onChange={(e) => setEmergencyContactPhone(e.target.value)}
+                />
+              </div>
+            </div>
+          </fieldset>
+          <div className="auth-form__footer">
+            {saveErr && (
+              <p className="auth-error" role="alert">
+                {saveErr}
+              </p>
+            )}
+            {saveMsg && <p className="font-sans text-body-sm text-primary">{saveMsg}</p>}
+            <button type="button" className="auth-submit" disabled={saving} onClick={() => void saveProfile()}>
+              {saving ? t("auth.wait") : t("member.profile.save")}
+            </button>
           </div>
-          <div className="auth-field">
-            <label className="auth-label">{t("auth.emergencyPhone")}</label>
-            <input
-              type="tel"
-              className="auth-input"
-              value={emergencyContactPhone}
-              onChange={(e) => setEmergencyContactPhone(e.target.value)}
-            />
-          </div>
-          {saveErr && (
-            <p className="auth-error" role="alert">
-              {saveErr}
-            </p>
-          )}
-          {saveMsg && <p className="font-sans text-body-sm text-primary">{saveMsg}</p>}
-          <button type="button" className="auth-submit" disabled={saving} onClick={() => void saveProfile()}>
-            {saving ? t("auth.wait") : t("member.profile.save")}
-          </button>
+          </form>
         </div>
       )}
 
         <div className="member-panel__actions">
-          <a href={withBase("/booking")} className="bold-text-link md:hidden">
-            {t("member.bookings.new")}
-          </a>
           <button
             type="button"
             className="bold-btn-outline min-h-12 px-5 py-3"

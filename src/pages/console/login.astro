@@ -20,13 +20,13 @@ import { withBase } from "@/lib/utils";
       rel="stylesheet"
     />
   </head>
-  <body class="min-h-dvh overflow-x-clip bg-surface text-on-surface">
-  <main class="cut-surface-page flex min-h-dvh flex-col">
+  <body class="min-h-dvh overflow-x-clip bg-surface text-on-surface pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))]" data-form-focus="true">
+  <main class="cut-surface-page cut-surface-page--auth flex min-h-dvh flex-col">
     <div class="mb-4 flex justify-end">
       <LanguageToggle client:load />
     </div>
-    <div class="cut-surface-layout my-auto">
-      <div class="auth-panel">
+    <div class="cut-surface-layout cut-surface-layout--auth my-auto w-full">
+      <div class="auth-panel auth-panel--split auth-panel--console">
         <ConsoleAuthPanel client:load />
       </div>
     </div>

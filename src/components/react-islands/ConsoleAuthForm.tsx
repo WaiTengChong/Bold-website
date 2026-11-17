@@ -50,7 +50,7 @@ export default function ConsoleAuthForm() {
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit} noValidate>
+    <form className="auth-form auth-form--login" onSubmit={handleSubmit} noValidate>
       <div className="auth-field">
         <label htmlFor="staff-dial-code" className="auth-label">
           {t("auth.countryCode")}

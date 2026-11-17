@@ -149,7 +149,11 @@ export default function AuthForm({ mode }: { mode: Mode }) {
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit} noValidate>
+    <form
+      className={`auth-form${mode === "signup" ? " auth-form--signup" : " auth-form--login"}`}
+      onSubmit={handleSubmit}
+      noValidate
+    >
       {mode === "signup" ? (
         <fieldset className="auth-form-section">
           <legend className="auth-form-section__title">{t("auth.section.required")}</legend>
@@ -470,6 +474,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
         </p>
       )}
 
+      <div className="auth-form__footer">
       <button type="submit" className="auth-submit" disabled={!isValid || submitting}>
         {submitting ? t("auth.wait") : mode === "login" ? t("auth.login") : t("auth.signup")}
       </button>
@@ -491,6 +496,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
           </>
         )}
       </p>
+      </div>
     </form>
   );
 }
