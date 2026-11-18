@@ -29,11 +29,6 @@ export default function AuthForm({ mode }: { mode: Mode }) {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
-  const [preferredLanguage, setPreferredLanguage] = useState<"" | "zh" | "en">("");
-  const [consentEmail, setConsentEmail] = useState(false);
-  const [consentWhatsapp, setConsentWhatsapp] = useState(false);
-  const [emergencyContactName, setEmergencyContactName] = useState("");
-  const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -131,11 +126,6 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             dateOfBirth,
             gender,
             email: email.trim(),
-            preferredLanguage: preferredLanguage || undefined,
-            consentEmail,
-            consentWhatsapp,
-            emergencyContactName: emergencyContactName.trim() || undefined,
-            emergencyContactPhone: emergencyContactPhone.trim() || undefined,
           } satisfies SignupFields)
         : await login(dialCode, digits, password);
 
@@ -404,68 +394,6 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             </p>
           )}
         </div>
-      )}
-
-      {mode === "signup" && (
-        <fieldset className="auth-form-section auth-form-section--optional">
-          <legend className="auth-form-section__title">{t("auth.optionalSection")}</legend>
-          <p className="auth-form-section__hint">{t("auth.optionalHint")}</p>
-          <div className="auth-field">
-            <label htmlFor="auth-lang" className="auth-label">
-              {t("auth.preferredLanguage")}
-            </label>
-            <select
-              id="auth-lang"
-              className="auth-input auth-select"
-              value={preferredLanguage}
-              onChange={(e) => setPreferredLanguage(e.target.value as "" | "zh" | "en")}
-            >
-              <option value="">{t("auth.lang.unset")}</option>
-              <option value="zh">{t("auth.lang.zh")}</option>
-              <option value="en">{t("auth.lang.en")}</option>
-            </select>
-          </div>
-          <fieldset className="auth-field auth-field--plain">
-            <legend className="auth-label">{t("auth.consentLegend")}</legend>
-            <label className="auth-check">
-              <input type="checkbox" checked={consentEmail} onChange={(e) => setConsentEmail(e.target.checked)} />
-              {t("auth.consentEmail")}
-            </label>
-            <label className="auth-check">
-              <input
-                type="checkbox"
-                checked={consentWhatsapp}
-                onChange={(e) => setConsentWhatsapp(e.target.checked)}
-              />
-              {t("auth.consentWhatsapp")}
-            </label>
-          </fieldset>
-          <div className="auth-field-row">
-            <div className="auth-field auth-field--half">
-              <label htmlFor="auth-ec-name" className="auth-label">
-                {t("auth.emergencyName")}
-              </label>
-              <input
-                id="auth-ec-name"
-                className="auth-input"
-                value={emergencyContactName}
-                onChange={(e) => setEmergencyContactName(e.target.value)}
-              />
-            </div>
-            <div className="auth-field auth-field--half">
-              <label htmlFor="auth-ec-phone" className="auth-label">
-                {t("auth.emergencyPhone")}
-              </label>
-              <input
-                id="auth-ec-phone"
-                type="tel"
-                className="auth-input"
-                value={emergencyContactPhone}
-                onChange={(e) => setEmergencyContactPhone(e.target.value)}
-              />
-            </div>
-          </div>
-        </fieldset>
       )}
 
       {submitError && (

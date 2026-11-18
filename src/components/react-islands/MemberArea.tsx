@@ -43,11 +43,6 @@ export default function MemberArea() {
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [gender, setGender] = useState("");
   const [email, setEmail] = useState("");
-  const [preferredLanguage, setPreferredLanguage] = useState<"" | "zh" | "en">("");
-  const [consentEmail, setConsentEmail] = useState(false);
-  const [consentWhatsapp, setConsentWhatsapp] = useState(false);
-  const [emergencyContactName, setEmergencyContactName] = useState("");
-  const [emergencyContactPhone, setEmergencyContactPhone] = useState("");
 
   useEffect(() => {
     void (async () => {
@@ -62,11 +57,6 @@ export default function MemberArea() {
       setDateOfBirth(session.dateOfBirth ?? "");
       setGender(session.gender ?? "");
       setEmail(session.email);
-      setPreferredLanguage(session.preferredLanguage ?? "");
-      setConsentEmail(session.consentEmail);
-      setConsentWhatsapp(session.consentWhatsapp);
-      setEmergencyContactName(session.emergencyContactName);
-      setEmergencyContactPhone(session.emergencyContactPhone);
 
       if (apiEnabled()) {
         try {
@@ -97,11 +87,6 @@ export default function MemberArea() {
       dateOfBirth,
       gender,
       email: email.trim(),
-      preferredLanguage: preferredLanguage || null,
-      consentEmail,
-      consentWhatsapp,
-      emergencyContactName,
-      emergencyContactPhone,
     });
     setSaving(false);
     if (!result.ok) {
@@ -232,56 +217,6 @@ export default function MemberArea() {
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
-          </fieldset>
-          <fieldset className="auth-form-section auth-form-section--optional">
-            <legend className="auth-form-section__title">{t("auth.optionalSection")}</legend>
-            <p className="auth-form-section__hint">{t("auth.optionalHint")}</p>
-            <div className="auth-field">
-              <label className="auth-label">{t("auth.preferredLanguage")}</label>
-              <select
-                className="auth-input auth-select"
-                value={preferredLanguage}
-                onChange={(e) => setPreferredLanguage(e.target.value as "" | "zh" | "en")}
-              >
-                <option value="">{t("auth.lang.unset")}</option>
-                <option value="zh">{t("auth.lang.zh")}</option>
-                <option value="en">{t("auth.lang.en")}</option>
-              </select>
-            </div>
-            <fieldset className="auth-field auth-field--plain">
-              <legend className="auth-label">{t("auth.consentLegend")}</legend>
-              <label className="auth-check">
-                <input type="checkbox" checked={consentEmail} onChange={(e) => setConsentEmail(e.target.checked)} />
-                {t("auth.consentEmail")}
-              </label>
-              <label className="auth-check">
-                <input
-                  type="checkbox"
-                  checked={consentWhatsapp}
-                  onChange={(e) => setConsentWhatsapp(e.target.checked)}
-                />
-                {t("auth.consentWhatsapp")}
-              </label>
-            </fieldset>
-            <div className="auth-field-row">
-              <div className="auth-field auth-field--half">
-                <label className="auth-label">{t("auth.emergencyName")}</label>
-                <input
-                  className="auth-input"
-                  value={emergencyContactName}
-                  onChange={(e) => setEmergencyContactName(e.target.value)}
-                />
-              </div>
-              <div className="auth-field auth-field--half">
-                <label className="auth-label">{t("auth.emergencyPhone")}</label>
-                <input
-                  type="tel"
-                  className="auth-input"
-                  value={emergencyContactPhone}
-                  onChange={(e) => setEmergencyContactPhone(e.target.value)}
-                />
-              </div>
-            </div>
           </fieldset>
           <div className="auth-form__footer">
             {saveErr && (
