@@ -73,9 +73,10 @@ export default function MemberArea() {
   const phoneLabel = useMemo(() => {
     const p = profile ?? getMemberSession();
     if (!p) return "";
-    const code = PHONE_DIAL_CODES.find((c) => c.value === p.dialCode)?.label ?? `+${p.dialCode}`;
+    const entry = PHONE_DIAL_CODES.find((c) => c.value === p.dialCode);
+    const code = entry ? t(entry.labelKey) : `+${p.dialCode}`;
     return `${code} ${p.phone}`;
-  }, [profile]);
+  }, [profile, t]);
 
   const saveProfile = async () => {
     setSaveMsg(null);

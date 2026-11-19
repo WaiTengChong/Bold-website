@@ -399,7 +399,7 @@
     max-width: 100%;
   }
 
-  @media (min-width: 768px) {
+  @media (min-width: 1024px) {
     .auth-phone-row {
       flex-direction: row;
       align-items: stretch;
@@ -412,11 +412,11 @@
     max-width: 100%;
   }
 
-  @media (min-width: 768px) {
-    .auth-select {
-      flex: 0 0 9.5rem;
-      width: 9.5rem;
-      max-width: 9.5rem;
+  @media (min-width: 1024px) {
+    .auth-phone-row .auth-select {
+      flex: 0 0 11.75rem;
+      width: 11.75rem;
+      max-width: 11.75rem;
     }
   }
 
@@ -557,6 +557,11 @@
 
   .auth-panel__intro {
     margin-bottom: var(--spacing-stack-md);
+  }
+
+  .auth-panel__intro p {
+    text-wrap: pretty;
+    max-width: 36ch;
   }
 
   .auth-panel__form {

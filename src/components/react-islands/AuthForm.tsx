@@ -135,7 +135,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
       return;
     }
 
-    window.location.href = withBase(mode === "signup" ? "/login" : "/account");
+    window.location.href = withBase("/account");
   };
 
   return (
@@ -201,7 +201,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
               >
                 {PHONE_DIAL_CODES.map((code) => (
                   <option key={code.value} value={code.value}>
-                    {code.label}
+                    {t(code.labelKey)}
                   </option>
                 ))}
               </select>
@@ -305,7 +305,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
             >
               {PHONE_DIAL_CODES.map((code) => (
                 <option key={code.value} value={code.value}>
-                  {code.label}
+                  {t(code.labelKey)}
                 </option>
               ))}
             </select>
@@ -331,11 +331,10 @@ export default function AuthForm({ mode }: { mode: Mode }) {
 
       {mode === "signup" ? (
         <fieldset className="auth-form-section">
-          <legend className="auth-form-section__title">{t("auth.section.password")}</legend>
+          <legend className="auth-form-section__title" id="auth-password-section">
+            {t("auth.section.password")}
+          </legend>
           <div className="auth-field">
-            <label htmlFor="auth-password" className="auth-label">
-              {t("auth.password")}
-            </label>
             <input
               id="auth-password"
               type="password"
@@ -344,6 +343,7 @@ export default function AuthForm({ mode }: { mode: Mode }) {
               onChange={(e) => setPassword(e.target.value)}
               onBlur={() => markTouched("password")}
               autoComplete="new-password"
+              aria-labelledby="auth-password-section"
               aria-invalid={!!showError("password", passwordError)}
             />
             {showError("password", passwordError) && (
