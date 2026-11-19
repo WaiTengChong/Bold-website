@@ -9,9 +9,11 @@ import { withBase } from "@/lib/utils";
 interface Props {
   title: string;
   description: string;
+  /** Form-heavy member/auth pages: hide mobile FAB/bar padding. */
+  formFocus?: boolean;
 }
 
-const { title, description } = Astro.props;
+const { title, description, formFocus = false } = Astro.props;
 ---
 
 <!doctype html>
@@ -29,11 +31,19 @@ const { title, description } = Astro.props;
     />
     <title>{title}</title>
   </head>
-  <body class="overflow-x-hidden bg-surface text-on-surface pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
+  <body
+    class:list={[
+      "overflow-x-hidden bg-surface text-on-surface",
+      formFocus
+        ? "pb-[calc(1.5rem+env(safe-area-inset-bottom,0px))] md:pb-0"
+        : "pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0",
+    ]}
+    data-form-focus={formFocus ? "true" : undefined}
+  >
     <I18nBoot client:load />
     <SiteHeader client:load />
     <slot />
     <SiteFooter />
-    <MobileChrome client:load />
+    {!formFocus && <MobileChrome client:load />}
   </body>
 </html>

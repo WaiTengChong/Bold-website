@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { Menu, X } from "lucide-react";
-import { isAdmin } from "@/lib/auth-client";
+import { isMemberLoggedIn, isStaffLoggedIn, memberLogout } from "@/lib/auth-client";
 import type { MessageKey } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
@@ -24,18 +24,31 @@ export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [admin, setAdmin] = useState(false);
+  const [member, setMember] = useState(false);
   const menuId = useId();
 
   const links = useMemo(() => {
-    const items = baseLinkDefs.map((link) => ({ ...link, label: t(link.key) }));
+    let items = baseLinkDefs.map((link) => ({ ...link, label: t(link.key) }));
+    if (member) {
+      items = items.filter((link) => link.key !== "header.login" && link.key !== "menu.signup");
+      items.unshift({ href: withBase("/account"), key: "member.title" as MessageKey, label: t("member.title") });
+    }
     if (admin) items.push({ href: withBase("/console"), key: "header.admin" as MessageKey, label: t("header.admin") });
     return items;
-  }, [admin, t]);
+  }, [admin, member, t]);
 
   useEffect(() => {
+    const sync = () => {
+      setAdmin(isStaffLoggedIn());
+      setMember(isMemberLoggedIn());
+    };
     setMounted(true);
-    setAdmin(isAdmin());
+    sync();
+    window.addEventListener("bold-auth-change", sync);
+    window.addEventListener("storage", sync);
     return () => {
+      window.removeEventListener("bold-auth-change", sync);
+      window.removeEventListener("storage", sync);
       document.documentElement.removeAttribute("data-mobile-menu-open");
       document.body.style.overflow = "";
     };
@@ -108,6 +121,20 @@ export default function MobileMenu() {
                   </li>
                 ))}
               </ul>
+              {member && (
+                <button
+                  type="button"
+                  className="mt-8 w-full border border-outline-variant py-3 font-sans text-label-md text-on-surface-variant"
+                  onClick={() => {
+                    memberLogout();
+                    window.dispatchEvent(new Event("bold-auth-change"));
+                    close();
+                    window.location.href = withBase("/");
+                  }}
+                >
+                  {t("header.logout")}
+                </button>
+              )}
             </nav>
           </div>,
           document.body,

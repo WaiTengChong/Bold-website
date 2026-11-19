@@ -14,7 +14,7 @@ const SLOT_HOURS = Array.from({ length: 17 }, (_, i) => `${String(i + 6).padStar
 
 export type BookingRow = {
   id: string;
-  user_id: string | null;
+  member_id: string | null;
   guest_name: string;
   court_id: number;
   booking_date: Date;
@@ -56,6 +56,9 @@ export class BookingsService {
     body: { date: string; time: string; courtId: number; guestName?: string },
   ) {
     const { guestBookingEnabled } = await this.settings.get();
+    if (user?.aud === "staff") {
+      throw new ForbiddenException("Staff accounts cannot create member bookings.");
+    }
     if (!user && !guestBookingEnabled) {
       throw new ForbiddenException("Guest booking is disabled.");
     }
@@ -78,10 +81,10 @@ export class BookingsService {
 
     try {
       const { rows } = await this.db.query<BookingRow>(
-        `INSERT INTO bookings (id, user_id, guest_name, court_id, booking_date, booking_time, status, payment_status)
+        `INSERT INTO bookings (id, member_id, guest_name, court_id, booking_date, booking_time, status, payment_status)
          VALUES ($1, $2, $3, $4, $5::date, $6, 'active', 'awaiting_payment')
          RETURNING *`,
-        [id, user?.sub ?? null, label, body.courtId, body.date, body.time],
+        [id, user?.aud === "member" ? user.sub : null, label, body.courtId, body.date, body.time],
       );
       return this.toPublic(rows[0]);
     } catch (err: unknown) {
@@ -94,7 +97,7 @@ export class BookingsService {
 
   async mine(userId: string) {
     const { rows } = await this.db.query<BookingRow>(
-      `SELECT * FROM bookings WHERE user_id = $1 AND status = 'active' ORDER BY booking_date, booking_time`,
+      `SELECT * FROM bookings WHERE member_id = $1 AND status = 'active' ORDER BY booking_date, booking_time`,
       [userId],
     );
     return rows.map((r) => this.toPublic(r));
@@ -111,8 +114,8 @@ export class BookingsService {
     const { rows } = await this.db.query<BookingRow>(`SELECT * FROM bookings WHERE id = $1`, [bookingId]);
     if (rows.length === 0) throw new NotFoundException("Booking not found");
     const row = rows[0];
-    const canAdmin = user.role === "admin";
-    const isOwner = row.user_id === user.sub;
+    const canAdmin = user.aud === "staff" && user.role === "admin";
+    const isOwner = user.aud === "member" && row.member_id === user.sub;
     if (!canAdmin && !isOwner) throw new ForbiddenException();
     if (row.status === "cancelled") return this.toPublic(row);
 
@@ -146,7 +149,7 @@ export class BookingsService {
       status: row.status,
       paymentStatus: row.payment_status,
       createdAt: row.created_at.toISOString(),
-      userId: row.user_id,
+      memberId: row.member_id,
     };
   }
 }

@@ -4,6 +4,8 @@ Base path: `/api/v1` (prepend your host, e.g. `http://localhost:3000/api/v1`).
 
 Auth: `Authorization: Bearer <accessToken>` unless noted.
 
+Member and staff use **separate JWT audiences** (`aud`: `member` | `staff`). A member token must not call staff/console routes; a staff token must not call member routes (e.g. `/auth/me`, `/bookings/mine`).
+
 ## Health
 
 **GET /health**
@@ -14,30 +16,45 @@ Auth: `Authorization: Bearer <accessToken>` unless noted.
 
 ## Auth
 
-**POST /auth/signup**
+**POST /auth/signup** — creates **members** only
+
+```json
+{
+  "dialCode": "852",
+  "phone": "91234567",
+  "password": "memberpass1",
+  "surname": "Chan",
+  "givenName": "Tai",
+  "dateOfBirth": "1990-05-01",
+  "gender": "male",
+  "email": "tai@example.com",
+  "preferredLanguage": "zh",
+  "consentEmail": true,
+  "consentWhatsapp": false,
+  "emergencyContactName": "Emergency",
+  "emergencyContactPhone": "90001111"
+}
+```
+
+Optional: `preferredLanguage`, consent fields, emergency contact. Rejects `role: "admin"` and phones already in `staff`.
+
+**POST /auth/login** — member credentials only (`aud: member`)
 
 ```json
 { "dialCode": "852", "phone": "91234567", "password": "memberpass1" }
 ```
 
-→ `201`
+**POST /auth/staff/login** — staff credentials only (`aud: staff`)
 
 ```json
-{
-  "accessToken": "<jwt>",
-  "user": { "dialCode": "852", "phone": "91234567", "role": "member" }
-}
+{ "dialCode": "852", "phone": "88888888", "password": "admin1234" }
 ```
-
-**POST /auth/login** — same body → same shape.
 
 **POST /auth/logout** — auth required → `{ "ok": true }`
 
-**GET /auth/me** — auth required
+**GET /auth/me** — member token → full profile (incl. surname, email, DOB, gender, consents).
 
-```json
-{ "dialCode": "852", "phone": "91234567", "role": "member" }
-```
+**PATCH /auth/me** — member token; update profile (phone not editable).
 
 ## Settings
 
@@ -153,18 +170,22 @@ Conflict on same court+date+time → `409`.
 
 → `{ "ok": true, "src": "data:image/…" }`
 
-## Admin members
+## Admin (staff token, `aud: staff`)
 
-**GET /admin/members** (admin)
+**GET /admin/members** — list `members` rows (profile fields).
+
+**GET /admin/staff** — admin role only.
+
+**POST /admin/staff** — admin role only; create staff (cannot reuse a member phone).
 
 ```json
-[
-  {
-    "id": "uuid",
-    "dialCode": "852",
-    "phone": "88888888",
-    "role": "admin",
-    "createdAt": "2026-11-16T…"
-  }
-]
+{
+  "dialCode": "852",
+  "phone": "91112222",
+  "password": "staffpass1",
+  "surname": "Wong",
+  "givenName": "Pat",
+  "email": "pat@bold.example",
+  "role": "staff"
+}
 ```

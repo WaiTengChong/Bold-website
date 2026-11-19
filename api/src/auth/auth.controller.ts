@@ -1,23 +1,29 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Patch, Post, Req, UseGuards } from "@nestjs/common";
 import type { Request } from "express";
-import { AuthService } from "./auth.service";
-import { JwtAuthGuard } from "./auth.guards";
+import { Audience, AudienceGuard, JwtAuthGuard } from "./auth.guards";
+import { AuthService, type SignupBody } from "./auth.service";
 import type { JwtPayload } from "./jwt.strategy";
+import type { PreferredLanguage } from "./member-profile";
 
-type SignBody = { dialCode: string; phone: string; password: string };
+type PhoneLoginBody = { dialCode: string; phone: string; password: string };
 
 @Controller("auth")
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post("signup")
-  signup(@Body() body: SignBody) {
-    return this.auth.signup(body.dialCode, body.phone, body.password);
+  signup(@Body() body: SignupBody) {
+    return this.auth.memberSignup(body);
   }
 
   @Post("login")
-  login(@Body() body: SignBody) {
-    return this.auth.login(body.dialCode, body.phone, body.password);
+  login(@Body() body: PhoneLoginBody) {
+    return this.auth.memberLogin(body.dialCode, body.phone, body.password);
+  }
+
+  @Post("staff/login")
+  staffLogin(@Body() body: PhoneLoginBody) {
+    return this.auth.staffLogin(body.dialCode, body.phone, body.password);
   }
 
   @Post("logout")
@@ -27,8 +33,31 @@ export class AuthController {
   }
 
   @Get("me")
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, AudienceGuard)
+  @Audience("member")
   me(@Req() req: Request & { user: JwtPayload }) {
-    return this.auth.me(req.user.sub);
+    return this.auth.memberMe(req.user.sub);
+  }
+
+  @Patch("me")
+  @UseGuards(JwtAuthGuard, AudienceGuard)
+  @Audience("member")
+  patchMe(
+    @Req() req: Request & { user: JwtPayload },
+    @Body()
+    body: {
+      surname?: string;
+      givenName?: string;
+      dateOfBirth?: string;
+      gender?: string;
+      email?: string;
+      preferredLanguage?: PreferredLanguage | null;
+      consentEmail?: boolean;
+      consentWhatsapp?: boolean;
+      emergencyContactName?: string;
+      emergencyContactPhone?: string;
+    },
+  ) {
+    return this.auth.updateMemberProfile(req.user.sub, body);
   }
 }

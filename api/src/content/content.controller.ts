@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Put, UseGuards } from "@nestjs/common";
-import { JwtAuthGuard, Roles } from "../auth/auth.guards";
+import { Audience, AudienceGuard, JwtAuthGuard, Roles } from "../auth/auth.guards";
 import { RolesGuard } from "../auth/roles.guard";
 import { ContentService } from "./content.service";
 
@@ -13,8 +13,9 @@ export class ContentController {
   }
 
   @Put("site")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("admin")
+  @UseGuards(JwtAuthGuard, AudienceGuard, RolesGuard)
+  @Audience("staff")
+  @Roles("staff")
   putSite(@Body() body: unknown) {
     return this.content.putSite(body);
   }
@@ -25,8 +26,9 @@ export class ContentController {
   }
 
   @Put("facility")
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles("admin")
+  @UseGuards(JwtAuthGuard, AudienceGuard, RolesGuard)
+  @Audience("staff")
+  @Roles("staff")
   putFacility(@Body() body: unknown) {
     return this.content.putFacility(body);
   }

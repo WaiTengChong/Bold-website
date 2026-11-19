@@ -51,10 +51,17 @@ function Icon({ name, className }: { name: string; className?: string }) {
   );
 }
 
+function isFormFocusPath(pathname: string): boolean {
+  const p = pathname.replace(/\/$/, "") || "/";
+  return /\/(signup|login|account)$/.test(p);
+}
+
 export default function MobileChrome() {
   const { t } = useLocale();
   const pathname = typeof window !== "undefined" ? window.location.pathname.replace(/\/$/, "") || "/" : "/";
   const tabs = useMemo(() => tabDefs.map((tab) => ({ ...tab, label: t(tab.key) })), [t]);
+
+  if (isFormFocusPath(pathname)) return null;
 
   return (
     <>

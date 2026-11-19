@@ -1,0 +1,14 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MemberArea from "@/components/react-islands/MemberArea";
+---
+
+<BaseLayout
+  formFocus
+  title="BOLD PICKLEBALL | My Account"
+  description="View court bookings and manage your BOLD Pickleball member profile."
+>
+  <main class="overflow-x-hidden">
+    <MemberArea client:load />
+  </main>
+</BaseLayout>

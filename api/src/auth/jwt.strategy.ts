@@ -7,8 +7,11 @@ export type JwtPayload = {
   sub: string;
   dialCode: string;
   phone: string;
-  role: "member" | "admin";
+  aud: "member" | "staff";
+  role: "member" | "admin" | "staff";
 };
+
+type JwtClaims = JwtPayload & { aud?: string };
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -20,17 +23,34 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload): Promise<JwtPayload> {
+  async validate(payload: JwtClaims): Promise<JwtPayload> {
+    const aud = payload.aud === "staff" ? "staff" : payload.aud === "member" ? "member" : null;
+    if (!aud) throw new UnauthorizedException("Invalid token audience");
+
+    if (aud === "member") {
+      const { rows } = await this.db.query<{ id: string }>(`SELECT id FROM members WHERE id = $1`, [payload.sub]);
+      if (rows.length === 0) throw new UnauthorizedException();
+      return {
+        sub: rows[0].id,
+        dialCode: payload.dialCode,
+        phone: payload.phone,
+        aud: "member",
+        role: "member",
+      };
+    }
+
     const { rows } = await this.db.query<{ id: string; role: string }>(
-      `SELECT id, role FROM users WHERE id = $1`,
+      `SELECT id, role FROM staff WHERE id = $1`,
       [payload.sub],
     );
     if (rows.length === 0) throw new UnauthorizedException();
+    const role = rows[0].role === "admin" ? "admin" : "staff";
     return {
       sub: rows[0].id,
       dialCode: payload.dialCode,
       phone: payload.phone,
-      role: rows[0].role === "admin" ? "admin" : "member",
+      aud: "staff",
+      role,
     };
   }
 }
