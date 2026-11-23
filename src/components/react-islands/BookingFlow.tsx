@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { Calendar, Check, ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
 import { apiEnabled } from "@/lib/api-client";
-import { getSession } from "@/lib/auth-client";
+import { getSession, isStaffLoggedIn } from "@/lib/auth-client";
 import {
   createBookingApi,
   fetchCourtMaintenance,
@@ -117,6 +117,10 @@ export default function BookingFlow() {
 
   const confirmBooking = async () => {
     if (!date || !time || courtId == null) return;
+    if (apiEnabled() && isStaffLoggedIn()) {
+      setSubmitError(t("booking.staffCannotBook"));
+      return;
+    }
     setSubmitError(null);
     setSubmitting(true);
     const label =
@@ -151,9 +155,15 @@ export default function BookingFlow() {
     <div className="mx-auto w-full max-w-container-max px-margin-mobile pb-stack-xl pt-stack-md md:px-margin-desktop md:pt-stack-lg">
       <header className="bold-page-header md:mb-stack-lg">
         <h1>{t("booking.title")}</h1>
-        <p>{t("booking.subtitle")}</p>
-        <p className="bold-demo-badge">{t("booking.demoBadge")}</p>
+        <p>{apiEnabled() ? t("booking.subtitleLive") : t("booking.subtitle")}</p>
+        {!apiEnabled() && <p className="bold-demo-badge">{t("booking.demoBadge")}</p>}
       </header>
+
+      {apiEnabled() && isStaffLoggedIn() && tab === "book" && step !== "success" && (
+        <p className="mb-stack-md border border-error/40 bg-error-container px-4 py-3 font-sans text-body-md text-on-error-container" role="alert">
+          {t("booking.staffCannotBook")}
+        </p>
+      )}
 
       {!sessionPhone && tab === "book" && step !== "success" && (
         <div className="mb-stack-md flex flex-col items-start justify-between gap-3 border border-outline-variant/50 bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center">
@@ -183,6 +193,7 @@ export default function BookingFlow() {
           booking={confirmed}
           locale={locale}
           t={t}
+          apiLive={apiEnabled()}
           onAnother={() => { resetFlow(); setTab("book"); }}
           onViewList={() => { setTab("list"); setStep("date"); }}
         />
@@ -334,7 +345,7 @@ export default function BookingFlow() {
                   )}
                   <button
                     type="button"
-                    disabled={submitting}
+                    disabled={submitting || (apiEnabled() && isStaffLoggedIn())}
                     onClick={() => void confirmBooking()}
                     className="inline-flex flex-1 items-center justify-center gap-2 bg-primary px-6 py-3 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
                   >
@@ -420,12 +431,14 @@ function SuccessPanel({
   booking,
   locale,
   t,
+  apiLive,
   onAnother,
   onViewList,
 }: {
   booking: StoredBooking;
   locale: "en" | "zh";
   t: ReturnType<typeof useLocale>["t"];
+  apiLive: boolean;
   onAnother: () => void;
   onViewList: () => void;
 }) {
@@ -435,7 +448,9 @@ function SuccessPanel({
         <Check className="size-8" aria-hidden />
       </div>
       <h2 className="font-display text-headline-lg uppercase text-primary md:text-display-md">{t("booking.successTitle")}</h2>
-      <p className="mt-2 font-sans text-body-md text-on-primary-container">{t("booking.successMessage")}</p>
+      <p className="mt-2 font-sans text-body-md text-on-primary-container">
+        {apiLive ? t("booking.successMessageLive") : t("booking.successMessage")}
+      </p>
       <p className="mt-4 font-mono text-label-sm text-on-surface-variant">{t("booking.refLabel")}: {booking.id.toUpperCase()}</p>
       <dl className="mx-auto mt-6 max-w-md space-y-2 text-left font-sans text-body-md">
         <Row label={t("booking.field.date")} value={formatDate(booking.date, locale)} />

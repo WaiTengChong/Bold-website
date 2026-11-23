@@ -85,7 +85,9 @@ export default function AdminCms() {
           <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
             {t("admin.cms.title")}
           </h2>
-          <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.cms.desc")}</p>
+          <p className="font-body-md text-body-md text-on-surface-variant">
+            {apiEnabled() ? t("admin.cms.descLive") : t("admin.cms.desc")}
+          </p>
         </div>
         <div className="flex gap-2">
           <button

@@ -18,6 +18,40 @@ type Court = {
   maint: boolean;
 };
 
+type OverviewBooking = {
+  id: string;
+  date: string;
+  time: string;
+  courtId: number;
+  guestLabel: string;
+  paymentStatus: string;
+  memberId: string | null;
+};
+
+function localTodayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function mergeTodayBookings(courts: Court[], bookings: OverviewBooking[]): Court[] {
+  const today = localTodayIso();
+  const byCourt = new Map<number, OverviewBooking>();
+  for (const b of bookings) {
+    if (b.date !== today) continue;
+    const prev = byCourt.get(b.courtId);
+    if (!prev || b.time < prev.time) byCourt.set(b.courtId, b);
+  }
+  return courts.map((c) => {
+    if (c.maint) {
+      return { ...c, status: "Maintenance", player: "-", time: "-" };
+    }
+    const hit = byCourt.get(c.id);
+    if (!hit) {
+      return { ...c, status: "Available", player: "-", time: "-" };
+    }
+    return { ...c, status: "Active", player: hit.guestLabel, time: hit.time };
+  });
+}
+
 type Member = {
   id: string;
   name: string;
@@ -80,6 +114,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
   const [courts, setCourts] = useState(INITIAL_COURTS);
+  const [bookingsOverview, setBookingsOverview] = useState<OverviewBooking[]>([]);
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [query, setQuery] = useState("");
   const [navOpen, setNavOpen] = useState(false);
@@ -145,6 +180,8 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
             const staff = await staffApiFetch<typeof staffList>("/admin/staff");
             setStaffList(staff);
           }
+          const overview = await staffApiFetch<OverviewBooking[]>("/bookings/admin/overview");
+          setBookingsOverview(overview);
         } catch {
           /* keep demo rows if API unreachable */
         }
@@ -189,7 +226,12 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
     );
   }, [members, query]);
 
-  const activeCount = courts.filter((c) => c.status === "Active").length;
+  const displayCourts = useMemo(() => {
+    if (!apiEnabled()) return courts;
+    return mergeTodayBookings(courts, bookingsOverview);
+  }, [courts, bookingsOverview]);
+
+  const activeCount = displayCourts.filter((c) => c.status === "Active").length;
   const maintCourts = courts.filter((c) => c.maint);
   const recentMembers = members.slice(0, 3);
 
@@ -385,7 +427,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                 )}
               </section>
 
-              <CourtsBlock title={t("admin.courtOccupancy")} courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+              <CourtsBlock title={t("admin.courtOccupancy")} courts={displayCourts} activeCount={activeCount} onToggle={toggleMaint} />
 
               <section className="space-y-stack-sm">
                 <div className="flex items-end justify-between gap-4">
@@ -406,7 +448,10 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
           )}
 
           {view === "schedule" && (
-            <CourtsBlock title={t("admin.todaySchedule")} courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+            <>
+              <CourtsBlock title={t("admin.todaySchedule")} courts={displayCourts} activeCount={activeCount} onToggle={toggleMaint} />
+              {apiEnabled() && <ScheduleBookingsTable bookings={bookingsOverview} />}
+            </>
           )}
 
           {view === "members" && (
@@ -668,6 +713,56 @@ function KpiRow() {
           <span className="text-xs font-bold tracking-tighter uppercase">{t("admin.kpi.newMembers")}</span>
         </div>
       </div>
+    </section>
+  );
+}
+
+function ScheduleBookingsTable({ bookings }: { bookings: OverviewBooking[] }) {
+  const { t } = useLocale();
+  const rows = useMemo(
+  () => [...bookings].sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`)),
+    [bookings],
+  );
+
+  return (
+    <section className="mt-stack-md space-y-stack-sm">
+      <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+        {t("admin.schedule.bookingsHeading")}
+      </h2>
+      {rows.length === 0 ? (
+        <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.schedule.emptyBookings")}</p>
+      ) : (
+        <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
+          <div className="admin-table-scroll overflow-x-auto">
+            <table className="w-full min-w-[36rem] text-left">
+              <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
+                <tr>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.table.id")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colDate")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colTime")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colCourt")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colGuest")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colPayment")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/30 font-body-md text-body-md">
+                {rows.map((b) => (
+                  <tr key={b.id} className="hover:bg-surface-container-low">
+                    <td className="px-4 py-4 font-mono text-sm uppercase">{b.id}</td>
+                    <td className="px-4 py-4">{b.date}</td>
+                    <td className="px-4 py-4 font-mono">{b.time}</td>
+                    <td className="px-4 py-4">
+                      {t("admin.court")} {b.courtId}
+                    </td>
+                    <td className="px-4 py-4 font-medium text-primary">{b.guestLabel}</td>
+                    <td className="px-4 py-4 text-on-surface-variant">{b.paymentStatus}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

@@ -9,7 +9,7 @@ import {
   UseGuards,
 } from "@nestjs/common";
 import type { Request } from "express";
-import { Audience, AudienceGuard, JwtAuthGuard, OptionalMemberJwtAuthGuard, Roles } from "../auth/auth.guards";
+import { Audience, AudienceGuard, JwtAuthGuard, OptionalJwtAuthGuard, Roles } from "../auth/auth.guards";
 import { RolesGuard } from "../auth/roles.guard";
 import type { JwtPayload } from "../auth/jwt.strategy";
 import { BookingsService } from "./bookings.service";
@@ -34,7 +34,7 @@ export class BookingsController {
   }
 
   @Post()
-  @UseGuards(OptionalMemberJwtAuthGuard)
+  @UseGuards(OptionalJwtAuthGuard)
   create(
     @Req() req: Request & { user?: JwtPayload | null },
     @Body() body: { date: string; time: string; courtId: number; guestName?: string },

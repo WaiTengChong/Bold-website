@@ -57,7 +57,7 @@ export class BookingsService {
   ) {
     const { guestBookingEnabled } = await this.settings.get();
     if (user?.aud === "staff") {
-      throw new ForbiddenException("Staff accounts cannot create member bookings.");
+      throw new ForbiddenException("Staff accounts cannot create bookings.");
     }
     if (!user && !guestBookingEnabled) {
       throw new ForbiddenException("Guest booking is disabled.");

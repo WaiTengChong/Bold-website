@@ -48,11 +48,17 @@ curl -sf -X POST "$BASE/bookings" \
 MINE=$(curl -sf "$BASE/bookings/mine" -H "Authorization: Bearer $MEMBER_TOKEN")
 echo "$MINE" | grep -q courtId
 
-echo "== staff cannot member bookings"
+echo "== staff cannot create bookings (member body)"
 curl -sf -X POST "$BASE/bookings" \
   -H "Authorization: Bearer $STAFF_TOKEN" \
   -H 'Content-Type: application/json' \
   -d "{\"date\":\"$DATE\",\"time\":\"15:00\",\"courtId\":6}" && exit 1 || echo "403 expected"
+
+echo "== staff cannot create guest bookings"
+curl -sf -X POST "$BASE/bookings" \
+  -H "Authorization: Bearer $STAFF_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d "{\"date\":\"$DATE\",\"time\":\"16:00\",\"courtId\":7,\"guestName\":\"Should Fail\"}" && exit 1 || echo "403 expected"
 
 echo "== disable guest booking (staff)"
 curl -sf -X PATCH "$BASE/settings" \
