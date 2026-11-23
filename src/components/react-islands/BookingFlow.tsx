@@ -1,12 +1,21 @@
 import { useCallback, useEffect, useMemo, useState, type ComponentType, type ReactNode } from "react";
 import { Calendar, Check, ChevronLeft, ChevronRight, Clock, MapPin } from "lucide-react";
-import { getSession } from "@/lib/auth-client";
+import { apiEnabled } from "@/lib/api-client";
+import { getSession, isStaffLoggedIn } from "@/lib/auth-client";
+import {
+  createBookingApi,
+  fetchCourtMaintenance,
+  fetchDaySlots,
+  fetchMyBookings,
+  maintenanceCourtIds,
+  type DaySlot,
+} from "@/lib/booking-api";
 import {
   addBooking,
   bookingDays,
   courtAvailable,
   COURT_IDS,
-  MAINTENANCE_COURT_IDS,
+  isOccupiedFromDay,
   readBookings,
   type StoredBooking,
   timeSlots,
@@ -44,17 +53,52 @@ export default function BookingFlow() {
   const [bookings, setBookings] = useState<StoredBooking[]>([]);
   const [confirmed, setConfirmed] = useState<StoredBooking | null>(null);
   const [sessionPhone, setSessionPhone] = useState<string | null>(null);
+  const [maintenance, setMaintenance] = useState(maintenanceCourtIds());
+  const [daySlots, setDaySlots] = useState<DaySlot[]>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const refreshBookings = useCallback(() => setBookings(readBookings()), []);
+  const refreshBookings = useCallback(async () => {
+    if (apiEnabled() && getSession()) {
+      try {
+        setBookings(await fetchMyBookings());
+        return;
+      } catch {
+        setBookings([]);
+        return;
+      }
+    }
+    setBookings(readBookings());
+  }, []);
 
   useEffect(() => {
-    refreshBookings();
+    void fetchCourtMaintenance().then(setMaintenance);
+    void refreshBookings();
     const session = getSession();
     if (session) setSessionPhone(`+${session.dialCode} ${session.phone}`);
   }, [refreshBookings]);
 
+  useEffect(() => {
+    if (!date || !apiEnabled()) {
+      setDaySlots([]);
+      return;
+    }
+    void fetchDaySlots(date).then(setDaySlots);
+  }, [date]);
+
   const days = useMemo(() => bookingDays(), []);
   const slots = useMemo(() => timeSlots(), []);
+
+  const slotOpen = useCallback(
+    (courtId: number, slotTime: string) => {
+      if (maintenance.has(courtId)) return false;
+      if (apiEnabled()) {
+        return !isOccupiedFromDay(courtId, slotTime, daySlots);
+      }
+      return courtAvailable(courtId, date, slotTime, bookings, maintenance);
+    },
+    [maintenance, daySlots, date, bookings],
+  );
 
   const resetFlow = () => {
     setStep("date");
@@ -71,16 +115,38 @@ export default function BookingFlow() {
     else if (step === "confirm") setStep("court");
   };
 
-  const confirmBooking = () => {
+  const confirmBooking = async () => {
     if (!date || !time || courtId == null) return;
+    if (apiEnabled() && isStaffLoggedIn()) {
+      setSubmitError(t("booking.staffCannotBook"));
+      return;
+    }
+    setSubmitError(null);
+    setSubmitting(true);
     const label =
       guestName.trim() ||
       sessionPhone ||
       t("booking.guestDefault");
-    const booking = addBooking({ date, time, courtId, guestLabel: label });
-    setConfirmed(booking);
-    refreshBookings();
-    setStep("success");
+    try {
+      const booking = apiEnabled()
+        ? await createBookingApi({
+            date,
+            time,
+            courtId,
+            guestName: getSession() ? undefined : label,
+          })
+        : addBooking({ date, time, courtId, guestLabel: label });
+      setConfirmed(booking);
+      await refreshBookings();
+      if (apiEnabled()) {
+        void fetchDaySlots(date).then(setDaySlots);
+      }
+      setStep("success");
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Booking failed");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const progress = step === "success" ? STEPS.length : stepIndex(step);
@@ -89,9 +155,15 @@ export default function BookingFlow() {
     <div className="mx-auto w-full max-w-container-max px-margin-mobile pb-stack-xl pt-stack-md md:px-margin-desktop md:pt-stack-lg">
       <header className="bold-page-header md:mb-stack-lg">
         <h1>{t("booking.title")}</h1>
-        <p>{t("booking.subtitle")}</p>
-        <p className="bold-demo-badge">{t("booking.demoBadge")}</p>
+        <p>{apiEnabled() ? t("booking.subtitleLive") : t("booking.subtitle")}</p>
+        {!apiEnabled() && <p className="bold-demo-badge">{t("booking.demoBadge")}</p>}
       </header>
+
+      {apiEnabled() && isStaffLoggedIn() && tab === "book" && step !== "success" && (
+        <p className="mb-stack-md border border-error/40 bg-error-container px-4 py-3 font-sans text-body-md text-on-error-container" role="alert">
+          {t("booking.staffCannotBook")}
+        </p>
+      )}
 
       {!sessionPhone && tab === "book" && step !== "success" && (
         <div className="mb-stack-md flex flex-col items-start justify-between gap-3 border border-outline-variant/50 bg-surface-container-low px-4 py-3 sm:flex-row sm:items-center">
@@ -121,6 +193,7 @@ export default function BookingFlow() {
           booking={confirmed}
           locale={locale}
           t={t}
+          apiLive={apiEnabled()}
           onAnother={() => { resetFlow(); setTab("book"); }}
           onViewList={() => { setTab("list"); setStep("date"); }}
         />
@@ -166,7 +239,7 @@ export default function BookingFlow() {
                 </p>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
                   {slots.map((slot) => {
-                    const anyCourt = COURT_IDS.some((id) => courtAvailable(id, date, slot, bookings));
+                    const anyCourt = COURT_IDS.some((id) => slotOpen(id, slot));
                     return (
                       <button
                         key={slot}
@@ -197,8 +270,8 @@ export default function BookingFlow() {
                 </p>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {COURT_IDS.map((id) => {
-                    const maint = MAINTENANCE_COURT_IDS.has(id);
-                    const available = courtAvailable(id, date, time, bookings);
+                    const maint = maintenance.has(id);
+                    const available = slotOpen(id, time);
                     const taken = !maint && !available;
                     return (
                       <button
@@ -265,12 +338,18 @@ export default function BookingFlow() {
                     <ChevronLeft className="size-4" aria-hidden />
                     {t("booking.back")}
                   </button>
+                  {submitError && (
+                    <p className="mt-4 font-sans text-body-md text-error" role="alert">
+                      {submitError}
+                    </p>
+                  )}
                   <button
                     type="button"
-                    onClick={confirmBooking}
-                    className="inline-flex flex-1 items-center justify-center gap-2 bg-primary px-6 py-3 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90"
+                    disabled={submitting || (apiEnabled() && isStaffLoggedIn())}
+                    onClick={() => void confirmBooking()}
+                    className="inline-flex flex-1 items-center justify-center gap-2 bg-primary px-6 py-3 font-display text-headline-sm uppercase tracking-widest text-on-primary transition-opacity hover:opacity-90 disabled:opacity-60"
                   >
-                    {t("booking.confirmCta")}
+                    {submitting ? t("auth.wait") : t("booking.confirmCta")}
                     <ChevronRight className="size-4" aria-hidden />
                   </button>
                 </div>
@@ -352,12 +431,14 @@ function SuccessPanel({
   booking,
   locale,
   t,
+  apiLive,
   onAnother,
   onViewList,
 }: {
   booking: StoredBooking;
   locale: "en" | "zh";
   t: ReturnType<typeof useLocale>["t"];
+  apiLive: boolean;
   onAnother: () => void;
   onViewList: () => void;
 }) {
@@ -367,7 +448,9 @@ function SuccessPanel({
         <Check className="size-8" aria-hidden />
       </div>
       <h2 className="font-display text-headline-lg uppercase text-primary md:text-display-md">{t("booking.successTitle")}</h2>
-      <p className="mt-2 font-sans text-body-md text-on-primary-container">{t("booking.successMessage")}</p>
+      <p className="mt-2 font-sans text-body-md text-on-primary-container">
+        {apiLive ? t("booking.successMessageLive") : t("booking.successMessage")}
+      </p>
       <p className="mt-4 font-mono text-label-sm text-on-surface-variant">{t("booking.refLabel")}: {booking.id.toUpperCase()}</p>
       <dl className="mx-auto mt-6 max-w-md space-y-2 text-left font-sans text-body-md">
         <Row label={t("booking.field.date")} value={formatDate(booking.date, locale)} />

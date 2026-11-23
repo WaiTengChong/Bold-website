@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
-import { ensureAdminSeed, login, signup } from "@/lib/auth-client";
+import { useMemo, useState } from "react";
+import { login, signup, type SignupFields } from "@/lib/auth-client";
 import type { MessageKey } from "@/lib/i18n";
 import { DEFAULT_DIAL_CODE, PHONE_DIAL_CODES } from "@/lib/phone-codes";
 import { useLocale } from "@/lib/use-locale";
@@ -7,27 +7,31 @@ import { withBase } from "@/lib/utils";
 
 type Mode = "login" | "signup";
 
-type Props = {
-  mode: Mode;
-};
+const GENDER_OPTIONS: { value: string; key: MessageKey }[] = [
+  { value: "male", key: "auth.gender.male" },
+  { value: "female", key: "auth.gender.female" },
+  { value: "other", key: "auth.gender.other" },
+  { value: "prefer_not", key: "auth.gender.preferNot" },
+];
 
 function stripPhone(value: string): string {
   return value.replace(/\s/g, "");
 }
 
-export default function AuthForm({ mode }: Props) {
+export default function AuthForm({ mode }: { mode: Mode }) {
   const { t } = useLocale();
   const [dialCode, setDialCode] = useState(DEFAULT_DIAL_CODE);
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [surname, setSurname] = useState("");
+  const [givenName, setGivenName] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [gender, setGender] = useState("");
+  const [email, setEmail] = useState("");
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    ensureAdminSeed();
-  }, []);
 
   const phoneError = useMemo(() => {
     const digits = stripPhone(phone);
@@ -50,7 +54,48 @@ export default function AuthForm({ mode }: Props) {
     return null;
   }, [mode, confirmPassword, password, t]);
 
-  const isValid = !phoneError && !passwordError && (mode === "login" || !confirmError);
+  const surnameError = useMemo(() => {
+    if (mode !== "signup") return null;
+    if (!surname.trim()) return t("auth.err.surnameRequired");
+    return null;
+  }, [mode, surname, t]);
+
+  const givenNameError = useMemo(() => {
+    if (mode !== "signup") return null;
+    if (!givenName.trim()) return t("auth.err.givenNameRequired");
+    return null;
+  }, [mode, givenName, t]);
+
+  const dobError = useMemo(() => {
+    if (mode !== "signup") return null;
+    if (!dateOfBirth) return t("auth.err.dobRequired");
+    return null;
+  }, [mode, dateOfBirth, t]);
+
+  const genderError = useMemo(() => {
+    if (mode !== "signup") return null;
+    if (!gender) return t("auth.err.genderRequired");
+    return null;
+  }, [mode, gender, t]);
+
+  const emailError = useMemo(() => {
+    if (mode !== "signup") return null;
+    const val = email.trim();
+    if (!val) return t("auth.err.emailRequired");
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) return t("auth.err.emailInvalid");
+    return null;
+  }, [mode, email, t]);
+
+  const isValid =
+    !phoneError &&
+    !passwordError &&
+    (mode === "login" ||
+      (!confirmError &&
+        !surnameError &&
+        !givenNameError &&
+        !dobError &&
+        !genderError &&
+        !emailError));
 
   const showError = (field: string, error: string | null) => (touched[field] && error ? error : null);
 
@@ -58,13 +103,31 @@ export default function AuthForm({ mode }: Props) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setTouched({ phone: true, password: true, confirmPassword: true });
+    setTouched({
+      phone: true,
+      password: true,
+      confirmPassword: true,
+      surname: true,
+      givenName: true,
+      dateOfBirth: true,
+      gender: true,
+      email: true,
+    });
     setSubmitError(null);
     if (!isValid) return;
 
     setSubmitting(true);
     const digits = stripPhone(phone);
-    const result = mode === "signup" ? signup(dialCode, digits, password) : login(dialCode, digits, password);
+    const result =
+      mode === "signup"
+        ? await signup(dialCode, digits, password, {
+            surname: surname.trim(),
+            givenName: givenName.trim(),
+            dateOfBirth,
+            gender,
+            email: email.trim(),
+          } satisfies SignupFields)
+        : await login(dialCode, digits, password);
 
     if (!result.ok) {
       setSubmitError(result.error);
@@ -72,91 +135,262 @@ export default function AuthForm({ mode }: Props) {
       return;
     }
 
-    const dest = mode === "login" && "role" in result && result.role === "admin" ? "/console" : "/booking";
-    window.location.href = withBase(dest);
+    window.location.href = withBase("/account");
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit} noValidate>
-      <div className="auth-field">
-        <label htmlFor="auth-dial-code" className="auth-label">
-          {t("auth.countryCode")}
-        </label>
-        <div className="auth-phone-row">
-          <select
-            id="auth-dial-code"
-            className="auth-input auth-select"
-            value={dialCode}
-            onChange={(e) => setDialCode(e.target.value)}
-            autoComplete="tel-country-code"
-          >
-            {PHONE_DIAL_CODES.map((code) => (
-              <option key={code.value} value={code.value}>
-                {code.label}
-              </option>
-            ))}
-          </select>
-          <input
-            id="auth-phone"
-            type="tel"
-            className="auth-input auth-phone-input"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            onBlur={() => markTouched("phone")}
-            autoComplete="tel-national"
-            placeholder={t("auth.phone")}
-            aria-invalid={!!showError("phone", phoneError)}
-            aria-describedby={showError("phone", phoneError) ? "auth-phone-error" : undefined}
-          />
-        </div>
-        {showError("phone", phoneError) && (
-          <p id="auth-phone-error" className="auth-error" role="alert">
-            {phoneError}
-          </p>
-        )}
-      </div>
-
-      <div className="auth-field">
-        <label htmlFor="auth-password" className="auth-label">
-          {t("auth.password")}
-        </label>
-        <input
-          id="auth-password"
-          type="password"
-          className="auth-input"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          onBlur={() => markTouched("password")}
-          autoComplete={mode === "login" ? "current-password" : "new-password"}
-          aria-invalid={!!showError("password", passwordError)}
-          aria-describedby={showError("password", passwordError) ? "auth-password-error" : undefined}
-        />
-        {showError("password", passwordError) && (
-          <p id="auth-password-error" className="auth-error" role="alert">
-            {passwordError}
-          </p>
-        )}
-      </div>
-
-      {mode === "signup" && (
+    <form
+      className={`auth-form${mode === "signup" ? " auth-form--signup" : " auth-form--login"}`}
+      onSubmit={handleSubmit}
+      noValidate
+    >
+      {mode === "signup" ? (
+        <fieldset className="auth-form-section">
+          <legend className="auth-form-section__title">{t("auth.section.required")}</legend>
+          <div className="auth-field-row">
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-surname" className="auth-label">
+                {t("auth.surname")}
+              </label>
+              <input
+                id="auth-surname"
+                className="auth-input"
+                value={surname}
+                onChange={(e) => setSurname(e.target.value)}
+                onBlur={() => markTouched("surname")}
+                autoComplete="family-name"
+                aria-invalid={!!showError("surname", surnameError)}
+              />
+              {showError("surname", surnameError) && (
+                <p className="auth-error" role="alert">
+                  {surnameError}
+                </p>
+              )}
+            </div>
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-given-name" className="auth-label">
+                {t("auth.givenName")}
+              </label>
+              <input
+                id="auth-given-name"
+                className="auth-input"
+                value={givenName}
+                onChange={(e) => setGivenName(e.target.value)}
+                onBlur={() => markTouched("givenName")}
+                autoComplete="given-name"
+                aria-invalid={!!showError("givenName", givenNameError)}
+              />
+              {showError("givenName", givenNameError) && (
+                <p className="auth-error" role="alert">
+                  {givenNameError}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="auth-field">
+            <label htmlFor="auth-dial-code" className="auth-label">
+              {t("auth.countryCode")}
+            </label>
+            <div className="auth-phone-row">
+              <select
+                id="auth-dial-code"
+                className="auth-input auth-select"
+                value={dialCode}
+                onChange={(e) => setDialCode(e.target.value)}
+                autoComplete="tel-country-code"
+              >
+                {PHONE_DIAL_CODES.map((code) => (
+                  <option key={code.value} value={code.value}>
+                    {t(code.labelKey)}
+                  </option>
+                ))}
+              </select>
+              <input
+                id="auth-phone"
+                type="tel"
+                className="auth-input auth-phone-input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                onBlur={() => markTouched("phone")}
+                autoComplete="tel-national"
+                placeholder={t("auth.phone")}
+                aria-invalid={!!showError("phone", phoneError)}
+              />
+            </div>
+            {showError("phone", phoneError) && (
+              <p className="auth-error" role="alert">
+                {phoneError}
+              </p>
+            )}
+          </div>
+          <div className="auth-field-row">
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-dob" className="auth-label">
+                {t("auth.dateOfBirth")}
+              </label>
+              <input
+                id="auth-dob"
+                type="date"
+                className="auth-input"
+                value={dateOfBirth}
+                onChange={(e) => setDateOfBirth(e.target.value)}
+                onBlur={() => markTouched("dateOfBirth")}
+                aria-invalid={!!showError("dateOfBirth", dobError)}
+              />
+              {showError("dateOfBirth", dobError) && (
+                <p className="auth-error" role="alert">
+                  {dobError}
+                </p>
+              )}
+            </div>
+            <div className="auth-field auth-field--half">
+              <label htmlFor="auth-gender" className="auth-label">
+                {t("auth.gender")}
+              </label>
+              <select
+                id="auth-gender"
+                className="auth-input auth-select"
+                value={gender}
+                onChange={(e) => setGender(e.target.value)}
+                onBlur={() => markTouched("gender")}
+                aria-invalid={!!showError("gender", genderError)}
+              >
+                <option value="">{t("auth.gender.choose")}</option>
+                {GENDER_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {t(opt.key)}
+                  </option>
+                ))}
+              </select>
+              {showError("gender", genderError) && (
+                <p className="auth-error" role="alert">
+                  {genderError}
+                </p>
+              )}
+            </div>
+          </div>
+          <div className="auth-field">
+            <label htmlFor="auth-email" className="auth-label">
+              {t("auth.email")}
+            </label>
+            <input
+              id="auth-email"
+              type="email"
+              className="auth-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => markTouched("email")}
+              autoComplete="email"
+              aria-invalid={!!showError("email", emailError)}
+            />
+            {showError("email", emailError) && (
+              <p className="auth-error" role="alert">
+                {emailError}
+              </p>
+            )}
+          </div>
+        </fieldset>
+      ) : (
         <div className="auth-field">
-          <label htmlFor="auth-confirm-password" className="auth-label">
-            {t("auth.confirmPassword")}
+          <label htmlFor="auth-dial-code" className="auth-label">
+            {t("auth.countryCode")}
+          </label>
+          <div className="auth-phone-row">
+            <select
+              id="auth-dial-code"
+              className="auth-input auth-select"
+              value={dialCode}
+              onChange={(e) => setDialCode(e.target.value)}
+              autoComplete="tel-country-code"
+            >
+              {PHONE_DIAL_CODES.map((code) => (
+                <option key={code.value} value={code.value}>
+                  {t(code.labelKey)}
+                </option>
+              ))}
+            </select>
+            <input
+              id="auth-phone"
+              type="tel"
+              className="auth-input auth-phone-input"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              onBlur={() => markTouched("phone")}
+              autoComplete="tel-national"
+              placeholder={t("auth.phone")}
+              aria-invalid={!!showError("phone", phoneError)}
+            />
+          </div>
+          {showError("phone", phoneError) && (
+            <p className="auth-error" role="alert">
+              {phoneError}
+            </p>
+          )}
+        </div>
+      )}
+
+      {mode === "signup" ? (
+        <fieldset className="auth-form-section">
+          <legend className="auth-form-section__title" id="auth-password-section">
+            {t("auth.section.password")}
+          </legend>
+          <div className="auth-field">
+            <input
+              id="auth-password"
+              type="password"
+              className="auth-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => markTouched("password")}
+              autoComplete="new-password"
+              aria-labelledby="auth-password-section"
+              aria-invalid={!!showError("password", passwordError)}
+            />
+            {showError("password", passwordError) && (
+              <p className="auth-error" role="alert">
+                {passwordError}
+              </p>
+            )}
+          </div>
+          <div className="auth-field">
+            <label htmlFor="auth-confirm-password" className="auth-label">
+              {t("auth.confirmPassword")}
+            </label>
+            <input
+              id="auth-confirm-password"
+              type="password"
+              className="auth-input"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              onBlur={() => markTouched("confirmPassword")}
+              autoComplete="new-password"
+              aria-invalid={!!showError("confirmPassword", confirmError)}
+            />
+            {showError("confirmPassword", confirmError) && (
+              <p className="auth-error" role="alert">
+                {confirmError}
+              </p>
+            )}
+          </div>
+        </fieldset>
+      ) : (
+        <div className="auth-field">
+          <label htmlFor="auth-password" className="auth-label">
+            {t("auth.password")}
           </label>
           <input
-            id="auth-confirm-password"
+            id="auth-password"
             type="password"
             className="auth-input"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            onBlur={() => markTouched("confirmPassword")}
-            autoComplete="new-password"
-            aria-invalid={!!showError("confirmPassword", confirmError)}
-            aria-describedby={showError("confirmPassword", confirmError) ? "auth-confirm-error" : undefined}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            onBlur={() => markTouched("password")}
+            autoComplete="current-password"
+            aria-invalid={!!showError("password", passwordError)}
           />
-          {showError("confirmPassword", confirmError) && (
-            <p id="auth-confirm-error" className="auth-error" role="alert">
-              {confirmError}
+          {showError("password", passwordError) && (
+            <p className="auth-error" role="alert">
+              {passwordError}
             </p>
           )}
         </div>
@@ -168,6 +402,7 @@ export default function AuthForm({ mode }: Props) {
         </p>
       )}
 
+      <div className="auth-form__footer">
       <button type="submit" className="auth-submit" disabled={!isValid || submitting}>
         {submitting ? t("auth.wait") : mode === "login" ? t("auth.login") : t("auth.signup")}
       </button>
@@ -189,6 +424,7 @@ export default function AuthForm({ mode }: Props) {
           </>
         )}
       </p>
+      </div>
     </form>
   );
 }

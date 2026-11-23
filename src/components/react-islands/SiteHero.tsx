@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { loadSiteContent } from "@/lib/site-content";
+import { loadSiteContent, resolveSiteContent } from "@/lib/site-content";
 import { useLocale } from "@/lib/use-locale";
 import { withBase } from "@/lib/utils";
 
@@ -8,7 +8,7 @@ export default function SiteHero() {
   const [hero, setHero] = useState(() => loadSiteContent().hero);
 
   useEffect(() => {
-    setHero(loadSiteContent().hero);
+    void resolveSiteContent().then((c) => setHero(c.hero));
   }, []);
 
   return (

@@ -1,3 +1,4 @@
+import { apiEnabled, apiFetch, staffApiFetch } from "@/lib/api-client";
 import { CLUB_NEWS } from "@/lib/news-data";
 import { HOMEPAGE_GALLERY, PHOTOS } from "@/lib/photos";
 import { withBase } from "@/lib/utils";
@@ -130,6 +131,73 @@ export function loadSiteContent(): SiteContent {
 
 export function saveSiteContent(content: SiteContent): void {
   localStorage.setItem(KEY, JSON.stringify(content));
+}
+
+function absolutizeSite(content: SiteContent): SiteContent {
+  const fix = (src: string) => {
+    if (src.startsWith("http") || src.startsWith("data:")) return src;
+    const path = src.startsWith("/") ? src : `/${src}`;
+    return withBase(path);
+  };
+  return {
+    ...content,
+    hero: { ...content.hero, imageSrc: fix(content.hero.imageSrc) },
+    gallery: content.gallery.map((g) => ({ ...g, src: fix(g.src) })),
+    featured: {
+      ...content.featured,
+      imageSrc: fix(content.featured.imageSrc),
+      ctaHref: content.featured.ctaHref.startsWith("http")
+        ? content.featured.ctaHref
+        : withBase(content.featured.ctaHref.replace(/^\/?Bold-website\/?/, "/")),
+    },
+    news: content.news.map((n) => ({
+      ...n,
+      imageSrc: n.imageSrc ? fix(n.imageSrc) : n.imageSrc,
+    })),
+  };
+}
+
+function relativizeForApi(content: SiteContent): SiteContent {
+  const strip = (src: string) => src.replace(/^https?:\/\/[^/]+\/?Bold-website/, "").replace(/^\/?Bold-website/, "");
+  return {
+    ...content,
+    hero: { ...content.hero, imageSrc: strip(content.hero.imageSrc) },
+    gallery: content.gallery.map((g) => ({ ...g, src: strip(g.src) })),
+    featured: { ...content.featured, imageSrc: strip(content.featured.imageSrc) },
+    news: content.news.map((n) => ({
+      ...n,
+      imageSrc: n.imageSrc ? strip(n.imageSrc) : n.imageSrc,
+    })),
+  };
+}
+
+export async function fetchSiteContentFromApi(): Promise<SiteContent | null> {
+  if (!apiEnabled()) return null;
+  const raw = await apiFetch<SiteContent>("/content/site");
+  return absolutizeSite(raw);
+}
+
+export async function resolveSiteContent(): Promise<SiteContent> {
+  const fromApi = await fetchSiteContentFromApi();
+  return fromApi ?? loadSiteContent();
+}
+
+export async function saveSiteContentToApi(content: SiteContent): Promise<void> {
+  await staffApiFetch("/content/site", {
+    method: "PUT",
+    body: JSON.stringify(relativizeForApi(content)),
+  });
+}
+
+export async function uploadCmsImage(file: File): Promise<string> {
+  if (!apiEnabled()) return fileToDataUrl(file);
+  const dataUrl = await fileToDataUrl(file);
+  const res = await staffApiFetch<{ ok: boolean; src?: string; error?: string }>("/admin/media", {
+    method: "POST",
+    body: JSON.stringify({ dataUrl }),
+  });
+  if (!res.ok || !res.src) throw new Error(res.error ?? "Upload failed");
+  return res.src;
 }
 
 export function resetSiteContent(): SiteContent {

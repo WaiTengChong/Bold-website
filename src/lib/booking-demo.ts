@@ -1,6 +1,9 @@
+import { apiEnabled } from "@/lib/api-client";
+import { maintenanceCourtIds } from "@/lib/booking-api";
+
 export const BOOKINGS_KEY = "bold_bookings";
 export const COURT_IDS = [1, 2, 3, 4, 5, 6, 7, 8] as const;
-/** Matches admin dashboard demo — court 3 in maintenance */
+/** Local demo fallback — court 3 in maintenance */
 export const MAINTENANCE_COURT_IDS = new Set<number>([3]);
 
 export type StoredBooking = {
@@ -112,8 +115,17 @@ export function courtAvailable(
   date: string,
   time: string,
   bookings: StoredBooking[],
+  maintenance: Set<number> = apiEnabled() ? maintenanceCourtIds() : MAINTENANCE_COURT_IDS,
 ): boolean {
-  if (MAINTENANCE_COURT_IDS.has(courtId)) return false;
-  if (isDemoSlotBlocked(courtId, date, time)) return false;
+  if (maintenance.has(courtId)) return false;
+  if (!apiEnabled() && isDemoSlotBlocked(courtId, date, time)) return false;
   return !isSlotBooked(courtId, date, time, bookings);
+}
+
+export function isOccupiedFromDay(
+  courtId: number,
+  time: string,
+  daySlots: { courtId: number; time: string }[],
+): boolean {
+  return daySlots.some((s) => s.courtId === courtId && s.time === time);
 }

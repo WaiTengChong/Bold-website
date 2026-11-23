@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { ensureAdminSeed, getSession, isAdmin, logout } from "@/lib/auth-client";
+import { apiEnabled, staffApiFetch } from "@/lib/api-client";
+import { getStaffSession, isAdmin, isStaffLoggedIn, staffLogout } from "@/lib/auth-client";
+import { fetchCourtMaintenance } from "@/lib/booking-api";
 import { adminHref, samePath, viewFromPath, type ViewId } from "@/lib/admin-nav";
 import type { MessageKey } from "@/lib/i18n";
 import { useLocale } from "@/lib/use-locale";
@@ -15,6 +17,40 @@ type Court = {
   time: string;
   maint: boolean;
 };
+
+type OverviewBooking = {
+  id: string;
+  date: string;
+  time: string;
+  courtId: number;
+  guestLabel: string;
+  paymentStatus: string;
+  memberId: string | null;
+};
+
+function localTodayIso(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function mergeTodayBookings(courts: Court[], bookings: OverviewBooking[]): Court[] {
+  const today = localTodayIso();
+  const byCourt = new Map<number, OverviewBooking>();
+  for (const b of bookings) {
+    if (b.date !== today) continue;
+    const prev = byCourt.get(b.courtId);
+    if (!prev || b.time < prev.time) byCourt.set(b.courtId, b);
+  }
+  return courts.map((c) => {
+    if (c.maint) {
+      return { ...c, status: "Maintenance", player: "-", time: "-" };
+    }
+    const hit = byCourt.get(c.id);
+    if (!hit) {
+      return { ...c, status: "Available", player: "-", time: "-" };
+    }
+    return { ...c, status: "Active", player: hit.guestLabel, time: hit.time };
+  });
+}
 
 type Member = {
   id: string;
@@ -78,19 +114,81 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
   const [ready, setReady] = useState(false);
   const [allowed, setAllowed] = useState(false);
   const [courts, setCourts] = useState(INITIAL_COURTS);
+  const [bookingsOverview, setBookingsOverview] = useState<OverviewBooking[]>([]);
   const [members, setMembers] = useState(INITIAL_MEMBERS);
   const [query, setQuery] = useState("");
   const [navOpen, setNavOpen] = useState(false);
   const [view, setView] = useState<ViewId>(initialView);
+  const [guestBookingEnabled, setGuestBookingEnabled] = useState(true);
+
+  const [staffList, setStaffList] = useState<
+    { id: string; dialCode: string; phone: string; surname: string; givenName: string; email: string; role: string }[]
+  >([]);
+  const [staffForm, setStaffForm] = useState({
+    dialCode: "852",
+    phone: "",
+    password: "",
+    surname: "",
+    givenName: "",
+    email: "",
+    role: "staff" as "staff" | "admin",
+  });
+  const [staffMsg, setStaffMsg] = useState<string | null>(null);
 
   useEffect(() => {
-    ensureAdminSeed();
-    if (!isAdmin()) {
-      window.location.replace(withBase("/login"));
-      return;
-    }
-    setAllowed(true);
-    setReady(true);
+    void (async () => {
+      if (!isStaffLoggedIn()) {
+        window.location.replace(withBase("/console/login"));
+        return;
+      }
+      if (apiEnabled()) {
+        try {
+          const courtRows = await staffApiFetch<{ id: number; inMaintenance: boolean }[]>("/courts");
+          setCourts(
+            courtRows.map((c) => ({
+              id: c.id,
+              status: c.inMaintenance ? "Maintenance" : "Available",
+              player: "-",
+              time: "-",
+              maint: c.inMaintenance,
+            })),
+          );
+          const settings = await staffApiFetch<{ guestBookingEnabled: boolean }>("/settings");
+          setGuestBookingEnabled(settings.guestBookingEnabled);
+          const apiMembers = await staffApiFetch<
+            {
+              id: string;
+              dialCode: string;
+              phone: string;
+              surname: string;
+              givenName: string;
+              email: string;
+              createdAt: string;
+            }[]
+          >("/admin/members");
+          setMembers(
+            apiMembers.map((m, i) => ({
+              id: m.id.slice(0, 8).toUpperCase(),
+              name: [m.surname, m.givenName].filter(Boolean).join(" ") || `+${m.dialCode} ${m.phone}`,
+              tier: m.email || "Member",
+              balance: "—",
+              last: new Date(m.createdAt).toLocaleDateString(),
+              color: i % 2 === 0 ? "text-on-primary-container" : "text-primary",
+            })),
+          );
+          if (isAdmin()) {
+            const staff = await staffApiFetch<typeof staffList>("/admin/staff");
+            setStaffList(staff);
+          }
+          const overview = await staffApiFetch<OverviewBooking[]>("/bookings/admin/overview");
+          setBookingsOverview(overview);
+        } catch {
+          /* keep demo rows if API unreachable */
+        }
+      }
+      setAllowed(true);
+      setReady(true);
+    })();
   }, []);
 
   useEffect(() => {
@@ -128,26 +226,62 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
     );
   }, [members, query]);
 
-  const activeCount = courts.filter((c) => c.status === "Active").length;
+  const displayCourts = useMemo(() => {
+    if (!apiEnabled()) return courts;
+    return mergeTodayBookings(courts, bookingsOverview);
+  }, [courts, bookingsOverview]);
+
+  const activeCount = displayCourts.filter((c) => c.status === "Active").length;
   const maintCourts = courts.filter((c) => c.maint);
   const recentMembers = members.slice(0, 3);
 
   const toggleMaint = (id: number) => {
-    setCourts((prev) =>
-      prev.map((c) => {
-        if (c.id !== id) return c;
-        const maint = !c.maint;
-        return {
-          ...c,
-          maint,
-          status: maint ? "Maintenance" : c.player === "-" ? "Available" : "Active",
-        };
-      }),
-    );
+    void (async () => {
+      const court = courts.find((c) => c.id === id);
+      if (!court) return;
+      const next = !court.maint;
+      if (apiEnabled()) {
+        try {
+          await staffApiFetch(`/admin/courts/${id}/maintenance`, {
+            method: "PATCH",
+            body: JSON.stringify({ inMaintenance: next }),
+          });
+          await fetchCourtMaintenance();
+        } catch {
+          return;
+        }
+      }
+      setCourts((prev) =>
+        prev.map((c) => {
+          if (c.id !== id) return c;
+          return {
+            ...c,
+            maint: next,
+            status: next ? "Maintenance" : c.player === "-" ? "Available" : "Active",
+          };
+        }),
+      );
+    })();
+  };
+
+  const toggleGuestBooking = () => {
+    void (async () => {
+      if (!apiEnabled()) return;
+      const next = !guestBookingEnabled;
+      try {
+        const res = await staffApiFetch<{ guestBookingEnabled: boolean }>("/settings", {
+          method: "PATCH",
+          body: JSON.stringify({ guestBookingEnabled: next }),
+        });
+        setGuestBookingEnabled(res.guestBookingEnabled);
+      } catch {
+        /* ignore */
+      }
+    })();
   };
 
   const handleLogout = () => {
-    logout();
+    staffLogout();
     window.location.href = withBase("/login");
   };
 
@@ -181,7 +315,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
     );
   }
 
-  const session = getSession();
+  const session = getStaffSession();
 
   return (
     <div className="admin-console light flex h-dvh max-w-full overflow-hidden bg-surface text-on-surface">
@@ -293,7 +427,7 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                 )}
               </section>
 
-              <CourtsBlock title={t("admin.courtOccupancy")} courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+              <CourtsBlock title={t("admin.courtOccupancy")} courts={displayCourts} activeCount={activeCount} onToggle={toggleMaint} />
 
               <section className="space-y-stack-sm">
                 <div className="flex items-end justify-between gap-4">
@@ -314,7 +448,10 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
           )}
 
           {view === "schedule" && (
-            <CourtsBlock title={t("admin.todaySchedule")} courts={courts} activeCount={activeCount} onToggle={toggleMaint} />
+            <>
+              <CourtsBlock title={t("admin.todaySchedule")} courts={displayCourts} activeCount={activeCount} onToggle={toggleMaint} />
+              {apiEnabled() && <ScheduleBookingsTable bookings={bookingsOverview} />}
+            </>
           )}
 
           {view === "members" && (
@@ -413,7 +550,19 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                     <p className="font-label-md text-label-md text-primary uppercase">{t("admin.guestBooking")}</p>
                     <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.guestBookingDesc")}</p>
                   </div>
-                  <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.off")}</span>
+                  {apiEnabled() ? (
+                    <button
+                      type="button"
+                      onClick={toggleGuestBooking}
+                      className={`font-label-sm text-label-sm uppercase ${
+                        guestBookingEnabled ? "text-on-primary-container" : "text-outline"
+                      }`}
+                    >
+                      {guestBookingEnabled ? t("admin.on") : t("admin.off")}
+                    </button>
+                  ) : (
+                    <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.off")}</span>
+                  )}
                 </div>
                 <div className="flex items-center justify-between gap-4 border-b border-outline-variant/30 pb-4">
                   <div>
@@ -430,6 +579,102 @@ export default function AdminDashboard({ view: initialView = "dashboard" }: { vi
                   <span className="font-label-sm text-label-sm text-outline uppercase">{t("admin.edit")}</span>
                 </div>
               </div>
+              {isAdmin() && apiEnabled() && (
+                <div className="mt-stack-md space-y-4 border border-outline-variant bg-surface-container-lowest p-stack-md">
+                  <h3 className="font-label-md text-label-md uppercase text-primary">{t("admin.staff.heading")}</h3>
+                  {staffList.length > 0 && (
+                    <ul className="space-y-2 font-body-sm text-body-sm text-on-surface">
+                      {staffList.map((s) => (
+                        <li key={s.id}>
+                          {[s.surname, s.givenName].filter(Boolean).join(" ") || `+${s.dialCode} ${s.phone}`} ·{" "}
+                          {s.role === "admin" ? t("admin.staff.role.admin") : t("admin.staff.role.staff")}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  <form
+                    className="auth-form max-w-md"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      void (async () => {
+                        setStaffMsg(null);
+                        try {
+                          const created = await staffApiFetch<(typeof staffList)[0]>("/admin/staff", {
+                            method: "POST",
+                            body: JSON.stringify(staffForm),
+                          });
+                          setStaffList((prev) => [created, ...prev]);
+                          setStaffForm({
+                            dialCode: "852",
+                            phone: "",
+                            password: "",
+                            surname: "",
+                            givenName: "",
+                            email: "",
+                            role: "staff",
+                          });
+                          setStaffMsg("OK");
+                        } catch {
+                          setStaffMsg("ERR");
+                        }
+                      })();
+                    }}
+                  >
+                    <div className="auth-field">
+                      <label className="auth-label">{t("admin.staff.role")}</label>
+                      <select
+                        className="auth-input auth-select"
+                        value={staffForm.role}
+                        onChange={(e) =>
+                          setStaffForm((f) => ({ ...f, role: e.target.value as "staff" | "admin" }))
+                        }
+                      >
+                        <option value="staff">{t("admin.staff.role.staff")}</option>
+                        <option value="admin">{t("admin.staff.role.admin")}</option>
+                      </select>
+                    </div>
+                    <div className="auth-field-row">
+                      <input
+                        className="auth-input"
+                        placeholder={t("auth.surname")}
+                        value={staffForm.surname}
+                        onChange={(e) => setStaffForm((f) => ({ ...f, surname: e.target.value }))}
+                      />
+                      <input
+                        className="auth-input"
+                        placeholder={t("auth.givenName")}
+                        value={staffForm.givenName}
+                        onChange={(e) => setStaffForm((f) => ({ ...f, givenName: e.target.value }))}
+                      />
+                    </div>
+                    <input
+                      className="auth-input auth-field"
+                      placeholder={t("auth.email")}
+                      value={staffForm.email}
+                      onChange={(e) => setStaffForm((f) => ({ ...f, email: e.target.value }))}
+                    />
+                    <input
+                      className="auth-input auth-field"
+                      placeholder={t("auth.phone")}
+                      value={staffForm.phone}
+                      onChange={(e) => setStaffForm((f) => ({ ...f, phone: e.target.value }))}
+                    />
+                    <input
+                      type="password"
+                      className="auth-input auth-field"
+                      placeholder={t("auth.password")}
+                      value={staffForm.password}
+                      onChange={(e) => setStaffForm((f) => ({ ...f, password: e.target.value }))}
+                    />
+                    <button type="submit" className="auth-submit">
+                      {t("admin.staff.create")}
+                    </button>
+                    {staffMsg === "OK" && (
+                      <p className="font-body-sm text-primary">{t("admin.staff.create")} ✓</p>
+                    )}
+                  </form>
+                </div>
+              )}
             </section>
           )}
         </div>
@@ -468,6 +713,56 @@ function KpiRow() {
           <span className="text-xs font-bold tracking-tighter uppercase">{t("admin.kpi.newMembers")}</span>
         </div>
       </div>
+    </section>
+  );
+}
+
+function ScheduleBookingsTable({ bookings }: { bookings: OverviewBooking[] }) {
+  const { t } = useLocale();
+  const rows = useMemo(
+  () => [...bookings].sort((a, b) => `${a.date}${a.time}`.localeCompare(`${b.date}${b.time}`)),
+    [bookings],
+  );
+
+  return (
+    <section className="mt-stack-md space-y-stack-sm">
+      <h2 className="font-headline-lg-mobile text-headline-lg-mobile text-primary uppercase md:font-headline-lg md:text-headline-lg">
+        {t("admin.schedule.bookingsHeading")}
+      </h2>
+      {rows.length === 0 ? (
+        <p className="font-body-md text-body-md text-on-surface-variant">{t("admin.schedule.emptyBookings")}</p>
+      ) : (
+        <div className="overflow-hidden border border-outline-variant bg-surface-container-lowest">
+          <div className="admin-table-scroll overflow-x-auto">
+            <table className="w-full min-w-[36rem] text-left">
+              <thead className="bg-primary font-headline-sm text-headline-sm text-on-primary uppercase">
+                <tr>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.table.id")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colDate")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colTime")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colCourt")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colGuest")}</th>
+                  <th className="px-4 py-3 text-[13px] tracking-widest">{t("admin.schedule.colPayment")}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-outline-variant/30 font-body-md text-body-md">
+                {rows.map((b) => (
+                  <tr key={b.id} className="hover:bg-surface-container-low">
+                    <td className="px-4 py-4 font-mono text-sm uppercase">{b.id}</td>
+                    <td className="px-4 py-4">{b.date}</td>
+                    <td className="px-4 py-4 font-mono">{b.time}</td>
+                    <td className="px-4 py-4">
+                      {t("admin.court")} {b.courtId}
+                    </td>
+                    <td className="px-4 py-4 font-medium text-primary">{b.guestLabel}</td>
+                    <td className="px-4 py-4 text-on-surface-variant">{b.paymentStatus}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

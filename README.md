@@ -1,43 +1,38 @@
-# Astro Starter Kit: Minimal
+# BOLD Pickleball (Astro)
 
-```sh
-npm create astro@latest -- --template minimal
+Marketing site + member booking UI for BOLD Pickleball. Static hosting uses demo `localStorage` data unless you point the frontend at the NestJS API.
+
+## Frontend (Astro)
+
+```bash
+npm install
+npm run dev
 ```
 
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
+Site base path: `/Bold-website` (GitHub Pages).
 
-## 🚀 Project Structure
+### API preview mode
 
-Inside of your Astro project, you'll see the following folders and files:
+Copy `.env.example` → `.env` and set:
 
-```text
-/
-├── public/
-├── src/
-│   └── pages/
-│       └── index.astro
-└── package.json
+```bash
+PUBLIC_API_BASE=http://localhost:3000/api/v1
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+Restart `npm run dev`. Auth, bookings, CMS, and court maintenance use the API; JWT is stored in `localStorage` as `bold_api_token`.
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+## Backend (NestJS + PostgreSQL)
 
-Any static assets, like images, can be placed in the `public/` directory.
+See [api/README.md](./api/README.md) and [api/docs/API.md](./api/docs/API.md).
 
-## 🧞 Commands
+Quick start:
 
-All commands are run from the root of the project, from a terminal:
+```bash
+docker compose up --build
+```
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `npm install`             | Installs dependencies                            |
-| `npm run dev`             | Starts local dev server at `localhost:4321`      |
-| `npm run build`           | Build your production site to `./dist/`          |
-| `npm run preview`         | Preview your build locally, before deploying     |
-| `npm run astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `npm run astro -- --help` | Get help using the Astro CLI                     |
+## Cut 2026-11-16
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+- Adds `api/` (NestJS, plain SQL, JWT auth, bookings, CMS, admin)
+- Wires React islands when `PUBLIC_API_BASE` is set
+- Does **not** change production GitHub Pages behavior without that env var
